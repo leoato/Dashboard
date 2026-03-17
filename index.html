@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="ko">
+<html lang="ko" data-theme="mono">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +8,8 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@300;400;500;700&display=swap');
 
-/* THEMES */
-[data-theme=“mono”]{
+/* ROOT FALLBACK — ensures variables always resolve (fixes Safari/GitHub Pages) */
+:root{
 –bg:#fff;–col-bg:#f5f5f5;–card-bg:#fff;
 –border:#000;–border-mid:#888;–border-soft:#ccc;–border-dash:#aaa;
 –text:#000;–muted:#666;–tag-bg:#eee;
@@ -27,7 +27,27 @@
 –tut-lt:#f0e8f8;–tut-dk:#5a2a88;–tut-md:#b07ad4;
 –per-lt:#e4f5ec;–per-dk:#136038;–per-md:#5ab080;
 }
-[data-theme=“paper”]{
+
+/* THEMES */
+:is(html,body)[data-theme=“mono”]{
+–bg:#fff;–col-bg:#f5f5f5;–card-bg:#fff;
+–border:#000;–border-mid:#888;–border-soft:#ccc;–border-dash:#aaa;
+–text:#000;–muted:#666;–tag-bg:#eee;
+–topbar-bg:#fff;–topbar-border:#000;–col-head-bg:#f0f0f0;
+–btn-bg:#fff;–btn-accent-bg:#000;–btn-accent-fg:#fff;
+–urgent-bg:#000;–urgent-fg:#fff;–urgent-bd:#000;
+–soon-bg:#fff;–soon-fg:#000;–soon-bd:#000;
+–ok-bg:#fff;–ok-fg:#aaa;–ok-bd:#ccc;
+–past-bg:#eee;–past-fg:#bbb;–past-bd:#ddd;
+–today-bg:#000;–today-fg:#fff;
+–hasev-bg:#e8e8e8;–urgev-bg:#000;–urgev-fg:#fff;–evdot:#000;
+–font-body:‘Noto Sans KR’,sans-serif;–font-mono:‘DM Mono’,monospace;
+–radius:0px;–col-bw:1.5px;–card-bw:1.5px;
+–sch-lt:#e8eef8;–sch-dk:#1a3f7a;–sch-md:#6b96d4;
+–tut-lt:#f0e8f8;–tut-dk:#5a2a88;–tut-md:#b07ad4;
+–per-lt:#e4f5ec;–per-dk:#136038;–per-md:#5ab080;
+}
+:is(html,body)[data-theme=“paper”]{
 –bg:#f7f3ec;–col-bg:#f0ebe0;–card-bg:#faf7f2;
 –border:#7a6b5a;–border-mid:#a89880;–border-soft:#c8bfb0;–border-dash:#c0b5a5;
 –text:#2c2419;–muted:#7a6b5a;–tag-bg:#e8e0d5;
@@ -45,7 +65,7 @@
 –tut-lt:#eeddf5;–tut-dk:#5a2a88;–tut-md:#b07ad4;
 –per-lt:#d8f0e4;–per-dk:#1a4a30;–per-md:#5ab080;
 }
-[data-theme=“dark”]{
+:is(html,body)[data-theme=“dark”]{
 –bg:#111318;–col-bg:#1a1d24;–card-bg:#1e2028;
 –border:#3a3d48;–border-mid:#3a3d48;–border-soft:#2d3040;–border-dash:#2d3040;
 –text:#e8eaf0;–muted:#7880a0;–tag-bg:#252830;
@@ -63,7 +83,7 @@
 –tut-lt:#26183a;–tut-dk:#d0a8f8;–tut-md:#9a68e8;
 –per-lt:#142a1e;–per-dk:#7ae8a8;–per-md:#3ab878;
 }
-[data-theme=“sage”]{
+:is(html,body)[data-theme=“sage”]{
 –bg:#f4f7f4;–col-bg:#ecf1ec;–card-bg:#f8fbf8;
 –border:#4a6b4a;–border-mid:#7a9a7a;–border-soft:#b0c8b0;–border-dash:#a0b8a0;
 –text:#1e2e1e;–muted:#5a7a5a;–tag-bg:#deeade;
@@ -96,17 +116,17 @@ h1.main-title{font-size:.88rem;font-weight:900;letter-spacing:.22em;text-transfo
 
 /* COLUMNS */
 .columns{display:grid;grid-template-columns:1fr 1fr 1fr;border:var(–col-bw) solid var(–border);border-radius:var(–radius);overflow:hidden;}
-.column-school  {border-right:2px solid var(–sch-md);}
-.column-tutor   {border-right:2px solid var(–tut-md);}
-.column-personal{border-right:none;}
+.col-wrap-school  {border-right:2px solid var(–sch-md);}
+.col-wrap-tutor   {border-right:2px solid var(–tut-md);}
+.col-wrap-personal{border-right:none;}
 .col-body{padding:10px;display:flex;flex-direction:column;gap:9px;}
 
 /* COLUMN HEADERS */
 .col-title{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border-bottom:2px solid;padding:8px 12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;}
-.col-school  {background:var(–sch-lt);color:var(–sch-dk);border-color:var(–sch-md);cursor:pointer;user-select:none;transition:opacity .15s;}
-.col-school:hover{opacity:.8;}
-.col-tutor   {background:var(–tut-lt);color:var(–tut-dk);border-color:var(–tut-md);}
-.col-personal{background:var(–per-lt);color:var(–per-dk);border-color:var(–per-md);}
+.col-head-school  {background:var(–sch-lt);color:var(–sch-dk);border-color:var(–sch-md);cursor:pointer;user-select:none;transition:opacity .15s;}
+.col-head-school:hover{opacity:.8;}
+.col-head-tutor   {background:var(–tut-lt);color:var(–tut-dk);border-color:var(–tut-md);}
+.col-head-personal{background:var(–per-lt);color:var(–per-dk);border-color:var(–per-md);}
 
 /* CARDS */
 .card{border:var(–card-bw) solid var(–border);border-radius:var(–radius);padding:9px 10px;background:var(–card-bg);}
@@ -132,7 +152,7 @@ h1.main-title{font-size:.88rem;font-weight:900;letter-spacing:.22em;text-transfo
 /* INPUTS */
 input[type=“text”],input[type=“date”],select,textarea{font-family:var(–font-body);font-size:.71rem;border:1px solid var(–border-mid);background:var(–card-bg);color:var(–text);border-radius:var(–radius);padding:3px 6px;outline:none;width:100%;}
 input:focus,select:focus,textarea:focus{border-color:var(–border);}
-[data-theme=“dark”] input,[data-theme=“dark”] select,[data-theme=“dark”] textarea{color-scheme:dark;}
+:is(html,body)[data-theme=“dark”] input,:is(html,body)[data-theme=“dark”] select,:is(html,body)[data-theme=“dark”] textarea{color-scheme:dark;}
 textarea{resize:vertical;min-height:42px;}
 .add-form{display:grid;gap:5px;margin-top:6px;padding-top:6px;border-top:1px dashed var(–border-dash);}
 .add-form .row{display:flex;gap:5px;}
@@ -278,14 +298,14 @@ font-size:.67rem;font-weight:700;letter-spacing:.06em;color:var(–sch-dk);
 .status-msg{font-size:.64rem;margin-top:5px;font-weight:600;}
 .status-msg.ok{color:#2a7a2a;}
 .status-msg.err{color:#aa2222;}
-[data-theme=“dark”] .status-msg.ok{color:#6adf6a;}
-[data-theme=“dark”] .status-msg.err{color:#ff7070;}
+:is(html,body)[data-theme=“dark”] .status-msg.ok{color:#6adf6a;}
+:is(html,body)[data-theme=“dark”] .status-msg.err{color:#ff7070;}
 
 @media(max-width:860px){
 .columns{grid-template-columns:1fr;}
-.column-school,.column-tutor{border-right:none;border-bottom:2px solid;}
-.column-school{border-bottom-color:var(–sch-md);}
-.column-tutor{border-bottom-color:var(–tut-md);}
+.col-wrap-school,.col-wrap-tutor{border-right:none;border-bottom:2px solid;}
+.col-wrap-school{border-bottom-color:var(–sch-md);}
+.col-wrap-tutor{border-bottom-color:var(–tut-md);}
 .ov-panels{grid-template-columns:1fr;}
 .ov-panel{border-right:none;border-bottom:1.5px solid var(–sch-md);}
 }
@@ -293,6 +313,13 @@ font-size:.67rem;font-weight:700;letter-spacing:.06em;color:var(–sch-dk);
 
 </head>
 <body data-theme="mono">
+<script>
+/* Apply saved theme BEFORE first paint to avoid colour flash */
+(function(){
+  var t=localStorage.getItem('dash5_theme');
+  if(t){document.body.setAttribute('data-theme',t);document.documentElement.setAttribute('data-theme',t);}
+})();
+</script>
 
 <!-- TOPBAR -->
 
@@ -317,8 +344,8 @@ font-size:.67rem;font-weight:700;letter-spacing:.06em;color:var(–sch-dk);
 
   <!-- 학교 -->
 
-  <div class="column-school">
-    <div class="col-title col-school" onclick="openSchool()" title="클릭해서 자세히 보기">
+  <div class="col-wrap-school">
+    <div class="col-title col-head-school" onclick="openSchool()" title="클릭해서 자세히 보기">
       학교 &nbsp;<span style="font-size:.8rem;font-weight:400;">↗</span>
     </div>
     <div class="col-body">
@@ -339,8 +366,8 @@ font-size:.67rem;font-weight:700;letter-spacing:.06em;color:var(–sch-dk);
 
   <!-- 과외 -->
 
-  <div class="column-tutor">
-    <div class="col-title col-tutor">과외</div>
+  <div class="col-wrap-tutor">
+    <div class="col-title col-head-tutor">과외</div>
     <div class="col-body">
       <div class="card card-tut">
         <div class="card-title"><span>수업 준비</span><button class="btn" onclick="toggleForm('prep-add')">+ 추가</button></div>
@@ -400,8 +427,8 @@ font-size:.67rem;font-weight:700;letter-spacing:.06em;color:var(–sch-dk);
 
   <!-- 개인 -->
 
-  <div class="column-personal">
-    <div class="col-title col-personal">개인</div>
+  <div class="col-wrap-personal">
+    <div class="col-title col-head-personal">개인</div>
     <div class="col-body">
       <div class="card card-per">
         <div class="card-title"><span>할일 목록</span><button class="btn" onclick="toggleForm('todo-add')">+ 추가</button></div>
@@ -566,6 +593,7 @@ function render(){rHW();rLEC();rEXAM();rPREP();rYoon();rPLAN();rYEX();rTODO();rT
 
 function setTheme(name,silent){
   document.body.setAttribute('data-theme',name);
+  document.documentElement.setAttribute('data-theme',name);
   if(!silent)localStorage.setItem(TK,name);
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
   const btn=document.getElementById('t-'+name);if(btn)btn.classList.add('active');
