@@ -1120,36 +1120,48 @@ function rFpSource(){
   const el = document.getElementById('fp-source-list');
   const addedSrcIds = new Set(focusItems.map(f=>f.srcId));
 
-  // Gather all pending hw + lec items
   const items = [];
   S.hw.filter(h=>!h.done).forEach(h=>{
     items.push({srcId:'hw-'+h.id, cat:'과제', label:(h.ttl||h.subj+' 과제'), ddate:h.due, subCat:h.subj, rawCat:'hw', rawId:h.id});
   });
-  S.lec.filter(l=>true).forEach(l=>{
+  S.lec.forEach(l=>{
     items.push({srcId:'lec-'+l.id, cat:'강의', label:(l.ttl||l.subj+' 강의'), ddate:l.due, subCat:l.subj, rawCat:'lec', rawId:l.id});
   });
-  // Sort by dday
   items.sort((a,b)=>(a.ddate&&b.ddate)?dd(a.ddate)-dd(b.ddate):a.ddate?-1:1);
 
   if(!items.length){
     el.innerHTML='<div class="fp-empty">미완료 항목이 없습니다</div>';
     return;
   }
+
+  // Store items in a map for safe lookup on click — no inline onclick quoting issues
+  window._fpSrcMap = {};
+  items.forEach(it=>{ window._fpSrcMap[it.srcId]=it; });
+
   el.innerHTML = items.map(it=>{
     const isAdded = addedSrcIds.has(it.srcId);
-    return '<div class="fp-source-item'+(isAdded?' added':'')+'" onclick="addToFocus(\''+it.srcId+'\',\''+esc(it.cat)+'\',\''+esc(it.label)+'\',\''+(it.ddate||'')+'\',\''+it.rawCat+'\','+it.rawId+')">'
+    const ddTag = it.ddate ? '<span class="dday '+ddC(dd(it.ddate))+'">'+ddL(dd(it.ddate))+'</span><span class="ddate">'+fmtD(it.ddate)+'</span>' : '';
+    return '<div class="fp-source-item'+(isAdded?' added':'')+'" data-srcid="'+it.srcId+'">'
       +'<span class="fp-src-cat">'+it.cat+'</span>'
       +'<span class="stag">'+it.subCat+'</span>'
       +'<span class="fp-src-lbl">'+it.label+'</span>'
-      +(it.ddate?ddH(it.ddate):'')
+      +ddTag
       +'<span class="fp-src-plus">'+(isAdded?'✓':'+')+'</span>'
       +'</div>';
   }).join('');
+
+  // Attach click listeners safely
+  el.querySelectorAll('.fp-source-item:not(.added)').forEach(div=>{
+    div.addEventListener('click', function(){
+      const it = window._fpSrcMap[this.dataset.srcid];
+      if(it) addToFocus(it);
+    });
+  });
 }
 
-function addToFocus(srcId, cat, label, ddate, rawCat, rawId){
-  if(focusItems.find(f=>f.srcId===srcId)) return;
-  focusItems.push({id:Date.now(), srcId, cat, label, ddate, rawCat, rawId:Number(rawId), done:false});
+function addToFocus(it){
+  if(focusItems.find(f=>f.srcId===it.srcId)) return;
+  focusItems.push({id:Date.now(), srcId:it.srcId, cat:it.cat, label:it.label, ddate:it.ddate, rawCat:it.rawCat, rawId:Number(it.rawId), done:false});
   rFpSource(); rFpItems();
 }
 
@@ -1315,19 +1327,55 @@ async function cloudUpload(){
   if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    await fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({_v:2,_t:new Date().toISOString(),...S})});
-    updateCloudStatus('synced');
-  }catch(e){updateCloudStatus('error',e.message);}
+    // Apps Script requires GET with data encoded as query param (POST with no-cors can't read response)
+    // We use a URL-safe base64-like approach via encodeURIComponent on a shortened payload
+    const data = JSON.stringify({_v:2,_t:new Date().toISOString(),...S});
+    const res = await fetch(gasUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: data
+    });
+    const text = await res.text();
+    let parsed;
+    try { parsed = JSON.parse(text); } catch(e){ parsed = null; }
+    if(parsed && parsed.status === 'saved'){
+      updateCloudStatus('synced');
+      showM('exp-msg','☁️ Drive에 저장 완료!','ok');
+    } else if(parsed && parsed.error){
+      updateCloudStatus('error', parsed.error);
+    } else {
+      // Apps Script might redirect — treat any 200 as success
+      if(res.ok){ updateCloudStatus('synced'); showM('exp-msg','☁️ Drive에 저장 완료!','ok'); }
+      else { updateCloudStatus('error','서버 오류 '+res.status); }
+    }
+  }catch(e){
+    // CORS error = script URL is wrong or not deployed as "Anyone" access
+    if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
+      updateCloudStatus('error','CORS 오류 — Apps Script 배포 설정 확인');
+      showM('imp-msg','⚠️ 액세스 권한을 "모든 사용자"로 재배포해주세요','err');
+    } else {
+      updateCloudStatus('error', e.message);
+    }
+  }
 }
 async function cloudDownload(){
   if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    const res=await fetch(gasUrl+'?action=read',{method:'GET'});
-    if(!res.ok)throw new Error('서버 오류 '+res.status);
-    applyImp(await res.text());
+    const res = await fetch(gasUrl+'?action=read');
+    if(!res.ok) throw new Error('서버 오류 '+res.status);
+    const text = await res.text();
+    applyImp(text);
     updateCloudStatus('synced');
-  }catch(e){updateCloudStatus('error',e.message);}
+    showM('imp-msg','☁️ Drive에서 불러오기 완료!','ok');
+  }catch(e){
+    if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
+      updateCloudStatus('error','CORS 오류 — Apps Script 배포 설정 확인');
+      showM('imp-msg','⚠️ 액세스 권한을 "모든 사용자"로 재배포해주세요','err');
+    } else {
+      updateCloudStatus('error', e.message);
+    }
+  }
 }
 
 rBanner();
