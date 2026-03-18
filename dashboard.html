@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="mono">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>할일 대시보드</title>
+<script>
+// Apply saved theme before first paint to avoid flash
+(function(){var t=localStorage.getItem('dash6_theme');if(t){document.documentElement.setAttribute('data-theme',t);}})();
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap');
+
+/* ── DEFAULT VARIABLES (mono theme) ── */
+:root {
+  --bg:#ffffff; --col-bg:#f5f5f5; --card-bg:#ffffff;
+  --border:#000000; --border-mid:#888888; --border-soft:#cccccc; --border-dash:#aaaaaa;
+  --text:#000000; --muted:#666666; --tag-bg:#eeeeee;
+  --topbar-bg:#ffffff; --topbar-border:#000000;
+  --btn-bg:#ffffff; --btn-acc:#000000; --btn-acc-fg:#ffffff;
+  --urg-bg:#000; --urg-fg:#fff; --urg-bd:#000;
+  --soon-bg:#fff; --soon-fg:#000; --soon-bd:#000;
+  --ok-bg:#fff; --ok-fg:#aaa; --ok-bd:#ccc;
+  --past-bg:#eee; --past-fg:#bbb; --past-bd:#ddd;
+  --today-bg:#000; --today-fg:#fff;
+  --ev-bg:#e8e8e8; --urgev-bg:#000; --urgev-fg:#fff; --evdot:#000;
+  --font:'Noto Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --r:0px; --bw:1.5px;
+  /* column accent colours */
+  --s-lt:#e8eef8; --s-dk:#1a3f7a; --s-md:#6b96d4;
+  --t-lt:#f0e8f8; --t-dk:#5a2a88; --t-md:#b07ad4;
+  --p-lt:#e4f5ec; --p-dk:#136038; --p-md:#5ab080;
+}
+
+/* ── THEMES ── */
+[data-theme="paper"] {
+  --bg:#f7f3ec; --col-bg:#f0ebe0; --card-bg:#faf7f2;
+  --border:#7a6b5a; --border-mid:#a89880; --border-soft:#c8bfb0; --border-dash:#c0b5a5;
+  --text:#2c2419; --muted:#7a6b5a; --tag-bg:#e8e0d5;
+  --topbar-bg:#f0ebe0; --topbar-border:#7a6b5a;
+  --btn-bg:#faf7f2; --btn-acc:#4a3728; --btn-acc-fg:#faf7f2;
+  --urg-bg:#4a3728; --urg-fg:#faf7f2; --urg-bd:#4a3728;
+  --soon-bg:#faf7f2; --soon-fg:#4a3728; --soon-bd:#7a6b5a;
+  --ok-bg:#faf7f2; --ok-fg:#a89880; --ok-bd:#c8bfb0;
+  --past-bg:#e8e0d5; --past-fg:#b0a090; --past-bd:#c8bfb0;
+  --today-bg:#4a3728; --today-fg:#faf7f2;
+  --ev-bg:#e0d8c8; --urgev-bg:#4a3728; --urgev-fg:#faf7f2; --evdot:#4a3728;
+  --font:'Gowun Dodum',serif; --mono:'DM Mono',monospace;
+  --r:3px; --bw:1px;
+  --s-lt:#dce6f5; --s-dk:#1e3d6a; --s-md:#6b96d4;
+  --t-lt:#eeddf5; --t-dk:#5a2a88; --t-md:#b07ad4;
+  --p-lt:#d8f0e4; --p-dk:#1a4a30; --p-md:#5ab080;
+}
+[data-theme="dark"] {
+  --bg:#111318; --col-bg:#1a1d24; --card-bg:#1e2028;
+  --border:#3a3d48; --border-mid:#3a3d48; --border-soft:#2d3040; --border-dash:#2d3040;
+  --text:#e8eaf0; --muted:#7880a0; --tag-bg:#252830;
+  --topbar-bg:#111318; --topbar-border:#3a3d48;
+  --btn-bg:#1e2028; --btn-acc:#5b6ef5; --btn-acc-fg:#ffffff;
+  --urg-bg:#5b6ef5; --urg-fg:#fff; --urg-bd:#5b6ef5;
+  --soon-bg:#1e2028; --soon-fg:#e8eaf0; --soon-bd:#5b6ef5;
+  --ok-bg:#1e2028; --ok-fg:#7880a0; --ok-bd:#3a3d48;
+  --past-bg:#252830; --past-fg:#4a5070; --past-bd:#3a3d48;
+  --today-bg:#5b6ef5; --today-fg:#fff;
+  --ev-bg:#252838; --urgev-bg:#5b6ef5; --urgev-fg:#fff; --evdot:#5b6ef5;
+  --font:'IBM Plex Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --r:5px; --bw:1px;
+  --s-lt:#1e2540; --s-dk:#a0b8f8; --s-md:#4a6ee0;
+  --t-lt:#26183a; --t-dk:#d0a8f8; --t-md:#9a68e8;
+  --p-lt:#142a1e; --p-dk:#7ae8a8; --p-md:#3ab878;
+}
+[data-theme="sage"] {
+  --bg:#f4f7f4; --col-bg:#ecf1ec; --card-bg:#f8fbf8;
+  --border:#4a6b4a; --border-mid:#7a9a7a; --border-soft:#b0c8b0; --border-dash:#a0b8a0;
+  --text:#1e2e1e; --muted:#5a7a5a; --tag-bg:#deeade;
+  --topbar-bg:#ecf1ec; --topbar-border:#4a6b4a;
+  --btn-bg:#f8fbf8; --btn-acc:#2d4d2d; --btn-acc-fg:#f4f7f4;
+  --urg-bg:#2d4d2d; --urg-fg:#f4f7f4; --urg-bd:#2d4d2d;
+  --soon-bg:#f8fbf8; --soon-fg:#2d4d2d; --soon-bd:#4a6b4a;
+  --ok-bg:#f8fbf8; --ok-fg:#7a9a7a; --ok-bd:#b0c8b0;
+  --past-bg:#deeade; --past-fg:#8aaa8a; --past-bd:#b0c8b0;
+  --today-bg:#2d4d2d; --today-fg:#f4f7f4;
+  --ev-bg:#d0e8d0; --urgev-bg:#2d4d2d; --urgev-fg:#f4f7f4; --evdot:#2d4d2d;
+  --font:'Noto Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --r:4px; --bw:1px;
+  --s-lt:#d8e8f8; --s-dk:#164880; --s-md:#5090d0;
+  --t-lt:#ede0f8; --t-dk:#522888; --t-md:#a070d0;
+  --p-lt:#d0f0e0; --p-dk:#1a5830; --p-md:#50a878;
+}
+
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 16px 18px;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding-bottom: 10px; margin-bottom: 14px;
+  border-bottom: 2px solid var(--topbar-border);
+  background: var(--topbar-bg);
+}
+.topbar-title { font-size: .88rem; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; flex: 1; }
+.topbar-right { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+.clock { font-family: var(--mono); font-size: .65rem; color: var(--muted); }
+
+.theme-switcher { display: flex; gap: 3px; }
+.tbtn {
+  font-family: var(--font); font-size: .57rem; padding: 2px 7px;
+  border: 1px solid var(--border-mid); background: var(--btn-bg);
+  color: var(--muted); cursor: pointer; border-radius: var(--r);
+  transition: all .13s;
+}
+.tbtn:hover, .tbtn.on { background: var(--btn-acc); color: var(--btn-acc-fg); border-color: var(--btn-acc); }
+
+.btn {
+  font-family: var(--font); font-size: .62rem; font-weight: 500;
+  border: 1px solid var(--border-mid); background: var(--btn-bg);
+  color: var(--text); padding: 2px 8px; cursor: pointer;
+  border-radius: var(--r); white-space: nowrap; transition: all .12s;
+}
+.btn:hover { background: var(--btn-acc); color: var(--btn-acc-fg); border-color: var(--btn-acc); }
+.btn.acc { background: var(--btn-acc); color: var(--btn-acc-fg); border-color: var(--btn-acc); }
+.btn.acc:hover { opacity: .85; }
+.btn.sm { font-size: .57rem; padding: 1px 5px; border-color: var(--border-soft); color: var(--muted); }
+.btn.sm:hover { background: var(--btn-acc); color: var(--btn-acc-fg); border-color: var(--btn-acc); }
+.btn.del { font-size: .57rem; padding: 1px 5px; border-color: var(--border-soft); color: var(--muted); }
+.btn.del:hover { background: var(--btn-acc); color: var(--btn-acc-fg); border-color: var(--btn-acc); }
+
+/* ── MAIN GRID ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.col-wrap { display: flex; flex-direction: column; }
+.col-wrap:not(:last-child) { border-right: var(--bw) solid var(--border); }
+
+/* per-column accent borders */
+.col-school  { border-right-color: var(--s-md) !important; }
+.col-tutor   { border-right-color: var(--t-md) !important; }
+
+/* ── COLUMN HEADERS ── */
+.col-head {
+  font-size: .71rem; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; text-align: center;
+  padding: 8px 12px;
+  border-bottom: 2px solid;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  flex-shrink: 0;
+}
+.ch-school   { background: var(--s-lt); color: var(--s-dk); border-color: var(--s-md); cursor: pointer; user-select: none; }
+.ch-school:hover { opacity: .8; }
+.ch-tutor    { background: var(--t-lt); color: var(--t-dk); border-color: var(--t-md); }
+.ch-personal { background: var(--p-lt); color: var(--p-dk); border-color: var(--p-md); }
+
+/* ── COLUMN BODY ── */
+.col-body { padding: 10px; display: flex; flex-direction: column; gap: 9px; }
+
+/* ── CARDS ── */
+.card {
+  border: var(--bw) solid var(--border);
+  border-radius: var(--r);
+  padding: 9px 10px;
+  background: var(--card-bg);
+}
+.card-s { border-color: var(--s-md); }
+.card-t { border-color: var(--t-md); }
+.card-p { border-color: var(--p-md); }
+
+.card-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 5px;
+  font-size: .71rem; font-weight: 700; letter-spacing: .05em;
+  padding-bottom: 6px; margin-bottom: 7px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.card-head > span { flex: 1; }
+.card-s .card-head { border-bottom-color: var(--s-md); }
+.card-t .card-head { border-bottom-color: var(--t-md); }
+.card-p .card-head { border-bottom-color: var(--p-md); }
+
+/* ── INPUTS ── */
+input[type="text"], input[type="date"], select, textarea {
+  font-family: var(--font); font-size: .71rem;
+  border: 1px solid var(--border-mid);
+  background: var(--card-bg); color: var(--text);
+  border-radius: var(--r); padding: 3px 7px;
+  outline: none; width: 100%;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--border); }
+textarea { resize: vertical; min-height: 42px; }
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea { color-scheme: dark; }
+
+.add-form { display: grid; gap: 5px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-dash); }
+.add-form .row { display: flex; gap: 5px; }
+.ep { display: none; gap: 5px; margin-top: 5px; padding: 7px 8px; background: var(--col-bg); border: 1px solid var(--border-soft); border-radius: var(--r); }
+.ep.on { display: grid; }
+.ep .row { display: flex; gap: 5px; }
+
+/* ── LIST ROWS ── */
+.irow, .crow {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 0; border-bottom: 1px dashed var(--border-dash);
+  font-size: .69rem;
+}
+.irow:last-child, .crow:last-child { border-bottom: none; }
+.crow.done .lbl { text-decoration: line-through; color: var(--muted); }
+.crow.done .dday { opacity: .35; }
+input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink: 0; accent-color: var(--btn-acc); }
+.ilbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lbl  { flex: 1; min-width: 0; }
+.stag { font-size: .56rem; padding: 1px 4px; background: var(--tag-bg); color: var(--muted); border: 1px solid var(--border-soft); flex-shrink: 0; white-space: nowrap; border-radius: var(--r); }
+
+/* ── D-DAY ── */
+.dday { font-family: var(--mono); font-size: .58rem; padding: 1px 4px; font-weight: 600; white-space: nowrap; flex-shrink: 0; border: 1px solid; border-radius: var(--r); }
+.dday.urgent { background: var(--urg-bg); color: var(--urg-fg); border-color: var(--urg-bd); }
+.dday.soon   { background: var(--soon-bg); color: var(--soon-fg); border-color: var(--soon-bd); }
+.dday.ok     { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-bd); }
+.dday.past   { background: var(--past-bg); color: var(--past-fg); border-color: var(--past-bd); text-decoration: line-through; }
+
+/* exam rows */
+.erow { display: flex; align-items: center; gap: 5px; padding: 3px 0; border-bottom: 1px dashed var(--border-dash); font-size: .68rem; }
+.erow:last-child { border-bottom: none; }
+.edate { font-family: var(--mono); font-size: .6rem; color: var(--muted); flex-shrink: 0; width: 52px; }
+
+/* ── SCROLL LIST ── */
+.slist { max-height: 160px; overflow-y: auto; }
+.slist::-webkit-scrollbar { width: 3px; }
+.slist::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 2px; }
+
+/* ── CALENDAR ── */
+.mini-cal { font-size: .68rem; }
+.mc-head { display: flex; align-items: center; justify-content: space-between; font-size: .67rem; font-weight: 700; margin-bottom: 5px; }
+.mc-nav { background: none; border: none; cursor: pointer; font-size: .72rem; color: var(--muted); padding: 0 3px; }
+.mc-nav:hover { color: var(--text); }
+.mc-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; text-align: center; }
+.mc-dn { font-size: .55rem; color: var(--muted); padding: 2px 0; font-weight: 600; }
+.mc-d { padding: 3px 1px; font-size: .6rem; line-height: 1.35; position: relative; cursor: default; border-radius: var(--r); }
+.mc-d.today  { background: var(--today-bg); color: var(--today-fg); font-weight: 700; }
+.mc-d.hasev  { background: var(--ev-bg); font-weight: 700; cursor: pointer; }
+.mc-d.urgev  { background: var(--urgev-bg); color: var(--urgev-fg); font-weight: 700; }
+.mc-d.dim    { color: var(--border-soft); }
+.mc-d[title]:hover::after { content: attr(title); position: absolute; left: 50%; transform: translateX(-50%); bottom: 115%; background: var(--btn-acc); color: var(--btn-acc-fg); font-size: .55rem; padding: 2px 5px; white-space: nowrap; z-index: 20; border-radius: var(--r); pointer-events: none; }
+.evdot { width: 3px; height: 3px; border-radius: 50%; background: var(--evdot); display: inline-block; margin: 0 1px; }
+.urgev .evdot { background: var(--urgev-fg); }
+
+/* ── YOONSEO ── */
+.yoon-text { font-size: .71rem; line-height: 1.65; padding: 4px 0; min-height: 28px; white-space: pre-wrap; }
+.yoon-edit { display: none; }
+.yoon-edit.on { display: block; }
+
+/* ── MISC ── */
+.empty { color: var(--muted); font-size: .66rem; font-style: italic; padding: 3px 0; }
+.divider { border: none; border-top: 1px dashed var(--border-dash); margin: 6px 0; }
+
+/* ── SCHOOL OVERLAY ──
+   KEY FIX: use display:none / display:flex instead of opacity trick
+   so it never affects layout when hidden
+── */
+#school-overlay {
+  display: none;           /* HIDDEN by default — does NOT affect layout */
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 500;
+  flex-direction: column;
+  overflow: hidden;
+}
+#school-overlay.open {
+  display: flex;           /* SHOWN when .open class added */
+}
+
+.ov-top {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px;
+  background: var(--s-lt);
+  border-bottom: 2px solid var(--s-md);
+  flex-shrink: 0;
+}
+.ov-back {
+  font-family: var(--font); font-size: .7rem; font-weight: 700;
+  border: 1.5px solid var(--s-dk); background: transparent;
+  color: var(--s-dk); padding: 3px 11px; cursor: pointer;
+  border-radius: var(--r); transition: background .13s, color .13s;
+}
+.ov-back:hover { background: var(--s-dk); color: var(--s-lt); }
+.ov-ttl { font-size: .88rem; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; color: var(--s-dk); flex: 1; }
+.ov-clock { font-family: var(--mono); font-size: .64rem; color: var(--s-dk); opacity: .7; }
+
+.ov-panels {
+  flex: 1;
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  overflow: hidden;
+}
+.ov-panel {
+  display: flex; flex-direction: column;
+  border-right: 1.5px solid var(--s-md);
+  overflow-y: auto;
+  /* slide-in animation runs when overlay opens */
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.ov-panel:last-child { border-right: none; }
+#school-overlay.open .ov-panel:nth-child(1) { opacity: 1; transform: none; transition-delay: .06s; }
+#school-overlay.open .ov-panel:nth-child(2) { opacity: 1; transform: none; transition-delay: .13s; }
+#school-overlay.open .ov-panel:nth-child(3) { opacity: 1; transform: none; transition-delay: .20s; }
+
+.ov-ph {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 12px;
+  background: var(--s-lt);
+  border-bottom: 1.5px solid var(--s-md);
+  color: var(--s-dk); font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  position: sticky; top: 0; z-index: 2;
+}
+.ov-abtn {
+  font-family: var(--font); font-size: .58rem; font-weight: 700;
+  border: 1.5px solid var(--s-dk); background: transparent;
+  color: var(--s-dk); padding: 2px 7px; cursor: pointer;
+  border-radius: var(--r); transition: background .12s, color .12s;
+}
+.ov-abtn:hover { background: var(--s-dk); color: var(--s-lt); }
+.ov-body { padding: 10px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+
+/* Subject mini-cards in overlay */
+.sc { border: 1.5px solid var(--s-md); border-radius: var(--r); background: var(--card-bg); overflow: hidden; margin-bottom: 2px; }
+.sc-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 9px; background: var(--s-lt); border-bottom: 1px solid var(--s-md); font-size: .65rem; font-weight: 700; letter-spacing: .06em; color: var(--s-dk); }
+.sc-body { padding: 6px 9px; }
+.sc-cnt { font-family: var(--mono); font-size: .55rem; background: var(--s-md); color: #fff; border-radius: 99px; padding: 1px 6px; }
+
+/* ── TRASH PANEL ── */
+#trash-panel {
+  display: none;
+  position: fixed; top: 0; right: 0; bottom: 0; width: 288px;
+  background: var(--col-bg); border-left: 2px solid var(--border);
+  z-index: 400; padding: 14px 13px; overflow-y: auto;
+}
+#trash-panel.open { display: block; }
+.ti { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px dashed var(--border-dash); font-size: .68rem; }
+.ti .tl { flex: 1; color: var(--muted); }
+.ti .tc { font-size: .56rem; color: var(--border-mid); white-space: nowrap; }
+
+/* ── SYNC MODAL ── */
+#sync-modal {
+  display: none;
+  position: fixed; inset: 0; background: rgba(0,0,0,.55);
+  z-index: 600; align-items: center; justify-content: center;
+}
+#sync-modal.open { display: flex; }
+.sync-box { background: var(--card-bg); border: 2px solid var(--border); border-radius: var(--r); padding: 20px; width: min(460px,94vw); max-height: 88vh; overflow-y: auto; }
+.sync-box h2 { font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid var(--border-soft); padding-bottom: 6px; }
+.sync-sec { margin-bottom: 12px; }
+.sync-sec h3 { font-size: .65rem; font-weight: 700; letter-spacing: .08em; margin-bottom: 5px; color: var(--muted); text-transform: uppercase; }
+.sync-note { font-size: .63rem; color: var(--muted); line-height: 1.5; }
+#import-ta { width: 100%; min-height: 72px; font-size: .63rem; font-family: var(--mono); border: 1px solid var(--border-mid); background: var(--col-bg); color: var(--text); padding: 6px 8px; border-radius: var(--r); resize: vertical; }
+.sync-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+.smsg { font-size: .63rem; margin-top: 5px; font-weight: 600; }
+.smsg.ok  { color: #2a7a2a; }
+.smsg.err { color: #aa2222; }
+[data-theme="dark"] .smsg.ok  { color: #6adf6a; }
+[data-theme="dark"] .smsg.err { color: #ff7070; }
+
+@media (max-width: 860px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .col-wrap:not(:last-child) { border-right: none; border-bottom: var(--bw) solid var(--border); }
+  .col-school { border-right: none; border-bottom-color: var(--s-md) !important; }
+  .col-tutor  { border-right: none; border-bottom-color: var(--t-md) !important; }
+  .ov-panels  { grid-template-columns: 1fr; }
+  .ov-panel   { border-right: none; border-bottom: 1.5px solid var(--s-md); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-title">할일 대시보드</div>
+  <div class="topbar-right">
+    <span class="clock" id="clock"></span>
+    <div class="theme-switcher">
+      <button class="tbtn on" onclick="setTheme('mono')"  id="t-mono">흑백</button>
+      <button class="tbtn"    onclick="setTheme('paper')" id="t-paper">종이</button>
+      <button class="tbtn"    onclick="setTheme('dark')"  id="t-dark">다크</button>
+      <button class="tbtn"    onclick="setTheme('sage')"  id="t-sage">세이지</button>
+    </div>
+    <button class="btn" onclick="openSync()">⇅ 동기화</button>
+    <button class="btn" onclick="toggleTrash()">휴지통</button>
+  </div>
+</div>
+
+<!-- MAIN 3-COLUMN GRID -->
+<div class="main-grid">
+
+  <!-- 학교 -->
+  <div class="col-wrap col-school">
+    <div class="col-head ch-school" onclick="openSchool()">학교 &thinsp;<span style="font-weight:400;font-size:.8em;">↗</span></div>
+    <div class="col-body">
+      <div class="card card-s">
+        <div class="card-head"><span>과제</span><button class="btn" onclick="openSchool()">자세히</button></div>
+        <div class="slist" id="hw-main"><div class="empty">과제가 없습니다</div></div>
+      </div>
+      <div class="card card-s">
+        <div class="card-head"><span>강의 수강</span><button class="btn" onclick="openSchool()">자세히</button></div>
+        <div class="slist" id="lec-main"><div class="empty">온라인 강의가 없습니다</div></div>
+      </div>
+      <div class="card card-s">
+        <div class="card-head"><span>시험</span><button class="btn" onclick="openSchool()">자세히</button></div>
+        <div class="slist" id="exam-main"><div class="empty">시험 일정이 없습니다</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 과외 -->
+  <div class="col-wrap col-tutor">
+    <div class="col-head ch-tutor">과외</div>
+    <div class="col-body">
+
+      <div class="card card-t">
+        <div class="card-head"><span>수업 준비</span><button class="btn" onclick="tf('prep-add')">+ 추가</button></div>
+        <div id="prep-add" class="add-form" style="display:none;">
+          <input type="text" id="prep-ttl" placeholder="준비 내용">
+          <div class="row"><input type="date" id="prep-due" style="flex:1"><button class="btn acc" onclick="addPREP()">저장</button></div>
+        </div>
+        <div class="slist" id="prep-list"><div class="empty">수업 준비 항목이 없습니다</div></div>
+      </div>
+      <div id="prep-ep" class="ep">
+        <input type="text" id="prep-ettl" placeholder="준비 내용">
+        <div class="row"><input type="date" id="prep-edue" style="flex:1"><button class="btn acc" onclick="savePREP()">저장</button><button class="btn" onclick="ce('prep')">취소</button></div>
+      </div>
+
+      <div class="card card-t">
+        <div class="card-head"><span>윤서 진도</span><button class="btn sm" id="yoon-btn" onclick="openYoon()">수정</button></div>
+        <div class="yoon-text" id="yoon-disp"><span class="empty">현재 진도를 입력하세요</span></div>
+        <div class="yoon-edit" id="yoon-edit">
+          <textarea id="yoon-input" placeholder="현재 진도 입력"></textarea>
+          <div style="display:flex;gap:5px;margin-top:5px">
+            <button class="btn acc" onclick="saveYoon()">저장</button>
+            <button class="btn" onclick="closeYoon()">취소</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-t">
+        <div class="card-head"><span>진도 계획</span><button class="btn" onclick="tf('plan-add')">+ 추가</button></div>
+        <div id="plan-add" class="add-form" style="display:none;">
+          <div class="row"><input type="text" id="plan-ttl" placeholder="다음 수업에 나갈 내용" style="flex:1" onkeydown="if(event.key==='Enter')addPLAN()"><button class="btn acc" onclick="addPLAN()">저장</button></div>
+        </div>
+        <div class="slist" id="plan-list"><div class="empty">계획 없음</div></div>
+      </div>
+
+      <div class="card card-t">
+        <div class="card-head"><span>윤서 시험 일정</span><button class="btn" onclick="tf('yex-add')">+ 추가</button></div>
+        <div id="yex-add" class="add-form" style="display:none;">
+          <input type="text" id="yex-ttl" placeholder="시험 이름">
+          <div class="row"><input type="date" id="yex-dt" style="flex:1"><button class="btn acc" onclick="addYEX()">저장</button></div>
+        </div>
+        <div id="yex-ep" class="ep">
+          <input type="text" id="yex-ettl" placeholder="시험 이름">
+          <div class="row"><input type="date" id="yex-edt" style="flex:1"><button class="btn acc" onclick="saveYEX()">저장</button><button class="btn" onclick="ce('yex')">취소</button></div>
+        </div>
+        <div class="slist" id="yex-list" style="margin-bottom:7px"><div class="empty">시험 일정이 없습니다</div></div>
+        <hr class="divider">
+        <div class="mini-cal">
+          <div class="mc-head"><button class="mc-nav" onclick="chM('yoon',-1)">◀</button><span id="yoon-lbl"></span><button class="mc-nav" onclick="chM('yoon',1)">▶</button></div>
+          <div class="mc-grid" id="yoon-grid"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 개인 -->
+  <div class="col-wrap">
+    <div class="col-head ch-personal">개인</div>
+    <div class="col-body">
+      <div class="card card-p">
+        <div class="card-head"><span>할일 목록</span><button class="btn" onclick="tf('todo-add')">+ 추가</button></div>
+        <div id="todo-add" class="add-form" style="display:none;">
+          <div class="row"><input type="text" id="todo-ttl" placeholder="할일 입력" style="flex:1" onkeydown="if(event.key==='Enter')addTODO()"><button class="btn acc" onclick="addTODO()">추가</button></div>
+        </div>
+        <div class="slist" id="todo-list"><div class="empty">할일이 없습니다</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-grid -->
+
+<!-- SCHOOL OVERLAY (display:none by default — never affects layout) -->
+<div id="school-overlay">
+  <div class="ov-top">
+    <button class="ov-back" onclick="closeSchool()">← 대시보드</button>
+    <div class="ov-ttl">학교</div>
+    <span class="ov-clock" id="ov-clock"></span>
+  </div>
+  <div class="ov-panels">
+
+    <!-- 과제 -->
+    <div class="ov-panel">
+      <div class="ov-ph">과제<button class="ov-abtn" onclick="tf('hw-add')">+ 추가</button></div>
+      <div class="ov-body">
+        <div id="hw-add" class="add-form" style="display:none;">
+          <select id="hw-subj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="hw-ttl" placeholder="과제 내용">
+          <div class="row"><input type="date" id="hw-due" style="flex:1"><button class="btn acc" onclick="addHW()">저장</button></div>
+        </div>
+        <div id="hw-ep" class="ep">
+          <select id="hw-esubj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="hw-ettl" placeholder="과제 내용">
+          <div class="row"><input type="date" id="hw-edue" style="flex:1"><button class="btn acc" onclick="saveHW()">저장</button><button class="btn" onclick="ce('hw')">취소</button></div>
+        </div>
+        <div id="hw-cards"></div>
+      </div>
+    </div>
+
+    <!-- 강의 수강 -->
+    <div class="ov-panel">
+      <div class="ov-ph">강의 수강<button class="ov-abtn" onclick="tf('lec-add')">+ 추가</button></div>
+      <div class="ov-body">
+        <div id="lec-add" class="add-form" style="display:none;">
+          <select id="lec-subj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="lec-ttl" placeholder="수강 내용 (선택)">
+          <div class="row"><input type="date" id="lec-due" style="flex:1"><button class="btn acc" onclick="addLEC()">저장</button></div>
+        </div>
+        <div id="lec-ep" class="ep">
+          <select id="lec-esubj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="lec-ettl" placeholder="수강 내용">
+          <div class="row"><input type="date" id="lec-edue" style="flex:1"><button class="btn acc" onclick="saveLEC()">저장</button><button class="btn" onclick="ce('lec')">취소</button></div>
+        </div>
+        <div id="lec-list"><div class="empty">온라인 강의가 없습니다</div></div>
+      </div>
+    </div>
+
+    <!-- 시험 -->
+    <div class="ov-panel">
+      <div class="ov-ph">시험<button class="ov-abtn" onclick="tf('exam-add')">+ 추가</button></div>
+      <div class="ov-body">
+        <div id="exam-add" class="add-form" style="display:none;">
+          <select id="exam-subj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="exam-note" placeholder="메모 (선택)">
+          <div class="row"><input type="date" id="exam-dt" style="flex:1"><button class="btn acc" onclick="addEXAM()">저장</button></div>
+        </div>
+        <div id="exam-ep" class="ep">
+          <select id="exam-esubj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="exam-enote" placeholder="메모">
+          <div class="row"><input type="date" id="exam-edt" style="flex:1"><button class="btn acc" onclick="saveEXAM()">저장</button><button class="btn" onclick="ce('exam')">취소</button></div>
+        </div>
+        <div id="exam-list" style="margin-bottom:8px"><div class="empty">시험 일정이 없습니다</div></div>
+        <hr class="divider">
+        <div class="mini-cal">
+          <div class="mc-head"><button class="mc-nav" onclick="chM('school',-1)">◀</button><span id="school-lbl"></span><button class="mc-nav" onclick="chM('school',1)">▶</button></div>
+          <div class="mc-grid" id="school-grid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TRASH -->
+<div id="trash-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding-bottom:8px;border-bottom:2px solid var(--border)">
+    <strong style="font-size:.74rem;letter-spacing:.14em;text-transform:uppercase">휴지통</strong>
+    <button class="btn" onclick="toggleTrash()">닫기</button>
+  </div>
+  <div id="trash-list"><div class="empty">비어있습니다</div></div>
+</div>
+
+<!-- SYNC MODAL -->
+<div id="sync-modal">
+  <div class="sync-box">
+    <h2>⇅ 데이터 동기화</h2>
+    <div class="sync-sec">
+      <h3>내보내기</h3>
+      <p class="sync-note">현재 데이터를 JSON 파일로 저장합니다.</p>
+      <div class="sync-btns">
+        <button class="btn acc" onclick="expJSON()">📥 JSON 저장</button>
+        <button class="btn" onclick="cpJSON()">클립보드 복사</button>
+      </div>
+      <div id="exp-msg" class="smsg"></div>
+    </div>
+    <div class="sync-sec">
+      <h3>가져오기</h3>
+      <p class="sync-note">저장한 JSON 파일을 선택하거나 붙여넣으세요. ⚠️ 현재 데이터가 덮어씌워집니다.</p>
+      <div class="sync-btns">
+        <button class="btn acc" onclick="document.getElementById('file-in').click()">📂 파일 선택</button>
+        <input type="file" id="file-in" accept=".json" style="display:none" onchange="impFile(event)">
+      </div>
+      <textarea id="import-ta" placeholder="또는 JSON 텍스트 붙여넣기..." style="margin-top:8px"></textarea>
+      <div class="sync-btns"><button class="btn acc" onclick="impText()">붙여넣기로 가져오기</button></div>
+      <div id="imp-msg" class="smsg"></div>
+    </div>
+    <div style="text-align:right;margin-top:8px"><button class="btn" onclick="closeSync()">닫기</button></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const SUBJS = ['전자기학','객프','논리회로','회로이론','신시','승마'];
+let S = {hw:[],lec:[],exam:[],prep:[],yoon:'',plan:[],yex:[],todo:[],trash:[]};
+let calM = {school: new Date(), yoon: new Date()};
+let ed = {hw:null,lec:null,exam:null,prep:null,yex:null};
+const SK='dash6', TK='dash6_theme';
+
+/* ── INIT ── */
+(function(){
+  const raw = localStorage.getItem(SK);
+  if(raw) try { S = JSON.parse(raw); } catch(e){}
+  const th = localStorage.getItem(TK) || 'mono';
+  applyTheme(th);
+  render();
+  setInterval(tick, 1000); tick();
+})();
+
+function save(){ localStorage.setItem(SK, JSON.stringify(S)); }
+
+function tick(){
+  const n = new Date();
+  const d = n.toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
+  const t = n.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const txt = d + '  ' + t;
+  document.getElementById('clock').textContent = txt;
+  document.getElementById('ov-clock').textContent = txt;
+}
+
+function render(){
+  rHW(); rLEC(); rEXAM(); rPREP(); rYoon(); rPLAN(); rYEX(); rTODO(); rTrash();
+  rCal('school'); rCal('yoon');
+}
+
+/* ── THEME ── */
+function applyTheme(name){
+  document.documentElement.setAttribute('data-theme', name);
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  const btn = document.getElementById('t-'+name);
+  if(btn) btn.classList.add('on');
+}
+function setTheme(name){
+  applyTheme(name);
+  localStorage.setItem(TK, name);
+}
+
+/* ── OVERLAY ── */
+function openSchool(){
+  document.getElementById('school-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSchool(){
+  document.getElementById('school-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── D-DAY ── */
+function dd(ds){
+  const t=new Date(); t.setHours(0,0,0,0);
+  const d=new Date(ds); d.setHours(0,0,0,0);
+  return Math.round((d-t)/86400000);
+}
+function ddL(n){ return n<0?'D+'+Math.abs(n):n===0?'D-Day':'D-'+n; }
+function ddC(n){ return n<0?'past':n<=2?'urgent':n<=7?'soon':'ok'; }
+function ddH(ds){ const n=dd(ds); return '<span class="dday '+ddC(n)+'">'+ddL(n)+'</span>'; }
+
+/* ── HELPERS ── */
+function tf(id){ const e=document.getElementById(id); e.style.display=e.style.display==='none'?'grid':'none'; }
+function ce(k){ document.getElementById(k+'-ep').classList.remove('on'); ed[k]=null; }
+function gv(id){ return document.getElementById(id).value; }
+function sv(id,v){ document.getElementById(id).value=v||''; }
+function clr(...ids){ ids.forEach(id=>{ const e=document.getElementById(id); if(e)e.value=''; }); }
+function hd(id){ document.getElementById(id).style.display='none'; }
+function esc(s){ return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function fmtD(ds){ const d=new Date(ds); return (d.getMonth()+1)+'/'+d.getDate()+'('+'일월화수목금토'[d.getDay()]+')'; }
+
+/* ── HOMEWORK ── */
+function addHW(){
+  const subj=gv('hw-subj'),ttl=gv('hw-ttl').trim(),due=gv('hw-due');
+  if(!subj||!due){alert('과목과 마감일을 입력하세요');return;}
+  S.hw.push({id:Date.now(),subj,ttl,due,done:false});
+  save(); rHW(); clr('hw-subj','hw-ttl','hw-due'); hd('hw-add');
+}
+function openEditHW(id){
+  const x=S.hw.find(i=>i.id==id); if(!x)return;
+  ed.hw=id; sv('hw-esubj',x.subj); sv('hw-ettl',x.ttl); sv('hw-edue',x.due);
+  document.getElementById('hw-ep').classList.add('on');
+}
+function saveHW(){
+  const x=S.hw.find(i=>i.id==ed.hw); if(!x)return;
+  x.subj=gv('hw-esubj')||x.subj; x.ttl=gv('hw-ettl').trim(); x.due=gv('hw-edue')||x.due;
+  ce('hw'); save(); rHW();
+}
+function chkHW(id){
+  const x=S.hw.find(i=>i.id==id); if(!x)return;
+  if(x.done){ pushT('hw','과제: '+(x.ttl||x.subj),x); S.hw=S.hw.filter(i=>i.id!=id); }
+  else x.done=true;
+  save(); rHW(); rTrash();
+}
+function rHW(){
+  // compact main
+  const me = document.getElementById('hw-main');
+  const pend = S.hw.filter(h=>!h.done).sort((a,b)=>dd(a.due)-dd(b.due));
+  if(!S.hw.length) me.innerHTML='<div class="empty">과제가 없습니다</div>';
+  else if(!pend.length) me.innerHTML='<div class="empty">모든 과제 완료 ✓</div>';
+  else me.innerHTML = pend.slice(0,5).map(h=>'<div class="irow">'+ddH(h.due)+'<span class="stag">'+h.subj+'</span><span class="ilbl">'+(h.ttl||h.subj+' 과제')+'</span></div>').join('') + (pend.length>5?'<div class="empty">+ '+(pend.length-5)+'개 더…</div>':'');
+
+  // overlay: per-subject cards
+  const c = document.getElementById('hw-cards');
+  if(!S.hw.length){ c.innerHTML='<div class="empty">+ 추가 버튼으로 과제를 입력하세요</div>'; return; }
+  const map={};
+  SUBJS.forEach(s=>{ const it=S.hw.filter(h=>h.subj===s); if(it.length) map[s]=it; });
+  S.hw.forEach(h=>{ if(!map[h.subj]) map[h.subj]=[h]; });
+  c.innerHTML=Object.entries(map).map(([subj,items])=>{
+    const un=items.filter(h=>!h.done).length;
+    const rows=items.sort((a,b)=>a.done-b.done||dd(a.due)-dd(b.due)).map(h=>
+      '<div class="crow '+(h.done?'done':'')+'">'+
+      '<input type="checkbox" '+(h.done?'checked':'')+' onchange="chkHW('+h.id+')">'+
+      ddH(h.due)+'<span class="lbl">'+(h.ttl||subj+' 과제')+'</span>'+
+      '<button class="btn sm" onclick="openEditHW('+h.id+')">수정</button>'+
+      '<button class="btn del" onclick="delI(\'hw\','+h.id+',\'과제: '+esc(h.ttl||h.subj)+'\')">✕</button>'+
+      '</div>'
+    ).join('');
+    return '<div class="sc"><div class="sc-head"><span>'+subj+'</span><span class="sc-cnt">'+un+'</span></div><div class="sc-body">'+rows+'</div></div>';
+  }).join('');
+}
+
+/* ── LECTURE ── */
+function addLEC(){
+  const subj=gv('lec-subj'),ttl=gv('lec-ttl').trim(),due=gv('lec-due');
+  if(!subj||!due){alert('과목과 마감일을 입력하세요');return;}
+  S.lec.push({id:Date.now(),subj,ttl,due}); save(); rLEC();
+  clr('lec-subj','lec-ttl','lec-due'); hd('lec-add');
+}
+function openEditLEC(id){
+  const x=S.lec.find(i=>i.id==id); if(!x)return;
+  ed.lec=id; sv('lec-esubj',x.subj); sv('lec-ettl',x.ttl); sv('lec-edue',x.due);
+  document.getElementById('lec-ep').classList.add('on');
+}
+function saveLEC(){
+  const x=S.lec.find(i=>i.id==ed.lec); if(!x)return;
+  x.subj=gv('lec-esubj')||x.subj; x.ttl=gv('lec-ettl').trim(); x.due=gv('lec-edue')||x.due;
+  ce('lec'); save(); rLEC();
+}
+function rLEC(){
+  const srt=[...S.lec].sort((a,b)=>dd(a.due)-dd(b.due));
+  const me=document.getElementById('lec-main');
+  me.innerHTML=!S.lec.length?'<div class="empty">온라인 강의가 없습니다</div>':srt.slice(0,4).map(l=>'<div class="irow">'+ddH(l.due)+'<span class="stag">'+l.subj+'</span><span class="ilbl">'+(l.ttl||l.subj+' 강의')+'</span></div>').join('');
+  const el=document.getElementById('lec-list');
+  el.innerHTML=!S.lec.length?'<div class="empty">온라인 강의가 없습니다</div>':srt.map(l=>'<div class="irow">'+ddH(l.due)+'<span class="stag">'+l.subj+'</span><span class="ilbl">'+(l.ttl||l.subj+' 강의')+'</span><button class="btn sm" onclick="openEditLEC('+l.id+')">수정</button><button class="btn del" onclick="delI(\'lec\','+l.id+',\'강의: '+esc(l.ttl||l.subj)+'\')">✕</button></div>').join('');
+}
+
+/* ── EXAM ── */
+function addEXAM(){
+  const subj=gv('exam-subj'),note=gv('exam-note').trim(),dt=gv('exam-dt');
+  if(!subj||!dt){alert('과목과 날짜를 입력하세요');return;}
+  S.exam.push({id:Date.now(),subj,note,dt}); save(); rEXAM(); rCal('school');
+  clr('exam-subj','exam-note','exam-dt'); hd('exam-add');
+}
+function openEditEXAM(id){
+  const x=S.exam.find(i=>i.id==id); if(!x)return;
+  ed.exam=id; sv('exam-esubj',x.subj); sv('exam-enote',x.note); sv('exam-edt',x.dt);
+  document.getElementById('exam-ep').classList.add('on');
+}
+function saveEXAM(){
+  const x=S.exam.find(i=>i.id==ed.exam); if(!x)return;
+  x.subj=gv('exam-esubj')||x.subj; x.note=gv('exam-enote').trim(); x.dt=gv('exam-edt')||x.dt;
+  ce('exam'); save(); rEXAM(); rCal('school');
+}
+function rEXAM(){
+  const srt=[...S.exam].sort((a,b)=>new Date(a.dt)-new Date(b.dt));
+  const me=document.getElementById('exam-main');
+  me.innerHTML=!S.exam.length?'<div class="empty">시험 일정이 없습니다</div>':srt.slice(0,4).map(e=>'<div class="erow"><span class="edate">'+fmtD(e.dt)+'</span><span class="stag">'+e.subj+'</span><span class="ilbl">'+(e.note||'')+'</span>'+ddH(e.dt)+'</div>').join('');
+  const el=document.getElementById('exam-list');
+  el.innerHTML=!S.exam.length?'<div class="empty">시험 일정이 없습니다</div>':srt.map(e=>'<div class="erow"><span class="edate">'+fmtD(e.dt)+'</span><span class="stag">'+e.subj+'</span><span class="ilbl">'+(e.note||'')+'</span>'+ddH(e.dt)+'<button class="btn sm" onclick="openEditEXAM('+e.id+')">수정</button><button class="btn del" onclick="delI(\'exam\','+e.id+',\'시험: '+esc(e.subj)+'\')">✕</button></div>').join('');
+}
+
+/* ── PREP ── */
+function addPREP(){
+  const ttl=gv('prep-ttl').trim(),due=gv('prep-due');
+  if(!ttl){alert('내용을 입력하세요');return;}
+  S.prep.push({id:Date.now(),ttl,due,done:false}); save(); rPREP();
+  clr('prep-ttl','prep-due'); hd('prep-add');
+}
+function openEditPREP(id){
+  const x=S.prep.find(i=>i.id==id); if(!x)return;
+  ed.prep=id; sv('prep-ettl',x.ttl); sv('prep-edue',x.due);
+  document.getElementById('prep-ep').classList.add('on');
+}
+function savePREP(){
+  const x=S.prep.find(i=>i.id==ed.prep); if(!x)return;
+  x.ttl=gv('prep-ettl').trim()||x.ttl; x.due=gv('prep-edue');
+  ce('prep'); save(); rPREP();
+}
+function chkPREP(id){
+  const x=S.prep.find(i=>i.id==id); if(!x)return;
+  if(x.done){ pushT('prep','수업준비: '+x.ttl,x); S.prep=S.prep.filter(i=>i.id!=id); }
+  else x.done=true;
+  save(); rPREP(); rTrash();
+}
+function rPREP(){
+  const el=document.getElementById('prep-list');
+  if(!S.prep.length){el.innerHTML='<div class="empty">수업 준비 항목이 없습니다</div>';return;}
+  el.innerHTML=[...S.prep].sort((a,b)=>{
+    if(a.done!==b.done)return a.done-b.done;
+    if(!a.due&&!b.due)return 0; if(!a.due)return 1; if(!b.due)return -1;
+    return dd(a.due)-dd(b.due);
+  }).map(p=>'<div class="crow '+(p.done?'done':'')+'"><input type="checkbox" '+(p.done?'checked':'')+' onchange="chkPREP('+p.id+')">'+(p.due?ddH(p.due):'')+' <span class="lbl">'+p.ttl+'</span><button class="btn sm" onclick="openEditPREP('+p.id+')">수정</button><button class="btn del" onclick="delI(\'prep\','+p.id+',\'수업준비: '+esc(p.ttl)+'\')">✕</button></div>').join('');
+}
+
+/* ── YOONSEO ── */
+function openYoon(){ document.getElementById('yoon-edit').classList.add('on'); document.getElementById('yoon-disp').style.display='none'; document.getElementById('yoon-input').value=S.yoon; document.getElementById('yoon-btn').style.display='none'; }
+function saveYoon(){ const v=document.getElementById('yoon-input').value.trim(); if(v)S.yoon=v; save(); rYoon(); document.getElementById('yoon-edit').classList.remove('on'); document.getElementById('yoon-disp').style.display=''; document.getElementById('yoon-btn').style.display=''; }
+function closeYoon(){ document.getElementById('yoon-edit').classList.remove('on'); document.getElementById('yoon-disp').style.display=''; document.getElementById('yoon-btn').style.display=''; }
+function rYoon(){ const el=document.getElementById('yoon-disp'); el.innerHTML=S.yoon?S.yoon.replace(/\n/g,'<br>'):'<span class="empty">현재 진도를 입력하세요</span>'; }
+
+/* ── PLAN ── */
+function addPLAN(){ const ttl=gv('plan-ttl').trim(); if(!ttl)return; S.plan.push({id:Date.now(),ttl}); save(); rPLAN(); document.getElementById('plan-ttl').value=''; hd('plan-add'); }
+function rPLAN(){ const el=document.getElementById('plan-list'); if(!S.plan.length){el.innerHTML='<div class="empty">계획 없음</div>';return;} el.innerHTML=S.plan.map(p=>'<div class="irow"><span class="ilbl">→ '+p.ttl+'</span><button class="btn del" onclick="delI(\'plan\','+p.id+',\'진도계획: '+esc(p.ttl)+'\')">✕</button></div>').join(''); }
+
+/* ── YOON EXAM ── */
+function addYEX(){ const ttl=gv('yex-ttl').trim(),dt=gv('yex-dt'); if(!ttl||!dt){alert('이름과 날짜를 입력하세요');return;} S.yex.push({id:Date.now(),ttl,dt}); save(); rYEX(); rCal('yoon'); clr('yex-ttl','yex-dt'); hd('yex-add'); }
+function openEditYEX(id){ const x=S.yex.find(i=>i.id==id); if(!x)return; ed.yex=id; sv('yex-ettl',x.ttl); sv('yex-edt',x.dt); document.getElementById('yex-ep').classList.add('on'); }
+function saveYEX(){ const x=S.yex.find(i=>i.id==ed.yex); if(!x)return; x.ttl=gv('yex-ettl').trim()||x.ttl; x.dt=gv('yex-edt')||x.dt; ce('yex'); save(); rYEX(); rCal('yoon'); }
+function rYEX(){ const el=document.getElementById('yex-list'); if(!S.yex.length){el.innerHTML='<div class="empty">시험 일정이 없습니다</div>';return;} el.innerHTML=[...S.yex].sort((a,b)=>new Date(a.dt)-new Date(b.dt)).map(e=>'<div class="erow"><span class="edate">'+fmtD(e.dt)+'</span><span class="ilbl">'+e.ttl+'</span>'+ddH(e.dt)+'<button class="btn sm" onclick="openEditYEX('+e.id+')">수정</button><button class="btn del" onclick="delI(\'yex\','+e.id+',\'윤서시험: '+esc(e.ttl)+'\')">✕</button></div>').join(''); }
+
+/* ── TODO ── */
+function addTODO(){ const ttl=gv('todo-ttl').trim(); if(!ttl)return; S.todo.push({id:Date.now(),ttl,done:false}); save(); rTODO(); document.getElementById('todo-ttl').value=''; }
+function chkTODO(id){ const x=S.todo.find(i=>i.id==id); if(!x)return; if(x.done){pushT('todo','할일: '+x.ttl,x);S.todo=S.todo.filter(i=>i.id!=id);}else x.done=true; save(); rTODO(); rTrash(); }
+function rTODO(){ const el=document.getElementById('todo-list'); if(!S.todo.length){el.innerHTML='<div class="empty">할일이 없습니다</div>';return;} el.innerHTML=[...S.todo].sort((a,b)=>a.done-b.done).map(t=>'<div class="crow '+(t.done?'done':'')+'"><input type="checkbox" '+(t.done?'checked':'')+' onchange="chkTODO('+t.id+')"><span class="lbl">'+t.ttl+'</span><button class="btn del" onclick="delI(\'todo\','+t.id+',\'할일: '+esc(t.ttl)+'\')">✕</button></div>').join(''); }
+
+/* ── TRASH ── */
+function pushT(cat,label,data){ S.trash.push({id:Date.now(),cat,label,data:{...data}}); }
+function delI(cat,id,label){ const arr=S[cat],idx=arr.findIndex(x=>x.id==id); if(idx===-1)return; pushT(cat,label,arr[idx]); arr.splice(idx,1); save(); render(); }
+function rTrash(){ const el=document.getElementById('trash-list'); if(!S.trash.length){el.innerHTML='<div class="empty">비어있습니다</div>';return;} el.innerHTML=S.trash.slice().reverse().map(t=>'<div class="ti"><span class="tc">['+cL(t.cat)+']</span><span class="tl">'+t.label+'</span><button class="btn sm" onclick="restI('+t.id+')">복구</button><button class="btn del" onclick="permD('+t.id+')">삭제</button></div>').join(''); }
+function cL(c){ return{hw:'과제',lec:'강의',exam:'시험',prep:'수업준비',plan:'진도계획',yex:'윤서시험',todo:'할일'}[c]||c; }
+function restI(tid){ const idx=S.trash.findIndex(t=>t.id==tid); if(idx===-1)return; const t=S.trash[idx]; S[t.cat].push(t.data); S.trash.splice(idx,1); save(); render(); }
+function permD(tid){ S.trash=S.trash.filter(t=>t.id!=tid); save(); rTrash(); }
+function toggleTrash(){ document.getElementById('trash-panel').classList.toggle('open'); }
+
+/* ── CALENDAR ── */
+function rCal(which){
+  const cm=calM[which],yr=cm.getFullYear(),mo=cm.getMonth();
+  document.getElementById(which+'-lbl').textContent=yr+'.'+String(mo+1).padStart(2,'0');
+  const grid=document.getElementById(which+'-grid');
+  const src=which==='school'?S.exam:S.yex;
+  const evs=src.reduce((acc,e)=>{const d=new Date(e.dt);if(d.getFullYear()===yr&&d.getMonth()===mo){const day=d.getDate();if(!acc[day])acc[day]=[];acc[day].push(e.subj||e.ttl);}return acc;},{});
+  const today=new Date();today.setHours(0,0,0,0);
+  const fd=new Date(yr,mo,1).getDay(),ld=new Date(yr,mo+1,0).getDate();
+  let h=['일','월','화','수','목','금','토'].map(d=>'<div class="mc-dn">'+d+'</div>').join('');
+  for(let i=0;i<fd;i++) h+='<div class="mc-d dim">'+new Date(yr,mo,-fd+i+1).getDate()+'</div>';
+  for(let d=1;d<=ld;d++){
+    const td=new Date(yr,mo,d),isT=td.getTime()===today.getTime();
+    const ev=evs[d],dv=Math.round((td-today)/86400000),isU=!!ev&&dv<=3&&dv>=0;
+    const cls='mc-d'+(isT?' today':ev?(isU?' urgev':' hasev'):'');
+    h+='<div class="'+cls+'" '+(ev?'title="'+ev.join(', ')+'"':'')+'>'+d+(ev?'<br><span class="evdot"></span>':'')+'</div>';
+  }
+  const rem=(fd+ld)%7; if(rem)for(let i=1;i<=7-rem;i++) h+='<div class="mc-d dim">'+i+'</div>';
+  grid.innerHTML=h;
+}
+function chM(which,delta){ const c=calM[which]; calM[which]=new Date(c.getFullYear(),c.getMonth()+delta,1); rCal(which); }
+
+/* ── SYNC ── */
+function openSync(){ document.getElementById('import-ta').value=''; document.getElementById('exp-msg').textContent=''; document.getElementById('imp-msg').textContent=''; document.getElementById('sync-modal').classList.add('open'); }
+function closeSync(){ document.getElementById('sync-modal').classList.remove('open'); }
+document.getElementById('sync-modal').addEventListener('click',function(e){if(e.target===this)closeSync();});
+function getExp(){ return JSON.stringify({_v:2,_t:new Date().toISOString(),...S},null,2); }
+function expJSON(){ const blob=new Blob([getExp()],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const date=new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.',''); a.href=url; a.download='dashboard_'+date+'.json'; a.click(); URL.revokeObjectURL(url); showM('exp-msg','✓ 파일이 저장되었습니다','ok'); }
+function cpJSON(){ navigator.clipboard.writeText(getExp()).then(()=>showM('exp-msg','✓ 클립보드에 복사되었습니다','ok')).catch(()=>showM('exp-msg','✗ 복사 실패','err')); }
+function impFile(e){ const file=e.target.files[0]; if(!file)return; const r=new FileReader(); r.onload=ev=>applyImp(ev.target.result); r.readAsText(file); e.target.value=''; }
+function impText(){ const text=document.getElementById('import-ta').value.trim(); if(!text){showM('imp-msg','텍스트를 입력하세요','err');return;} applyImp(text); }
+function applyImp(text){ try{ const p=JSON.parse(text); const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash']; if(!keys.some(k=>k in p))throw new Error('올바른 대시보드 데이터가 아닙니다'); keys.forEach(k=>{if(k in p)S[k]=p[k];}); save(); render(); showM('imp-msg','✓ 데이터를 성공적으로 불러왔습니다!','ok'); }catch(e){showM('imp-msg','✗ 오류: '+e.message,'err');} }
+function showM(id,msg,type){ const el=document.getElementById(id); el.textContent=msg; el.className='smsg '+type; setTimeout(()=>{el.textContent='';},4000); }
+</script>
+</body>
+</html>
