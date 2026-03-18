@@ -2078,12 +2078,40 @@ function openSync(){
 }
 function closeSync(){ document.getElementById('sync-modal').classList.remove('open'); }
 document.getElementById('sync-modal').addEventListener('click',function(e){if(e.target===this)closeSync();});
-function getExp(){ return JSON.stringify({_v:2,_t:new Date().toISOString(),...S},null,2); }
+function getExp(){
+  const tutoring={
+    t1:JSON.parse(localStorage.getItem('t1')||'[]'),
+    t2:JSON.parse(localStorage.getItem('t2')||'[]'),
+    t3:JSON.parse(localStorage.getItem('t3')||'[]'),
+    t4:JSON.parse(localStorage.getItem('t4')||'[]'),
+    t5:JSON.parse(localStorage.getItem('t5')||'[]').map(item=>({...item,photos:[]}))
+  };
+  return JSON.stringify({_v:2,_t:new Date().toISOString(),...S,_tutoring:tutoring},null,2);
+}
 function expJSON(){ const blob=new Blob([getExp()],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); const date=new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.',''); a.href=url; a.download='dashboard_'+date+'.json'; a.click(); URL.revokeObjectURL(url); showM('exp-msg','✓ 파일이 저장되었습니다','ok'); }
 function cpJSON(){ navigator.clipboard.writeText(getExp()).then(()=>showM('exp-msg','✓ 클립보드에 복사되었습니다','ok')).catch(()=>showM('exp-msg','✗ 복사 실패','err')); }
 function impFile(e){ const file=e.target.files[0]; if(!file)return; const r=new FileReader(); r.onload=ev=>applyImp(ev.target.result); r.readAsText(file); e.target.value=''; }
 function impText(){ const text=document.getElementById('import-ta').value.trim(); if(!text){showM('imp-msg','텍스트를 입력하세요','err');return;} applyImp(text); }
-function applyImp(text){ try{ const p=JSON.parse(text); const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash']; if(!keys.some(k=>k in p))throw new Error('올바른 대시보드 데이터가 아닙니다'); keys.forEach(k=>{if(k in p)S[k]=p[k];}); save(); render(); showM('imp-msg','✓ 데이터를 성공적으로 불러왔습니다!','ok'); }catch(e){showM('imp-msg','✗ 오류: '+e.message,'err');} }
+function applyImp(text){
+  try{
+    const p=JSON.parse(text);
+    const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash'];
+    if(!keys.some(k=>k in p)&&!p._tutoring) throw new Error('올바른 데이터가 아닙니다');
+    keys.forEach(k=>{if(k in p)S[k]=p[k];}); save(); render();
+    if(p._tutoring){
+      ['t1','t2','t3','t4'].forEach(k=>{if(p._tutoring[k]!==undefined)localStorage.setItem(k,JSON.stringify(p._tutoring[k]));});
+      if(p._tutoring.t5){
+        const ex=JSON.parse(localStorage.getItem('t5')||'[]'),pm={};
+        ex.forEach(item=>{if(item.id)pm[item.id]=item.photos||[];});
+        localStorage.setItem('t5',JSON.stringify(p._tutoring.t5.map(item=>({...item,photos:pm[item.id]||item.photos||[]}))));
+      }
+      if(tInited){t1Load();t2Load();t3Load();t4Load();t5Load();tDashRefresh();}
+      showM('imp-msg','✓ 대시보드 + 과외 데이터 모두 불러왔습니다!','ok');
+    } else {
+      showM('imp-msg','✓ 데이터를 성공적으로 불러왔습니다!','ok');
+    }
+  }catch(e){showM('imp-msg','✗ 오류: '+e.message,'err');}
+}
 function showM(id,msg,type){ const el=document.getElementById(id); el.textContent=msg; el.className='smsg '+type; setTimeout(()=>{el.textContent='';},4000); }
 
 /* ── EXAM COUNTDOWN BANNER ── */
