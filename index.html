@@ -11,7 +11,7 @@
 (function(){var t=localStorage.getItem('dash6_theme');if(t){document.documentElement.setAttribute('data-theme',t);}})();
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 /* ── DEFAULT VARIABLES (mono theme) ── */
 :root {
@@ -546,6 +546,238 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   .ov-panel   { border-right: none; border-bottom: 1.5px solid var(--s-md); }
   #focus-panel { width: 100%; border-left: none; border-top: 3px solid var(--s-md); top: auto; height: 60vh; }
 }
+
+/* ══ TUTORING OVERLAY ══ */
+#tutor-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  flex-direction: column; overflow: hidden;
+}
+#tutor-overlay.open { display: flex; }
+/* All tutoring styles are scoped inside #tutor-overlay to avoid collisions */
+#tutor-overlay * { box-sizing: border-box; }
+#tutor-overlay header.t-hd { background:#1A2340; padding:0 1.4rem; display:flex; align-items:center; justify-content:space-between; height:52px; flex-shrink:0; box-shadow:0 2px 16px rgba(26,35,64,.25); z-index:10; }
+#tutor-overlay .t-logo { font-family:'Nanum Myeongjo',serif; font-weight:800; font-size:1.05rem; color:#F5F0E8; display:flex; align-items:center; gap:8px; }
+#tutor-overlay .t-logo-dot { width:7px; height:7px; background:#E8652A; border-radius:50%; }
+#tutor-overlay .t-hd-meta { font-family:'Space Mono',monospace; font-size:.61rem; color:rgba(245,240,232,.4); letter-spacing:1px; }
+#tutor-overlay .t-back { font-family:'Noto Sans KR',sans-serif; font-size:.7rem; font-weight:700; border:1.5px solid rgba(245,240,232,.35); background:transparent; color:#F5F0E8; padding:4px 11px; cursor:pointer; border-radius:6px; transition:all .15s; }
+#tutor-overlay .t-back:hover { background:rgba(245,240,232,.12); }
+#tutor-overlay nav.t-nav { background:#2C3E6B; display:flex; overflow-x:auto; scrollbar-width:none; border-bottom:2px solid rgba(232,101,42,.3); flex-shrink:0; }
+#tutor-overlay nav.t-nav::-webkit-scrollbar { display:none; }
+#tutor-overlay .t-tab-btn { padding:.62rem .95rem; border:none; background:transparent; color:rgba(245,240,232,.55); font-family:'Noto Sans KR',sans-serif; font-size:.75rem; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s; border-bottom:2px solid transparent; margin-bottom:-2px; }
+#tutor-overlay .t-tab-btn.active { color:#F28C5E; border-bottom-color:#E8652A; background:rgba(232,101,42,.08); font-weight:700; }
+#tutor-overlay .t-area { flex:1; overflow:hidden; position:relative; }
+#tutor-overlay .t-panel { display:none; width:100%; height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; font-family:'Noto Sans KR',sans-serif; color:#1A2340; }
+#tutor-overlay .t-panel.active { display:block; }
+#tutor-overlay .t-tc { padding:1.3rem; background:#F5F0E8; background-image:repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(26,35,64,.04) 31px,rgba(26,35,64,.04) 32px); min-height:100%; }
+/* Common tutoring components */
+#tutor-overlay .t-ptitle { font-family:'Nanum Myeongjo',serif; font-size:1.45rem; font-weight:700; margin-bottom:.15rem; }
+#tutor-overlay .t-psub { font-size:.7rem; color:#8A8278; font-family:'Space Mono',monospace; letter-spacing:.5px; margin-bottom:1.3rem; }
+#tutor-overlay .t-card { background:white; border-radius:12px; padding:1.2rem 1.3rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1px solid rgba(26,35,64,.12); margin-bottom:1rem; }
+#tutor-overlay .t-ctitle { font-family:'Nanum Myeongjo',serif; font-size:.95rem; font-weight:700; color:#1A2340; margin-bottom:.85rem; padding-bottom:.45rem; border-bottom:1.5px solid rgba(26,35,64,.12); display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+#tutor-overlay .t-ic { width:21px; height:21px; background:#E8652A; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:.7rem; color:white; flex-shrink:0; }
+#tutor-overlay label.tl { font-size:.66rem; font-weight:700; color:#2C3E6B; text-transform:uppercase; letter-spacing:.5px; font-family:'Space Mono',monospace; display:block; margin-bottom:4px; }
+#tutor-overlay .t-panel input:not([type=file]):not([type=checkbox]),
+#tutor-overlay .t-panel textarea,
+#tutor-overlay .t-panel select { border:1.5px solid rgba(26,35,64,.12); border-radius:8px; padding:.52rem .8rem; font-family:'Noto Sans KR',sans-serif; font-size:.83rem; color:#1A2340; background:#F5F0E8; transition:border-color .2s; outline:none; width:100%; -webkit-appearance:none; }
+#tutor-overlay .t-panel input:focus,
+#tutor-overlay .t-panel textarea:focus,
+#tutor-overlay .t-panel select:focus { border-color:#E8652A; background:white; }
+#tutor-overlay .t-panel textarea { resize:vertical; line-height:1.6; }
+#tutor-overlay .t-fr { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem; }
+#tutor-overlay .t-fg { display:flex; flex-direction:column; gap:4px; }
+#tutor-overlay .t-fg.full { grid-column:1/-1; }
+#tutor-overlay .t-btn { padding:.52rem 1rem; border-radius:8px; border:none; cursor:pointer; font-family:'Noto Sans KR',sans-serif; font-weight:700; font-size:.78rem; transition:all .2s; display:inline-flex; align-items:center; gap:5px; }
+#tutor-overlay .t-btn-p { background:#E8652A; color:white; } #tutor-overlay .t-btn-p:hover { background:#F28C5E; }
+#tutor-overlay .t-btn-g { background:transparent; color:#2C3E6B; border:1.5px solid rgba(26,35,64,.12); } #tutor-overlay .t-btn-g:hover { border-color:#E8652A; color:#E8652A; }
+#tutor-overlay .t-btn-n { background:#1A2340; color:white; } #tutor-overlay .t-btn-n:hover { background:#2C3E6B; }
+#tutor-overlay .t-btn-d { background:transparent; color:#C0392B; border:1.5px solid rgba(192,57,43,.2); padding:.3rem .6rem; font-size:.69rem; } #tutor-overlay .t-btn-d:hover { background:#FDECEA; }
+#tutor-overlay .t-btn-sm { padding:.35rem .8rem; font-size:.72rem; }
+#tutor-overlay .t-hint { font-size:.68rem; color:#8A8278; margin-top:3px; line-height:1.5; }
+#tutor-overlay .t-empty { text-align:center; padding:2rem; color:#8A8278; font-size:.78rem; }
+#tutor-overlay .t-sep { height:1px; background:rgba(26,35,64,.12); margin:.9rem 0; }
+/* Toast */
+#t-toast { position:absolute; bottom:1.4rem; right:1.4rem; background:#1A2340; color:#F5F0E8; padding:.68rem 1.1rem; border-radius:10px; font-size:.78rem; font-weight:700; box-shadow:0 4px 20px rgba(0,0,0,.25); opacity:0; transform:translateY(10px); transition:all .3s; pointer-events:none; z-index:999; max-width:calc(100% - 3rem); font-family:'Noto Sans KR',sans-serif; }
+#t-toast.show { opacity:1; transform:translateY(0); }
+/* Modal inside overlay */
+#tutor-overlay .t-mbg { display:none; position:absolute; inset:0; background:rgba(26,35,64,.45); z-index:50; align-items:center; justify-content:center; padding:1rem; }
+#tutor-overlay .t-mbg.open { display:flex; }
+#tutor-overlay .t-modal { background:white; border-radius:14px; padding:1.3rem; width:100%; max-width:520px; max-height:85vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.25); }
+#tutor-overlay .t-mtitle { font-family:'Nanum Myeongjo',serif; font-size:1.02rem; font-weight:700; margin-bottom:.85rem; padding-bottom:.45rem; border-bottom:1.5px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-mact { display:flex; gap:7px; margin-top:.85rem; flex-wrap:wrap; }
+/* Student bar */
+#tutor-overlay .t-sbar { background:#1A2340; border-radius:12px; padding:1.05rem 1.25rem; display:flex; align-items:center; gap:1.1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+#tutor-overlay .t-savatar { width:42px; height:42px; background:#E8652A; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1.05rem; color:white; font-weight:700; flex-shrink:0; }
+#tutor-overlay .t-sname { font-family:'Nanum Myeongjo',serif; font-size:.97rem; font-weight:700; color:#F5F0E8; }
+#tutor-overlay .t-smeta { font-family:'Space Mono',monospace; font-size:.59rem; color:rgba(245,240,232,.45); }
+#tutor-overlay .t-sinfo { flex:1; min-width:90px; }
+#tutor-overlay .t-stats { display:flex; gap:1.1rem; flex-wrap:wrap; }
+#tutor-overlay .t-stat { text-align:center; }
+#tutor-overlay .t-stat-n { font-family:'Space Mono',monospace; font-size:1.15rem; font-weight:700; color:#F28C5E; line-height:1; }
+#tutor-overlay .t-stat-l { font-size:.58rem; color:rgba(245,240,232,.4); margin-top:2px; }
+/* Dash */
+#tutor-overlay .t-dgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:.85rem; margin-bottom:1rem; }
+#tutor-overlay .t-dc { background:white; border-radius:12px; padding:1rem 1.1rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1px solid rgba(26,35,64,.12); cursor:pointer; transition:all .2s; position:relative; overflow:hidden; }
+#tutor-overlay .t-dc::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#E8652A; opacity:0; transition:opacity .2s; }
+#tutor-overlay .t-dc:hover { transform:translateY(-2px); } #tutor-overlay .t-dc:hover::before { opacity:1; }
+#tutor-overlay .t-dc-num { font-family:'Space Mono',monospace; font-size:.57rem; color:#E8652A; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:.28rem; }
+#tutor-overlay .t-dc-title { font-family:'Nanum Myeongjo',serif; font-size:.92rem; font-weight:700; color:#1A2340; margin-bottom:.22rem; }
+#tutor-overlay .t-dc-desc { font-size:.68rem; color:#8A8278; line-height:1.4; }
+#tutor-overlay .t-dc-badge { position:absolute; top:.85rem; right:.85rem; background:#EDE7D9; border-radius:20px; padding:.1rem .5rem; font-family:'Space Mono',monospace; font-size:.56rem; color:#2C3E6B; }
+#tutor-overlay .t-lgrid { display:flex; flex-wrap:wrap; gap:6px; }
+#tutor-overlay .t-lbox { width:48px; height:48px; border-radius:8px; background:#EDE7D9; border:1.5px solid rgba(26,35,64,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Space Mono',monospace; cursor:pointer; transition:all .15s; }
+#tutor-overlay .t-lbox.done { background:#1A2340; border-color:#1A2340; }
+#tutor-overlay .t-lbox.done .t-lnum { color:#F28C5E; } #tutor-overlay .t-lbox.done .t-ldate { color:rgba(245,240,232,.4); }
+#tutor-overlay .t-lnum { font-size:.82rem; font-weight:700; color:#1A2340; line-height:1; }
+#tutor-overlay .t-ldate { font-size:.42rem; color:#8A8278; margin-top:2px; }
+#tutor-overlay .t-2col { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem; }
+#tutor-overlay .t-rmsg { font-size:.76rem; line-height:1.65; color:#1A2340; background:#EDE7D9; border-radius:8px; padding:.68rem .88rem; border-left:3px solid #E8652A; white-space:pre-line; word-break:break-word; }
+#tutor-overlay .t-rmsg-date { font-family:'Space Mono',monospace; font-size:.58rem; color:#8A8278; margin-bottom:.32rem; }
+#tutor-overlay .t-wtag { display:inline-flex; align-items:center; gap:3px; background:#EDE7D9; border:1.5px solid rgba(26,35,64,.12); border-radius:20px; padding:.26rem .68rem; font-size:.68rem; color:#1A2340; margin:2px; }
+/* Tab1 views */
+#tutor-overlay .t1v { display:none; } #tutor-overlay .t1v.active { display:block; }
+#tutor-overlay .t-bbtn { display:inline-flex; align-items:center; gap:5px; background:transparent; border:1.5px solid rgba(26,35,64,.12); border-radius:8px; padding:.38rem .85rem; font-size:.76rem; font-weight:700; color:#2C3E6B; cursor:pointer; margin-bottom:1rem; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
+#tutor-overlay .t-bbtn:hover { border-color:#E8652A; color:#E8652A; }
+#tutor-overlay .t-scard { background:white; border-radius:12px; padding:.95rem 1.1rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1.5px solid rgba(26,35,64,.12); margin-bottom:.8rem; cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:.85rem; position:relative; overflow:hidden; }
+#tutor-overlay .t-scard::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:#E8652A; opacity:0; transition:opacity .15s; }
+#tutor-overlay .t-scard:hover { transform:translateY(-2px); } #tutor-overlay .t-scard:hover::before { opacity:1; }
+#tutor-overlay .t-scavatar { width:40px; height:40px; border-radius:50%; background:#1A2340; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#F28C5E; flex-shrink:0; }
+#tutor-overlay .t-scname { font-family:'Nanum Myeongjo',serif; font-size:.94rem; font-weight:700; color:#1A2340; }
+#tutor-overlay .t-scmeta { font-family:'Space Mono',monospace; font-size:.58rem; color:#8A8278; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#tutor-overlay .t-addbtn { border:2px dashed rgba(26,35,64,.12); border-radius:12px; padding:.95rem; text-align:center; cursor:pointer; color:#8A8278; font-size:.81rem; transition:all .18s; background:transparent; width:100%; font-family:'Noto Sans KR',sans-serif; }
+#tutor-overlay .t-addbtn:hover { border-color:#E8652A; color:#E8652A; }
+#tutor-overlay .t-dhdr { background:#1A2340; border-radius:12px; padding:1.05rem 1.25rem; display:flex; align-items:center; gap:.85rem; margin-bottom:1rem; }
+#tutor-overlay .t-davatar { width:46px; height:46px; border-radius:50%; background:#E8652A; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1.15rem; font-weight:700; color:white; flex-shrink:0; }
+#tutor-overlay .t-dname { font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#F5F0E8; }
+#tutor-overlay .t-dmeta { font-family:'Space Mono',monospace; font-size:.58rem; color:rgba(245,240,232,.5); }
+#tutor-overlay .t-unsaved { width:7px; height:7px; background:#E8652A; border-radius:50%; display:inline-block; margin-left:5px; opacity:0; transition:opacity .2s; vertical-align:middle; }
+#tutor-overlay .t-unsaved.vis { opacity:1; }
+#tutor-overlay .t-fee { background:#EDE7D9; border-radius:10px; padding:1rem 1.1rem; border:1.5px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-fee-in { display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; margin-bottom:.85rem; }
+#tutor-overlay .t-fee-ig { display:flex; flex-direction:column; gap:3px; }
+#tutor-overlay .t-fee-ig input { width:95px; text-align:center; font-family:'Space Mono',monospace; font-weight:700; }
+#tutor-overlay .t-fee-op { font-family:'Space Mono',monospace; font-size:1.15rem; color:#E8652A; font-weight:700; padding-bottom:.22rem; }
+#tutor-overlay .t-fee-res { background:#1A2340; border-radius:8px; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+#tutor-overlay .t-fee-rl { font-size:.68rem; color:rgba(245,240,232,.55); font-family:'Space Mono',monospace; }
+#tutor-overlay .t-fee-rb { font-family:'Space Mono',monospace; font-size:.58rem; color:rgba(245,240,232,.35); margin-top:2px; }
+#tutor-overlay .t-fee-rn { font-family:'Space Mono',monospace; font-size:1.2rem; font-weight:700; color:#F28C5E; }
+/* Tab2 */
+#tutor-overlay .t-fwrap { margin-bottom:.85rem; border-radius:10px; overflow:hidden; border:1.5px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-fhdr { display:flex; align-items:center; gap:8px; padding:.75rem .9rem; background:#EDE7D9; cursor:pointer; font-weight:700; font-size:.83rem; color:#1A2340; transition:background .15s; user-select:none; }
+#tutor-overlay .t-fhdr:hover { background:#e5dece; }
+#tutor-overlay .t-fname-input { background:transparent; border:none; font-weight:700; font-size:.83rem; color:#1A2340; font-family:'Noto Sans KR',sans-serif; flex:1; outline:none; cursor:pointer; padding:0; }
+#tutor-overlay .t-fcount { font-family:'Space Mono',monospace; font-size:.58rem; color:#8A8278; margin-left:auto; white-space:nowrap; }
+#tutor-overlay .t-fchev { font-size:.65rem; color:#8A8278; transition:transform .2s; flex-shrink:0; }
+#tutor-overlay .t-fchev.open { transform:rotate(90deg); }
+#tutor-overlay .t-fbody { background:white; padding:.65rem .9rem; display:none; }
+#tutor-overlay .t-fbody.open { display:block; }
+#tutor-overlay .t-fitem { display:flex; align-items:center; gap:6px; padding:.45rem 0; border-bottom:1px solid rgba(26,35,64,.12); font-size:.78rem; flex-wrap:wrap; }
+#tutor-overlay .t-fitem:last-of-type { border-bottom:none; }
+#tutor-overlay .t-ficon { color:#E8652A; flex-shrink:0; }
+#tutor-overlay .t-fname { font-weight:500; word-break:break-all; flex:1; min-width:90px; }
+#tutor-overlay .t-fpath { font-family:'Space Mono',monospace; font-size:.56rem; color:#8A8278; word-break:break-all; width:100%; padding-left:17px; }
+#tutor-overlay .t-fopen { background:#EDE7D9; border:1.5px solid rgba(26,35,64,.12); border-radius:6px; padding:.2rem .52rem; font-size:.63rem; font-family:'Space Mono',monospace; color:#2C3E6B; cursor:pointer; white-space:nowrap; flex-shrink:0; text-decoration:none; transition:all .15s; }
+#tutor-overlay .t-fopen:hover { border-color:#E8652A; color:#E8652A; }
+#tutor-overlay .t-add-file-form { background:#EDE7D9; border-radius:8px; padding:.85rem; margin-top:.65rem; display:none; }
+#tutor-overlay .t-add-file-form.open { display:block; }
+#tutor-overlay .t-new-folder-form { background:#EDE7D9; border-radius:10px; padding:.85rem; margin-top:.4rem; display:none; }
+#tutor-overlay .t-new-folder-form.open { display:block; }
+/* Tab3 */
+#tutor-overlay .t-exitem { display:flex; gap:6px; margin-bottom:.5rem; align-items:flex-start; }
+#tutor-overlay .t-exitem input:first-child { max-width:115px; flex-shrink:0; }
+#tutor-overlay .t-exitem textarea { flex:1; min-height:50px; }
+#tutor-overlay .t-rmfbtn { background:none; border:none; color:#8A8278; cursor:pointer; font-size:.9rem; padding:.42rem; flex-shrink:0; }
+#tutor-overlay .t-rmfbtn:hover { color:#C0392B; }
+#tutor-overlay .t-lrec { border:1.5px solid rgba(26,35,64,.12); border-radius:10px; padding:.9rem 1.05rem; margin-bottom:.7rem; background:white; }
+#tutor-overlay .t-lbadge { font-family:'Space Mono',monospace; font-size:.58rem; background:#1A2340; color:#F28C5E; padding:.16rem .58rem; border-radius:4px; white-space:nowrap; }
+#tutor-overlay .t-ldlbl { font-size:.71rem; color:#8A8278; }
+#tutor-overlay .t-lf { margin-bottom:.3rem; }
+#tutor-overlay .t-lfl { font-family:'Space Mono',monospace; font-size:.56rem; color:#8A8278; text-transform:uppercase; }
+#tutor-overlay .t-lfv { color:#1A2340; margin-top:1px; font-size:.79rem; }
+#tutor-overlay .t-hwv { color:#5C7A6B; font-weight:500; }
+#tutor-overlay .t-msgtpl { background:#EDE7D9; border:1.5px dashed #E8652A; border-radius:10px; padding:1rem; font-size:.81rem; line-height:1.9; color:#1A2340; white-space:pre-wrap; word-break:break-word; margin-bottom:.85rem; min-height:115px; }
+#tutor-overlay .t-tplbl { font-family:'Space Mono',monospace; font-size:.56rem; color:#E8652A; letter-spacing:1px; text-transform:uppercase; margin-bottom:.52rem; display:block; }
+/* Tab4 */
+#tutor-overlay .t-mitem { display:flex; gap:.85rem; padding:.85rem 0; border-bottom:1px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-mitem:last-child { border-bottom:none; }
+#tutor-overlay .t-mleft { display:flex; flex-direction:column; align-items:center; min-width:44px; padding-top:2px; }
+#tutor-overlay .t-mdd { font-family:'Space Mono',monospace; font-size:.58rem; color:#8A8278; text-align:center; line-height:1.4; }
+#tutor-overlay .t-mdn { font-family:'Space Mono',monospace; font-size:.82rem; font-weight:700; color:#2C3E6B; text-align:center; }
+#tutor-overlay .t-mbubble { flex:1; background:#EDE7D9; border-radius:10px; padding:.75rem .9rem; border-left:3px solid #E8652A; font-size:.79rem; line-height:1.75; color:#1A2340; white-space:pre-line; word-break:break-word; }
+#tutor-overlay .t-mbubble.editing { background:white; border:1.5px solid #E8652A; padding:0; }
+#tutor-overlay .t-mbubble.editing textarea { background:transparent; border:none; padding:.75rem .9rem; border-radius:8px; min-height:95px; }
+#tutor-overlay .t-sbar2 { position:relative; margin-bottom:.85rem; }
+#tutor-overlay .t-sbar2 input { padding-left:2rem; }
+#tutor-overlay .t-sico { position:absolute; left:.65rem; top:50%; transform:translateY(-50%); font-size:.85rem; color:#8A8278; pointer-events:none; }
+#tutor-overlay .highlight { background:rgba(232,101,42,.2); border-radius:2px; }
+/* Tab5 */
+#tutor-overlay .t-pathdisplay { display:flex; align-items:center; gap:4px; background:#EDE7D9; border-radius:8px; padding:.52rem .88rem; margin-bottom:.7rem; flex-wrap:wrap; font-size:.78rem; }
+#tutor-overlay .t-pseg { color:#1A2340; } #tutor-overlay .t-psep { color:#8A8278; font-size:.65rem; } #tutor-overlay .t-pleaf { color:#E8652A; font-weight:700; }
+#tutor-overlay .t-pup { border:2px dashed rgba(26,35,64,.12); border-radius:10px; padding:1.1rem; text-align:center; cursor:pointer; transition:all .2s; background:#EDE7D9; }
+#tutor-overlay .t-pup:hover { border-color:#E8652A; }
+#tutor-overlay .t-pico { font-size:1.55rem; margin-bottom:.32rem; }
+#tutor-overlay .t-ptxt { font-size:.78rem; color:#8A8278; }
+#tutor-overlay .t-psub { font-size:.6rem; color:#8A8278; margin-top:.22rem; font-family:'Space Mono',monospace; }
+#tutor-overlay .t-pgrid { display:flex; flex-wrap:wrap; gap:6px; margin-top:.65rem; }
+#tutor-overlay .t-pthumb { width:68px; height:68px; border-radius:8px; overflow:hidden; border:1.5px solid rgba(26,35,64,.12); position:relative; flex-shrink:0; cursor:pointer; }
+#tutor-overlay .t-pthumb img { width:100%; height:100%; object-fit:cover; }
+#tutor-overlay .t-pthumb .t-rmbtn { position:absolute; top:2px; right:2px; width:17px; height:17px; background:#E8652A; color:white; border-radius:50%; font-size:.56rem; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .15s; border:none; }
+#tutor-overlay .t-pthumb:hover .t-rmbtn { opacity:1; }
+#tutor-overlay .t-wcard { background:#EDE7D9; border-radius:10px; padding:.9rem 1.05rem; border:1.5px solid rgba(26,35,64,.12); margin-bottom:.7rem; }
+#tutor-overlay .t-wcpath { display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:.52rem; }
+#tutor-overlay .t-wcseg { font-size:.74rem; color:#1A2340; } #tutor-overlay .t-wcsep { font-size:.58rem; color:#8A8278; } #tutor-overlay .t-wcleaf { font-size:.78rem; color:#E8652A; font-weight:700; } #tutor-overlay .t-wcdate { font-family:'Space Mono',monospace; font-size:.56rem; color:#8A8278; margin-left:auto; }
+#tutor-overlay .t-wcmemo { font-size:.76rem; color:#8A8278; line-height:1.55; margin-bottom:.62rem; }
+#tutor-overlay .t-wcphotos { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:.52rem; }
+#tutor-overlay .t-wcphoto { width:55px; height:55px; border-radius:7px; overflow:hidden; border:1.5px solid rgba(26,35,64,.12); cursor:pointer; }
+#tutor-overlay .t-wcphoto img { width:100%; height:100%; object-fit:cover; }
+#tutor-overlay .t-frow { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:.85rem; }
+#tutor-overlay .t-fchip { padding:.26rem .75rem; border-radius:20px; border:1.5px solid rgba(26,35,64,.12); font-size:.71rem; font-family:'Noto Sans KR',sans-serif; cursor:pointer; background:#EDE7D9; color:#1A2340; transition:all .15s; }
+#tutor-overlay .t-fchip.active { background:#E8652A; color:white; border-color:#E8652A; font-weight:700; }
+#tutor-overlay .t-lb { display:none; position:absolute; inset:0; background:rgba(26,35,64,.9); z-index:60; align-items:center; justify-content:center; }
+#tutor-overlay .t-lb.open { display:flex; }
+#tutor-overlay .t-lb img { max-width:90%; max-height:85%; border-radius:10px; }
+#tutor-overlay .t-lbclose { position:absolute; top:1.1rem; right:1.1rem; font-size:1.55rem; color:white; cursor:pointer; }
+/* Tab6 */
+#tutor-overlay .t-cfgst { display:flex; align-items:center; gap:6px; padding:.62rem .9rem; border-radius:8px; font-size:.76rem; font-weight:700; margin-bottom:.85rem; }
+#tutor-overlay .t-cfgst.ok { background:#E8F5EE; color:#2E7D52; border:1.5px solid rgba(46,125,82,.2); }
+#tutor-overlay .t-cfgst.empty { background:#EDE7D9; color:#8A8278; border:1.5px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-sacts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.65rem; margin-bottom:1rem; }
+#tutor-overlay .t-sbcard { border:1.5px solid rgba(26,35,64,.12); border-radius:12px; padding:.85rem; text-align:center; cursor:pointer; transition:all .2s; background:white; display:flex; flex-direction:column; align-items:center; gap:.32rem; }
+#tutor-overlay .t-sbcard:hover:not(.disabled) { transform:translateY(-2px); box-shadow:0 4px 24px rgba(26,35,64,.10); }
+#tutor-overlay .t-sbcard.disabled { opacity:.4; cursor:not-allowed; }
+#tutor-overlay .t-sico2 { font-size:1.45rem; }
+#tutor-overlay .t-stitle { font-family:'Nanum Myeongjo',serif; font-size:.82rem; font-weight:700; color:#1A2340; }
+#tutor-overlay .t-sdesc { font-size:.62rem; color:#8A8278; line-height:1.4; }
+#tutor-overlay .t-logbox { background:#1A2340; border-radius:10px; padding:.85rem 1.05rem; font-family:'Space Mono',monospace; font-size:.68rem; color:rgba(245,240,232,.7); min-height:70px; max-height:150px; overflow-y:auto; line-height:1.8; }
+#tutor-overlay .t-lline { display:flex; gap:8px; }
+#tutor-overlay .t-ltime { color:rgba(245,240,232,.35); flex-shrink:0; }
+#tutor-overlay .t-lmsg.ok{color:#6fcf97;} #tutor-overlay .t-lmsg.err{color:#eb5757;} #tutor-overlay .t-lmsg.info{color:#F28C5E;}
+#tutor-overlay .t-ssbar { display:flex; align-items:center; justify-content:space-between; background:#EDE7D9; border-radius:10px; padding:.75rem 1.05rem; margin-bottom:1rem; flex-wrap:wrap; gap:.38rem; }
+#tutor-overlay .t-slast { font-family:'Space Mono',monospace; font-size:.61rem; color:#8A8278; }
+#tutor-overlay .t-sbadge { font-family:'Space Mono',monospace; font-size:.58rem; padding:.16rem .62rem; border-radius:20px; font-weight:700; }
+#tutor-overlay .t-sbadge.synced{background:#E8F5EE;color:#2E7D52;} #tutor-overlay .t-sbadge.never{background:#EDE7D9;color:#8A8278;border:1px solid rgba(26,35,64,.12);}
+#tutor-overlay .t-warn { background:#FFF8E1; border:1.5px solid #F59E0B; border-radius:10px; padding:.9rem 1.05rem; font-size:.76rem; line-height:1.7; color:#78350F; margin-bottom:.85rem; }
+#tutor-overlay .t-dsum { display:grid; grid-template-columns:repeat(4,1fr); gap:.62rem; margin-bottom:.85rem; }
+#tutor-overlay .t-di { background:#EDE7D9; border-radius:8px; padding:.62rem .42rem; text-align:center; }
+#tutor-overlay .t-din { font-family:'Space Mono',monospace; font-size:.96rem; font-weight:700; color:#1A2340; }
+#tutor-overlay .t-dil { font-size:.56rem; color:#8A8278; margin-top:1px; font-family:'Space Mono',monospace; }
+#tutor-overlay .t-trow { display:flex; gap:6px; align-items:flex-end; }
+#tutor-overlay .t-trow input { flex:1; font-family:'Space Mono',monospace; letter-spacing:1px; }
+#tutor-overlay .t-step { font-family:'Space Mono',monospace; font-size:.63rem; background:#1A2340; color:#F28C5E; padding:.1rem .42rem; border-radius:4px; }
+#tutor-overlay .t-spinner { display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:tSpin .7s linear infinite; }
+@keyframes tSpin{to{transform:rotate(360deg);}}
+/* 데이터 이전 카드 */
+#tutor-overlay .t-import-card { background:linear-gradient(135deg,#1A2340,#2C3E6B); border-radius:12px; padding:1.1rem 1.3rem; color:#F5F0E8; margin-bottom:1rem; }
+#tutor-overlay .t-import-card h3 { font-family:'Nanum Myeongjo',serif; font-size:.97rem; margin-bottom:.42rem; color:#F28C5E; }
+#tutor-overlay .t-import-card p { font-size:.73rem; line-height:1.7; color:rgba(245,240,232,.75); margin-bottom:.75rem; }
+#tutor-overlay .t-impta { width:100%; min-height:65px; font-size:.66rem; font-family:'Space Mono',monospace; border:1px solid rgba(245,240,232,.2); background:rgba(255,255,255,.08); color:#F5F0E8; padding:6px 8px; border-radius:8px; resize:vertical; }
+#tutor-overlay .t-impta:focus { border-color:#E8652A; outline:none; }
+@media(max-width:600px){
+  #tutor-overlay .t-tc{padding:.9rem;}
+  #tutor-overlay .t-fr{grid-template-columns:1fr;}
+  #tutor-overlay .t-2col{grid-template-columns:1fr;}
+  #tutor-overlay .t-dsum{grid-template-columns:repeat(2,1fr);}
+  #tutor-overlay .t-sacts{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -604,7 +836,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
   <!-- 과외 -->
   <div class="col-wrap col-tutor">
-    <div class="col-head ch-tutor">과외</div>
+    <div class="col-head ch-tutor" onclick="openTutor()" style="cursor:pointer;user-select:none;" title="과외 관리 앱 열기">과외 &thinsp;<span style="font-weight:400;font-size:.8em;">↗</span></div>
     <div class="col-body">
 
       <div class="card card-t">
@@ -748,7 +980,311 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   </div>
 </div>
 
-<!-- FOCUS PANEL -->
+<!-- ══ TUTORING OVERLAY ══ -->
+<div id="tutor-overlay">
+  <header class="t-hd">
+    <button class="t-back" onclick="closeTutor()">← 대시보드</button>
+    <div class="t-logo"><span class="t-logo-dot"></span>과외 관리 노트</div>
+    <div class="t-hd-meta" id="t-hd-meta">TUTORING NOTE</div>
+  </header>
+  <nav class="t-nav">
+    <button class="t-tab-btn active" data-ttab="dashboard" onclick="tShowTab('dashboard')">📋 대시보드</button>
+    <button class="t-tab-btn" data-ttab="tab1" onclick="tShowTab('tab1')">👤 학생 정보</button>
+    <button class="t-tab-btn" data-ttab="tab2" onclick="tShowTab('tab2')">📁 자료 모음</button>
+    <button class="t-tab-btn" data-ttab="tab3" onclick="tShowTab('tab3')">📖 수업 진도</button>
+    <button class="t-tab-btn" data-ttab="tab4" onclick="tShowTab('tab4')">💬 안내 문자</button>
+    <button class="t-tab-btn" data-ttab="tab5" onclick="tShowTab('tab5')">🎯 약점 기록</button>
+    <button class="t-tab-btn" data-ttab="tab6" onclick="tShowTab('tab6')">🔄 동기화</button>
+  </nav>
+  <div class="t-area">
+
+    <!-- 대시보드 -->
+    <div id="t-panel-dashboard" class="t-panel active">
+    <div class="t-tc">
+      <div class="t-ptitle">대시보드</div>
+      <div class="t-psub">OVERVIEW — 모든 정보를 한눈에</div>
+      <div id="t-dash-sbar"></div>
+      <div class="t-dgrid">
+        <div class="t-dc" onclick="tShowTab('tab1')"><div class="t-dc-num">TAB 01</div><div class="t-dc-title">학생 기본 정보</div><div class="t-dc-desc">학생 리스트, 프로필, 수업료 계산기</div><div class="t-dc-badge" id="t-dc-students">0명</div></div>
+        <div class="t-dc" onclick="tShowTab('tab2')"><div class="t-dc-num">TAB 02</div><div class="t-dc-title">자료 모음실</div><div class="t-dc-desc">기출, 모의고사, 추가 자료</div><div class="t-dc-badge" id="t-dc-folders">0 폴더</div></div>
+        <div class="t-dc" onclick="tShowTab('tab3')"><div class="t-dc-num">TAB 03</div><div class="t-dc-title">수업 진도 기록</div><div class="t-dc-desc">날짜, 회차, 진도, 숙제 + 문자 생성</div><div class="t-dc-badge" id="t-dc-lessons">0회</div></div>
+        <div class="t-dc" onclick="tShowTab('tab4')"><div class="t-dc-num">TAB 04</div><div class="t-dc-title">안내 문자 보관소</div><div class="t-dc-desc">학부모 발송 문자 기록 및 검색</div><div class="t-dc-badge" id="t-dc-msgs">0건</div></div>
+        <div class="t-dc" onclick="tShowTab('tab5')"><div class="t-dc-num">TAB 05</div><div class="t-dc-title">약점 기록소</div><div class="t-dc-desc">단원별 취약 유형 + 사진 첨부</div><div class="t-dc-badge" id="t-dc-weakness">0건</div></div>
+        <div class="t-dc" onclick="tShowTab('tab6')"><div class="t-dc-num">TAB 06</div><div class="t-dc-title">데이터 이전 & 동기화</div><div class="t-dc-desc">기존 데이터 불러오기 + 백업</div><div class="t-dc-badge" id="t-dc-sync">미동기화</div></div>
+      </div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📖</span>수업 진도 한눈에 보기</div>
+        <div class="t-lgrid" id="t-dash-lgrid"><div style="font-size:.76rem;color:#8A8278">수업을 기록하면 여기에 표시됩니다</div></div>
+      </div>
+      <div class="t-2col">
+        <div class="t-card"><div class="t-ctitle"><span class="t-ic">💬</span>최근 안내 문자</div><div id="t-dash-rmsg"><div style="font-size:.76rem;color:#8A8278">문자를 기록하면 여기에 표시됩니다</div></div></div>
+        <div class="t-card"><div class="t-ctitle"><span class="t-ic">🎯</span>최근 약점</div><div id="t-dash-rw"><div style="font-size:.76rem;color:#8A8278">약점을 기록하면 여기에 표시됩니다</div></div></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- 탭1: 학생 정보 -->
+    <div id="t-panel-tab1" class="t-panel">
+    <div class="t-tc">
+      <div class="t1v active" id="t1-list-view">
+        <div class="t-ptitle">학생 기본 정보</div>
+        <div class="t-psub">TAB 01 — STUDENT LIST</div>
+        <div id="t1-student-list"></div>
+        <div class="t-addbtn" onclick="t1OpenNew()">＋ 새 학생 추가</div>
+      </div>
+      <div class="t1v" id="t1-detail-view">
+        <button class="t-bbtn" onclick="t1ShowList()">← 학생 목록으로</button>
+        <div id="t1-detail-header"></div>
+        <div class="t-card">
+          <div class="t-ctitle"><span class="t-ic">👤</span>기본 프로필 <span class="t-unsaved" id="t1-unsaved"></span></div>
+          <div class="t-fr">
+            <div class="t-fg"><label class="tl">학생 이름</label><input type="text" id="t1-name" placeholder="김○○" oninput="t1Mark()"></div>
+            <div class="t-fg"><label class="tl">학년</label><select id="t1-grade" onchange="t1Mark()"><option value="">선택</option><option>중1</option><option>중2</option><option>중3</option><option>고1</option><option>고2</option><option>고3</option></select></div>
+            <div class="t-fg"><label class="tl">학생 연락처</label><input type="text" id="t1-student_phone" placeholder="010-0000-0000" oninput="t1Mark()"></div>
+            <div class="t-fg"><label class="tl">학부모 연락처</label><input type="text" id="t1-parent_phone" placeholder="010-0000-0000" oninput="t1Mark()"></div>
+            <div class="t-fg full"><label class="tl">학교명</label><input type="text" id="t1-school" placeholder="○○고등학교" oninput="t1Mark()"></div>
+          </div>
+        </div>
+        <div class="t-card">
+          <div class="t-ctitle"><span class="t-ic">📅</span>수업 정보</div>
+          <div class="t-fr">
+            <div class="t-fg"><label class="tl">수업 요일</label><input type="text" id="t1-day" placeholder="매주 월요일" oninput="t1Mark()"></div>
+            <div class="t-fg"><label class="tl">수업 시간</label><input type="text" id="t1-time" placeholder="오후 7:00 ~ 9:00" oninput="t1Mark()"></div>
+            <div class="t-fg full"><label class="tl">과목</label><input type="text" id="t1-subject" placeholder="수학 (공통수학1, 2)" oninput="t1Mark()"></div>
+            <div class="t-fg full">
+              <label class="tl">이번 달 수업료 계산기</label>
+              <div class="t-fee">
+                <div class="t-fee-in">
+                  <div class="t-fee-ig"><label class="tl">시급 (원)</label><input type="number" id="t1-hourly" placeholder="35000" oninput="t1CalcFee();t1Mark()"></div>
+                  <span class="t-fee-op">×</span>
+                  <div class="t-fee-ig"><label class="tl">회당 시간</label><input type="number" id="t1-hrs" placeholder="2" step="0.5" oninput="t1CalcFee();t1Mark()"></div>
+                  <span class="t-fee-op">×</span>
+                  <div class="t-fee-ig"><label class="tl">이번 달 횟수</label><input type="number" id="t1-sessions" placeholder="4" oninput="t1CalcFee();t1Mark()"></div>
+                </div>
+                <div class="t-fee-res">
+                  <div><div class="t-fee-rl">이번 달 수업료</div><div class="t-fee-rb" id="t1-fee-breakdown">시급 × 시간 × 횟수</div></div>
+                  <div class="t-fee-rn" id="t1-fee-total">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="t-fg full"><label class="tl">메모</label><textarea id="t1-memo" placeholder="학생에 대한 특이사항, 목표 등..." oninput="t1Mark()"></textarea></div>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <button class="t-btn t-btn-p" onclick="t1SaveCurrent()">💾 저장</button>
+            <button class="t-btn t-btn-d" onclick="t1DeleteCurrent()">학생 삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- 탭2: 자료 모음실 -->
+    <div id="t-panel-tab2" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">자료 모음실</div>
+      <div class="t-psub">TAB 02 — STUDY MATERIALS</div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📁</span>폴더 & 파일 관리</div>
+        <div id="t2-folder-list"></div>
+        <div class="t-new-folder-form" id="t2-new-folder-form">
+          <label class="tl">새 폴더 이름</label>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:.45rem">
+            <select id="t2-new-emoji" style="width:68px;flex-shrink:0"><option>📁</option><option>🏫</option><option>📝</option><option>➕</option><option>📚</option><option>🗂</option><option>⭐</option></select>
+            <input type="text" id="t2-new-name" placeholder="폴더 이름" style="flex:1">
+            <button class="t-btn t-btn-p t-btn-sm" onclick="t2AddFolder()">추가</button>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleNewFolder()">취소</button>
+          </div>
+        </div>
+        <div style="margin-top:.75rem"><button class="t-btn t-btn-g" onclick="t2ToggleNewFolder()">📁 폴더 추가</button></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- 탭3: 수업 진도 -->
+    <div id="t-panel-tab3" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">수업 진도 기록</div>
+      <div class="t-psub">TAB 03 — LESSON LOG + MESSAGE GENERATOR</div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">🗂</span>수업 한눈에 보기</div>
+        <div class="t-lgrid" id="t3-grid"><div style="font-size:.76rem;color:#8A8278">아직 기록이 없습니다</div></div>
+      </div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">✏️</span>새 수업 기록 <span id="t3-next-badge" style="font-family:'Space Mono',monospace;font-size:.68rem;background:#E8652A;color:white;padding:.12rem .55rem;border-radius:4px;margin-left:4px"></span></div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">날짜</label><input type="date" id="t3-date"></div>
+          <div class="t-fg"><label class="tl">회차</label><input type="number" id="t3-num" min="1"></div>
+          <div class="t-fg full"><label class="tl">진도 내용</label><textarea id="t3-content" placeholder="예: 공통수학1 - 인수분해 (p.45~52)" style="min-height:62px"></textarea></div>
+          <div class="t-fg full"><label class="tl">숙제 범위</label><textarea id="t3-hw" placeholder="예: 교재 p.53 ~ p.60" style="min-height:48px"></textarea></div>
+        </div>
+        <div id="t3-extra-fields"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:.28rem">
+          <button class="t-btn t-btn-p" onclick="t3Save()">💾 저장 + 문자 생성</button>
+          <button class="t-btn t-btn-g" onclick="t3AddExtra()">+ 항목 추가</button>
+        </div>
+      </div>
+      <div class="t-card" id="t3-msg-card" style="display:none">
+        <div class="t-ctitle"><span class="t-ic">💬</span>안내 문자 자동 생성</div>
+        <span class="t-tplbl">자동 완성된 내용 확인 후 마무리 인사말 입력</span>
+        <div class="t-msgtpl" id="t3-msg-preview"></div>
+        <div class="t-fg" style="margin-bottom:.9rem"><label class="tl">마무리 인사말</label><textarea id="t3-closing" placeholder="예: 오늘 집중력이 좋았어요! 숙제 꼭 확인 부탁드립니다 🙏" style="min-height:62px" oninput="t3UpdatePreview()"></textarea></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="t-btn t-btn-n" onclick="t3CopyMsg()">📋 복사</button>
+          <button class="t-btn t-btn-p" onclick="t3SaveToTab4()">탭4에 저장</button>
+          <button class="t-btn t-btn-g" onclick="document.getElementById('t3-msg-card').style.display='none'">닫기</button>
+        </div>
+      </div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📋</span>수업 기록 목록</div>
+        <div id="t3-list"></div>
+      </div>
+      <div class="t-mbg" id="t3-edit-modal">
+        <div class="t-modal">
+          <div class="t-mtitle">수업 기록 편집</div>
+          <div class="t-fr">
+            <div class="t-fg"><label class="tl">날짜</label><input type="date" id="t3e-date"></div>
+            <div class="t-fg"><label class="tl">회차</label><input type="number" id="t3e-num" min="1"></div>
+            <div class="t-fg full"><label class="tl">진도 내용</label><textarea id="t3e-content" style="min-height:62px"></textarea></div>
+            <div class="t-fg full"><label class="tl">숙제 범위</label><textarea id="t3e-hw" style="min-height:48px"></textarea></div>
+          </div>
+          <div id="t3e-extra"></div>
+          <div class="t-mact"><button class="t-btn t-btn-p" onclick="t3SaveEdit()">저장</button><button class="t-btn t-btn-g" onclick="t3CloseModal()">취소</button></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- 탭4: 안내 문자 -->
+    <div id="t-panel-tab4" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">안내 문자 보관소</div>
+      <div class="t-psub">TAB 04 — MESSAGE LOG</div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">✏️</span>문자 직접 기록</div>
+        <div class="t-fg" style="margin-bottom:.75rem"><label class="tl">발송 날짜</label><input type="date" id="t4-date"></div>
+        <div class="t-fg" style="margin-bottom:.9rem"><label class="tl">문자 내용</label><textarea id="t4-text" placeholder="학부모님께 보낸 문자 내용..." style="min-height:95px"></textarea></div>
+        <button class="t-btn t-btn-p" onclick="t4Add()">💾 저장</button>
+      </div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">💬</span>문자 기록 목록 <span style="font-family:'Space Mono',monospace;font-size:.62rem;color:#8A8278;margin-left:auto" id="t4-count">0건</span></div>
+        <div class="t-sbar2"><span class="t-sico">🔍</span><input type="text" id="t4-search" placeholder="날짜 또는 내용으로 검색..." oninput="t4Render()"></div>
+        <div id="t4-list"></div>
+      </div>
+    </div>
+    </div>
+
+    <!-- 탭5: 약점 기록소 -->
+    <div id="t-panel-tab5" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">약점 기록소</div>
+      <div class="t-psub">TAB 05 — WEAKNESS TRACKER</div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">➕</span>새 약점 추가</div>
+        <div class="t-pathdisplay" id="t5-path-preview"><span style="color:#8A8278;font-size:.76rem">아래를 입력하면 경로가 표시됩니다</span></div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">과목</label><input type="text" id="t5-subject" placeholder="공통수학1" oninput="t5UpdatePath()"></div>
+          <div class="t-fg"><label class="tl">대단원</label><input type="text" id="t5-unit1" placeholder="다항식 연산" oninput="t5UpdatePath()"></div>
+          <div class="t-fg"><label class="tl">소단원</label><input type="text" id="t5-unit2" placeholder="인수분해" oninput="t5UpdatePath()"></div>
+          <div class="t-fg"><label class="tl">특정 유형</label><input type="text" id="t5-type" placeholder="이차식" oninput="t5UpdatePath()"></div>
+          <div class="t-fg full"><label class="tl">메모</label><textarea id="t5-memo" placeholder="어떤 실수를 하는지..." style="min-height:67px"></textarea></div>
+        </div>
+        <div class="t-fg" style="margin-bottom:.9rem">
+          <label class="tl">사진 첨부 (오답 노트 등)</label>
+          <div class="t-pup" onclick="document.getElementById('t5-photo-input').click()">
+            <div class="t-pico">📷</div>
+            <div class="t-ptxt">클릭해서 사진 첨부</div>
+            <div class="t-psub2" style="font-size:.6rem;color:#8A8278;margin-top:.2rem;font-family:'Space Mono',monospace">JPG · PNG · 여러 장 가능</div>
+          </div>
+          <input type="file" id="t5-photo-input" accept="image/*" multiple style="display:none" onchange="t5HandlePhotos(this)">
+          <div class="t-pgrid" id="t5-new-preview"></div>
+        </div>
+        <button class="t-btn t-btn-p" onclick="t5Add()">📌 약점 추가</button>
+      </div>
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">🎯</span>약점 목록 <span style="font-family:'Space Mono',monospace;font-size:.62rem;color:#8A8278;margin-left:auto" id="t5-count"></span></div>
+        <div class="t-sbar2"><span class="t-sico">🔍</span><input type="text" id="t5-search" placeholder="과목, 단원, 유형으로 검색..." oninput="t5Render()"></div>
+        <div class="t-frow" id="t5-filters"></div>
+        <div id="t5-list"></div>
+      </div>
+      <div class="t-mbg" id="t5-edit-modal">
+        <div class="t-modal">
+          <div class="t-mtitle">약점 기록 편집</div>
+          <div class="t-fr">
+            <div class="t-fg"><label class="tl">과목</label><input type="text" id="t5e-subject"></div>
+            <div class="t-fg"><label class="tl">대단원</label><input type="text" id="t5e-unit1"></div>
+            <div class="t-fg"><label class="tl">소단원</label><input type="text" id="t5e-unit2"></div>
+            <div class="t-fg"><label class="tl">특정 유형</label><input type="text" id="t5e-type"></div>
+            <div class="t-fg full"><label class="tl">메모</label><textarea id="t5e-memo" style="min-height:67px"></textarea></div>
+          </div>
+          <div class="t-fg" style="margin-bottom:.9rem">
+            <label class="tl">첨부 사진 관리</label>
+            <div class="t-pup" onclick="document.getElementById('t5e-photo-input').click()" style="padding:.75rem"><div style="font-size:.8rem;color:#8A8278">📷 사진 추가</div></div>
+            <input type="file" id="t5e-photo-input" accept="image/*" multiple style="display:none" onchange="t5HandleEditPhotos(this)">
+            <div class="t-pgrid" id="t5e-preview"></div>
+          </div>
+          <div class="t-mact"><button class="t-btn t-btn-p" onclick="t5SaveEdit()">저장</button><button class="t-btn t-btn-g" onclick="t5CloseModal()">취소</button></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- 탭6: 데이터 이전 & 백업 -->
+    <div id="t-panel-tab6" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">데이터 이전 & 백업</div>
+      <div class="t-psub">TAB 06 — IMPORT & BACKUP</div>
+
+      <!-- 기존 과외 앱에서 데이터 이전 -->
+      <div class="t-import-card">
+        <h3>📥 기존 과외 앱에서 데이터 이전</h3>
+        <p>기존 과외 관리 앱에서 JSON 백업 파일을 내려받거나, 탭6 → 백업만 버튼을 눌러 JSON을 복사하세요.<br>아래에 붙여넣으면 자동으로 이전됩니다.</p>
+        <textarea class="t-impta" id="t-import-json" placeholder="기존 앱의 JSON 백업 내용을 여기에 붙여넣으세요..."></textarea>
+        <div style="display:flex;gap:7px;margin-top:.65rem;flex-wrap:wrap">
+          <button class="t-btn t-btn-p" onclick="tImportFromText()">📥 데이터 이전하기</button>
+          <button class="t-btn t-btn-g t-btn-sm" onclick="document.getElementById('t-restore-file').click()">📂 파일 선택</button>
+          <input type="file" id="t-restore-file" accept=".json" style="display:none" onchange="tImportFromFile(event)">
+        </div>
+        <div id="t-import-msg" style="font-size:.7rem;margin-top:.5rem;font-weight:700"></div>
+      </div>
+
+      <!-- 현재 데이터 현황 -->
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📊</span>현재 데이터 현황</div>
+        <div class="t-dsum">
+          <div class="t-di"><div class="t-din" id="t6-sum-students">0</div><div class="t-dil">학생</div></div>
+          <div class="t-di"><div class="t-din" id="t6-sum-lessons">0</div><div class="t-dil">수업</div></div>
+          <div class="t-di"><div class="t-din" id="t6-sum-msgs">0</div><div class="t-dil">문자</div></div>
+          <div class="t-di"><div class="t-din" id="t6-sum-weakness">0</div><div class="t-dil">약점</div></div>
+        </div>
+        <button class="t-btn t-btn-g t-btn-sm" onclick="t6RefreshSummary()">🔄 새로고침</button>
+      </div>
+
+      <!-- 로컬 백업 -->
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">💾</span>로컬 백업</div>
+        <p style="font-size:.76rem;color:#8A8278;margin-bottom:.85rem;line-height:1.6">현재 과외 데이터를 JSON 파일로 저장합니다. 대시보드의 ⇅ 동기화를 통해 Google Drive와 함께 동기화됩니다.</p>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="t-btn t-btn-p" onclick="t6BackupOnly()">💾 JSON 백업 저장</button>
+        </div>
+        <div class="t-sep"></div>
+        <label class="tl" style="margin-bottom:.45rem">백업 파일에서 복원</label>
+        <input type="file" id="t6-restore-input" accept=".json" style="font-size:.76rem" onchange="t6RestoreFromFile(this)">
+        <div class="t-hint">이전에 저장한 tutoring_backup_날짜.json 파일을 선택하면 복원됩니다.</div>
+      </div>
+
+    </div>
+    </div>
+
+  </div><!-- /t-area -->
+
+  <!-- lightbox -->
+  <div class="t-lb" id="t-lightbox" onclick="tCloseLightbox()">
+    <span class="t-lbclose" onclick="tCloseLightbox()">✕</span>
+    <img id="t-lightbox-img" src="" alt="">
+  </div>
+  <!-- toast -->
+  <div id="t-toast"></div>
+</div><!-- /tutor-overlay -->
 <div id="focus-panel">
   <div class="fp-head">
     <span class="fp-title">⚡ 지금 끝낼 일들</span>
@@ -1190,6 +1726,345 @@ function fpRemove(fid){
   rFpItems(); rFpSource();
 }
 
+/* ══════════════════════════════════════
+   TUTORING OVERLAY JS
+══════════════════════════════════════ */
+
+/* ── 오버레이 열기/닫기 ── */
+function openTutor(){
+  document.getElementById('tutor-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  tInit();
+}
+function closeTutor(){
+  document.getElementById('tutor-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ── 탭 전환 ── */
+let tCurrentTab='dashboard';
+function tShowTab(id){
+  document.querySelectorAll('.t-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.t-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('t-panel-'+id).classList.add('active');
+  document.querySelector(`[data-ttab="${id}"]`).classList.add('active');
+  tCurrentTab=id;
+  if(id==='dashboard') tDashRefresh();
+  if(id==='tab6') t6RefreshSummary();
+}
+
+/* ── 공통 유틸 ── */
+function tEscH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function tEscR(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function tToday(){return new Date().toISOString().split('T')[0];}
+function tShowToast(msg,dur=2800){
+  const t=document.getElementById('t-toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+function tOpenLightbox(src){document.getElementById('t-lightbox-img').src=src;document.getElementById('t-lightbox').classList.add('open');}
+function tCloseLightbox(){document.getElementById('t-lightbox').classList.remove('open');}
+
+/* ── localStorage 키 (기존 앱과 동일) ── */
+const TK1='t1',TK2='t2',TK3='t3',TK4='t4',TK5='t5';
+
+/* ── 초기화 ── */
+let tInited=false;
+function tInit(){
+  if(tInited) return;
+  tInited=true;
+  t1Load(); t2Load(); t3Load(); t4Load(); t5Load();
+  tDashRefresh();
+}
+
+/* ── 대시보드 ── */
+function tDashRefresh(){
+  const students=JSON.parse(localStorage.getItem(TK1)||'[]');
+  const el=document.getElementById('t-dash-sbar');
+  if(!students.length){
+    el.innerHTML=`<div class="t-sbar"><div class="t-savatar">?</div><div class="t-sinfo"><div class="t-sname">학생 없음</div><div class="t-smeta">학생 정보 탭에서 추가하세요</div></div></div>`;
+  } else {
+    el.innerHTML=students.slice(0,3).map(s=>`<div class="t-sbar" style="cursor:pointer" onclick="tShowTab('tab1')"><div class="t-savatar">${tEscH((s.name||'?').charAt(0))}</div><div class="t-sinfo"><div class="t-sname">${tEscH(s.name||'이름 없음')}</div><div class="t-smeta">${tEscH([s.grade,s.subject].filter(Boolean).join(' · ')||'정보 없음')}</div></div>${students.length>1?`<div style="font-family:'Space Mono',monospace;font-size:.59rem;color:rgba(245,240,232,.4);margin-left:auto">총 ${students.length}명</div>`:''}</div>`).join('');
+  }
+  // 헤더 메타
+  const hm=document.getElementById('t-hd-meta');
+  if(hm) hm.textContent=students.length===1?[students[0].grade,students[0].subject].filter(Boolean).join(' · ')||'과외노트':students.length>1?`학생 ${students.length}명`:'TUTORING NOTE';
+
+  const l3=JSON.parse(localStorage.getItem(TK3)||'[]');
+  const m4=JSON.parse(localStorage.getItem(TK4)||'[]');
+  const w5=JSON.parse(localStorage.getItem(TK5)||'[]');
+  const f2=JSON.parse(localStorage.getItem(TK2)||'[]');
+
+  document.getElementById('t-dc-students').textContent=students.length+'명';
+  document.getElementById('t-dc-folders').textContent=f2.length+' 폴더';
+  document.getElementById('t-dc-lessons').textContent=l3.length+'회';
+  document.getElementById('t-dc-msgs').textContent=m4.length+'건';
+  document.getElementById('t-dc-weakness').textContent=w5.length+'건';
+
+  const lg=document.getElementById('t-dash-lgrid');
+  if(!l3.length){lg.innerHTML='<div style="font-size:.74rem;color:#8A8278">수업을 기록하면 여기에 표시됩니다</div>';}
+  else{lg.innerHTML=l3.map(l=>{const d=l.date?l.date.slice(5).replace('-','/'):'';return`<div class="t-lbox done" title="${l.date}"><span class="t-lnum">${l.num}</span><span class="t-ldate">${d}</span></div>`;}).join('');}
+
+  const rm=document.getElementById('t-dash-rmsg');
+  if(!m4.length) rm.innerHTML='<div style="font-size:.74rem;color:#8A8278">문자를 기록하면 여기에 표시됩니다</div>';
+  else{const m=m4[0],d=(m.date||'').replace(/-/g,'.'),prev=m.text.length>80?m.text.slice(0,80)+'…':m.text;rm.innerHTML=`<div class="t-rmsg-date">${d}</div><div class="t-rmsg">${tEscH(prev)}</div>`;}
+
+  const rw=document.getElementById('t-dash-rw');
+  if(!w5.length) rw.innerHTML='<div style="font-size:.74rem;color:#8A8278">약점을 기록하면 여기에 표시됩니다</div>';
+  else rw.innerHTML=w5.slice(0,4).map(w=>{const p=[w.subject,w.unit1,w.unit2].filter(Boolean);return`<span class="t-wtag">${p.map(x=>`<span>${tEscH(x)}</span><span style="color:#8A8278;font-size:.6rem">›</span>`).join('')}<span style="color:#E8652A;font-weight:700">${tEscH(w.type)}</span></span>`;}).join('');
+}
+
+/* ══ 탭1 - 학생 정보 ══ */
+let t1students=[], t1currentIdx=null;
+const T1_FIELDS=['name','grade','student_phone','parent_phone','school','day','time','subject','hourly','hrs','sessions','memo'];
+
+function t1Load(){
+  const raw=localStorage.getItem(TK1);
+  if(raw){const p=JSON.parse(raw);t1students=Array.isArray(p)?p:(p&&p.name?[p]:[]);}
+  else t1students=[];
+  t1RenderList();
+}
+function t1Save_(){ localStorage.setItem(TK1,JSON.stringify(t1students)); }
+function t1RenderList(){
+  const c=document.getElementById('t1-student-list');
+  if(!t1students.length){c.innerHTML='<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">👤</div>학생이 없습니다.<br>아래 버튼으로 추가하세요.</div>';return;}
+  c.innerHTML=t1students.map((s,i)=>`<div class="t-scard" onclick="t1OpenDetail(${i})"><div class="t-scavatar">${tEscH((s.name||'?').charAt(0))}</div><div style="flex:1;min-width:0"><div class="t-scname">${tEscH(s.name||'이름 없음')}</div><div class="t-scmeta">${tEscH([s.grade,s.subject,s.school].filter(Boolean).join(' · ')||'정보 없음')}</div></div><span style="color:#8A8278;font-size:.88rem">›</span></div>`).join('');
+}
+function t1ShowList(){
+  document.getElementById('t1-list-view').classList.add('active');
+  document.getElementById('t1-detail-view').classList.remove('active');
+  t1RenderList();
+}
+function t1OpenNew(){
+  t1currentIdx=null;
+  T1_FIELDS.forEach(f=>{const el=document.getElementById('t1-'+f);if(el)el.value='';});
+  t1CalcFee();
+  document.getElementById('t1-detail-header').innerHTML=`<div class="t-dhdr"><div class="t-davatar">+</div><div><div class="t-dname">새 학생</div><div class="t-dmeta">정보를 입력하고 저장하세요</div></div></div>`;
+  document.getElementById('t1-unsaved').classList.remove('vis');
+  document.getElementById('t1-list-view').classList.remove('active');
+  document.getElementById('t1-detail-view').classList.add('active');
+}
+function t1OpenDetail(i){
+  t1currentIdx=i; const s=t1students[i];
+  T1_FIELDS.forEach(f=>{const el=document.getElementById('t1-'+f);if(el)el.value=s[f]!==undefined?s[f]:'';});
+  t1CalcFee();
+  document.getElementById('t1-detail-header').innerHTML=`<div class="t-dhdr"><div class="t-davatar">${tEscH((s.name||'?').charAt(0))}</div><div><div class="t-dname">${tEscH(s.name||'이름 없음')}</div><div class="t-dmeta">${tEscH([s.grade,s.subject].filter(Boolean).join(' · ')||'정보 없음')}</div></div></div>`;
+  document.getElementById('t1-unsaved').classList.remove('vis');
+  document.getElementById('t1-list-view').classList.remove('active');
+  document.getElementById('t1-detail-view').classList.add('active');
+}
+function t1Mark(){ document.getElementById('t1-unsaved').classList.add('vis'); }
+function t1CalcFee(){
+  const h=parseFloat(document.getElementById('t1-hourly').value)||0, t=parseFloat(document.getElementById('t1-hrs').value)||0, s=parseFloat(document.getElementById('t1-sessions').value)||0, total=h*t*s;
+  document.getElementById('t1-fee-breakdown').textContent=(h&&t&&s)?`${h.toLocaleString()}원 × ${t*s}h (${t}h × ${s}회)`:'시급 × 시간 × 횟수';
+  document.getElementById('t1-fee-total').textContent=total>0?total.toLocaleString()+'원':'—';
+}
+function t1SaveCurrent(){
+  const d={}; T1_FIELDS.forEach(f=>{const el=document.getElementById('t1-'+f);if(el)d[f]=el.value;});
+  if(!d.name){tShowToast('❗ 학생 이름을 입력하세요');return;}
+  if(t1currentIdx===null){t1students.push(d);t1currentIdx=t1students.length-1;}
+  else t1students[t1currentIdx]=d;
+  t1Save_(); document.getElementById('t1-unsaved').classList.remove('vis');
+  document.getElementById('t1-detail-header').innerHTML=`<div class="t-dhdr"><div class="t-davatar">${tEscH((d.name||'?').charAt(0))}</div><div><div class="t-dname">${tEscH(d.name)}</div><div class="t-dmeta">${tEscH([d.grade,d.subject].filter(Boolean).join(' · ')||'정보 없음')}</div></div></div>`;
+  tShowToast('✅ 저장되었습니다'); tDashRefresh();
+}
+function t1DeleteCurrent(){
+  if(t1currentIdx===null){tShowToast('❗ 먼저 저장하세요');return;}
+  const name=t1students[t1currentIdx].name||'이 학생';
+  if(!confirm(`"${name}"을(를) 삭제할까요?`))return;
+  t1students.splice(t1currentIdx,1); t1Save_(); t1ShowList(); tShowToast('🗑 삭제되었습니다'); tDashRefresh();
+}
+
+/* ══ 탭2 - 자료 모음실 ══ */
+const T2_DEFAULT=[{id:'f1',emoji:'🏫',name:'학교 기출 파일',files:[]},{id:'f2',emoji:'📝',name:'모의고사',files:[]},{id:'f3',emoji:'➕',name:'추가 자료',files:[]}];
+let t2folders=[];
+function t2Load(){const r=localStorage.getItem(TK2);t2folders=r?JSON.parse(r):JSON.parse(JSON.stringify(T2_DEFAULT));t2Render();}
+function t2Save(){localStorage.setItem(TK2,JSON.stringify(t2folders));}
+function t2Render(){
+  const c=document.getElementById('t2-folder-list');
+  if(!t2folders.length){c.innerHTML='<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">📂</div>폴더가 없습니다</div>';return;}
+  c.innerHTML=t2folders.map((f,fi)=>`<div class="t-fwrap"><div class="t-fhdr" onclick="t2Toggle(${fi})"><span>${f.emoji}</span><input class="t-fname-input" value="${tEscH(f.name)}" onclick="event.stopPropagation()" onchange="t2Rename(${fi},this.value)" title="이름 수정"><span class="t-fcount">${f.files.length}개 파일</span><span class="t-fchev ${f.open?'open':''}">▶</span></div><div class="t-fbody ${f.open?'open':''}">${!f.files.length?'<div style="font-size:.76rem;color:#8A8278;padding:.28rem 0">파일 경로가 없습니다</div>':f.files.map((fl,fi2)=>`<div class="t-fitem"><span class="t-ficon">📄</span><span class="t-fname">${tEscH(fl.name)}</span><a class="t-fopen" href="${tEscH(fl.path)}" target="_blank">열기 ↗</a><button class="t-btn t-btn-d" onclick="t2RemoveFile(${fi},${fi2})">삭제</button><div class="t-fpath">${tEscH(fl.path)}</div></div>`).join('')}<div class="t-add-file-form" id="t2-add-form-${fi}"><div class="t-fr" style="margin-bottom:.65rem"><div class="t-fg"><label class="tl">파일 이름</label><input type="text" id="t2-fname-${fi}" placeholder="파일명.pdf"></div><div class="t-fg"><label class="tl">경로 또는 URL</label><input type="text" id="t2-fpath-${fi}" placeholder="C:\\...\\파일.pdf"></div></div><div style="display:flex;gap:7px"><button class="t-btn t-btn-p t-btn-sm" onclick="t2AddFile(${fi})">추가</button><button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleAddForm(${fi})">취소</button></div></div><div style="margin-top:.65rem;display:flex;gap:7px;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleAddForm(${fi})">+ 파일 추가</button><button class="t-btn t-btn-d" onclick="t2RemoveFolder(${fi})">폴더 삭제</button></div></div></div>`).join('');
+}
+function t2Toggle(i){t2folders[i].open=!t2folders[i].open;t2Save();t2Render();}
+function t2Rename(i,v){t2folders[i].name=v;t2Save();}
+function t2ToggleAddForm(i){const f=document.getElementById('t2-add-form-'+i);f.classList.toggle('open');}
+function t2AddFile(fi){const name=(document.getElementById('t2-fname-'+fi).value||'').trim(),path=(document.getElementById('t2-fpath-'+fi).value||'').trim();if(!name||!path){tShowToast('❗ 이름과 경로를 입력하세요');return;}t2folders[fi].files.push({name,path});t2Save();t2Render();tShowToast('✅ 파일이 추가되었습니다');}
+function t2RemoveFile(fi,fi2){if(!confirm('이 파일을 삭제할까요?'))return;t2folders[fi].files.splice(fi2,1);t2Save();t2Render();tShowToast('🗑 삭제되었습니다');}
+function t2RemoveFolder(fi){if(!confirm(`"${t2folders[fi].name}" 폴더를 삭제할까요?`))return;t2folders.splice(fi,1);t2Save();t2Render();tShowToast('🗑 폴더가 삭제되었습니다');}
+function t2ToggleNewFolder(){document.getElementById('t2-new-folder-form').classList.toggle('open');}
+function t2AddFolder(){const emoji=document.getElementById('t2-new-emoji').value,name=(document.getElementById('t2-new-name').value||'').trim();if(!name){tShowToast('❗ 폴더 이름을 입력하세요');return;}t2folders.push({id:'f'+Date.now(),emoji,name,files:[],open:false});t2Save();t2Render();document.getElementById('t2-new-folder-form').classList.remove('open');document.getElementById('t2-new-name').value='';tShowToast('✅ 폴더가 추가되었습니다');}
+
+/* ══ 탭3 - 수업 진도 ══ */
+let t3lessons=[], t3editIdx=null, t3curMsg=null, t3extraCount=0;
+function t3Load(){const r=localStorage.getItem(TK3);t3lessons=r?JSON.parse(r):[];t3Render();t3SetNext();document.getElementById('t3-date').value=tToday();}
+function t3Save_(){ localStorage.setItem(TK3,JSON.stringify(t3lessons)); }
+function t3SetNext(){const n=t3lessons.length+1;document.getElementById('t3-num').value=n;document.getElementById('t3-next-badge').textContent=n+'회차';}
+function t3AddExtra(){t3extraCount++;const w=document.getElementById('t3-extra-fields'),d=document.createElement('div');d.className='t-exitem';d.innerHTML=`<input type="text" placeholder="항목명" class="t-exkey"><textarea placeholder="내용" style="min-height:48px" class="t-exval"></textarea><button class="t-rmfbtn" onclick="this.parentElement.remove()">✕</button>`;w.appendChild(d);}
+function t3GetExtras(container){const ex={};container.querySelectorAll('.t-exitem').forEach(item=>{const k=item.querySelector('.t-exkey').value.trim(),v=item.querySelector('.t-exval').value.trim();if(k)ex[k]=v;});return ex;}
+function t3Save(){
+  const num=parseInt(document.getElementById('t3-num').value)||t3lessons.length+1,date=document.getElementById('t3-date').value,content=(document.getElementById('t3-content').value||'').trim(),hw=(document.getElementById('t3-hw').value||'').trim();
+  if(!date){tShowToast('❗ 날짜를 입력하세요');return;}
+  if(!content){tShowToast('❗ 진도 내용을 입력하세요');return;}
+  const extras=t3GetExtras(document.getElementById('t3-extra-fields'));
+  const lesson={num,date,content,hw,extras};
+  t3lessons.push(lesson);t3lessons.sort((a,b)=>new Date(a.date)-new Date(b.date));t3lessons.forEach((l,i)=>l.num=i+1);
+  t3Save_();t3Render();t3SetNext();
+  document.getElementById('t3-content').value='';document.getElementById('t3-hw').value='';document.getElementById('t3-date').value=tToday();document.getElementById('t3-extra-fields').innerHTML='';t3extraCount=0;
+  t3curMsg=lesson;t3OpenMsg();tShowToast('✅ '+num+'회차 수업이 저장되었습니다');tDashRefresh();
+}
+function t3OpenMsg(){document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
+function t3BuildMsg(l,closing){let m=`안녕하세요 어머니, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim();return m.trim();}
+function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
+function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
+function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});localStorage.setItem(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
+function t3Render(){t3RenderGrid();t3RenderList();}
+function t3RenderGrid(){const g=document.getElementById('t3-grid');if(!t3lessons.length){g.innerHTML='<div style="font-size:.74rem;color:#8A8278">아직 기록이 없습니다</div>';return;}g.innerHTML=t3lessons.map((l,i)=>{const d=l.date?l.date.slice(5).replace('-','/'):'';return`<div class="t-lbox done" onclick="t3ScrollTo(${i})" title="${l.date}"><span class="t-lnum">${l.num}</span><span class="t-ldate">${d}</span></div>`;}).join('');}
+function t3ScrollTo(i){const el=document.getElementById('t3-rec-'+(t3lessons.length-1-i));if(el)el.scrollIntoView({behavior:'smooth'});}
+function t3RenderList(){
+  const list=document.getElementById('t3-list');
+  if(!t3lessons.length){list.innerHTML='<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">📖</div>아직 기록이 없습니다</div>';return;}
+  list.innerHTML=[...t3lessons].reverse().map((l,ri)=>{
+    const i=t3lessons.length-1-ri;
+    const exH=l.extras?Object.entries(l.extras).filter(([k])=>k).map(([k,v])=>`<div class="t-lf"><div class="t-lfl">${tEscH(k)}</div><div class="t-lfv">${tEscH(v||'-')}</div></div>`).join(''):'';
+    return`<div class="t-lrec" id="t3-rec-${ri}"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:.65rem"><span class="t-lbadge">${l.num}회차</span><span class="t-ldlbl">${(l.date||'').replace(/-/g,'.')}</span></div><div><div class="t-lf"><div class="t-lfl">진도 내용</div><div class="t-lfv">${tEscH(l.content)}</div></div><div class="t-lf"><div class="t-lfl">숙제 범위</div><div class="t-lfv t-hwv">${tEscH(l.hw||'—')}</div></div>${exH}</div><div style="display:flex;gap:5px;margin-top:.65rem;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t3OpenEditModal(${i})">수정</button><button class="t-btn t-btn-g t-btn-sm" onclick="t3GenMsg(${i})">💬 문자 생성</button><button class="t-btn t-btn-d" onclick="t3Delete(${i})">삭제</button></div></div>`;
+  }).join('');
+}
+function t3Delete(i){if(!confirm(t3lessons[i].num+'회차 수업 기록을 삭제할까요?'))return;t3lessons.splice(i,1);t3lessons.forEach((l,idx)=>l.num=idx+1);t3Save_();t3Render();t3SetNext();tShowToast('🗑 삭제되었습니다');tDashRefresh();}
+function t3GenMsg(i){t3curMsg=t3lessons[i];document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
+function t3OpenEditModal(i){t3editIdx=i;const l=t3lessons[i];document.getElementById('t3e-date').value=l.date||'';document.getElementById('t3e-num').value=l.num;document.getElementById('t3e-content').value=l.content||'';document.getElementById('t3e-hw').value=l.hw||'';const ex=document.getElementById('t3e-extra');ex.innerHTML='';if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{const d=document.createElement('div');d.className='t-exitem';d.innerHTML=`<input type="text" value="${tEscH(k)}" placeholder="항목명" class="t-exkey"><textarea style="min-height:48px" class="t-exval">${tEscH(v)}</textarea><button class="t-rmfbtn" onclick="this.parentElement.remove()">✕</button>`;ex.appendChild(d);});document.getElementById('t3-edit-modal').classList.add('open');}
+function t3CloseModal(){document.getElementById('t3-edit-modal').classList.remove('open');t3editIdx=null;}
+function t3SaveEdit(){if(t3editIdx===null)return;const l=t3lessons[t3editIdx];l.date=document.getElementById('t3e-date').value;l.num=parseInt(document.getElementById('t3e-num').value);l.content=document.getElementById('t3e-content').value.trim();l.hw=document.getElementById('t3e-hw').value.trim();l.extras=t3GetExtras(document.getElementById('t3e-extra'));t3lessons.sort((a,b)=>new Date(a.date)-new Date(b.date));t3lessons.forEach((x,i)=>x.num=i+1);t3Save_();t3Render();t3SetNext();t3CloseModal();tShowToast('✅ 수정되었습니다');}
+document.getElementById('t3-edit-modal').addEventListener('click',function(e){if(e.target===this)t3CloseModal();});
+
+/* ══ 탭4 - 안내 문자 ══ */
+let t4msgs=[];
+function t4Load(){const r=localStorage.getItem(TK4);t4msgs=r?JSON.parse(r):[];document.getElementById('t4-date').value=tToday();t4Render();}
+function t4Save_(){ localStorage.setItem(TK4,JSON.stringify(t4msgs)); }
+function t4Add(){const date=document.getElementById('t4-date').value,text=(document.getElementById('t4-text').value||'').trim();if(!date){tShowToast('❗ 날짜를 입력하세요');return;}if(!text){tShowToast('❗ 내용을 입력하세요');return;}t4msgs.unshift({date,text,id:Date.now()});t4Save_();t4Render();document.getElementById('t4-text').value='';document.getElementById('t4-date').value=tToday();tShowToast('✅ 저장되었습니다');tDashRefresh();}
+function t4Render(){
+  const q=(document.getElementById('t4-search').value||'').toLowerCase();
+  const list=document.getElementById('t4-list'),cnt=document.getElementById('t4-count');
+  let filtered=t4msgs;
+  if(q)filtered=t4msgs.filter(m=>(m.date||'').includes(q)||(m.text||'').toLowerCase().includes(q));
+  cnt.textContent=filtered.length+'건'+(q?' (검색)':'');
+  if(!filtered.length){list.innerHTML=`<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">💬</div>${q?'검색 결과 없음':'아직 기록이 없습니다'}</div>`;return;}
+  list.innerHTML=filtered.map(m=>{
+    const ri=t4msgs.indexOf(m),d=(m.date||''),parts=d.split('-');
+    const md=parts.length>=3?parts[1]+'.'+parts[2]:d,wd=d?['일','월','화','수','목','금','토'][new Date(d).getDay()]:'';
+    const tH=q?tEscH(m.text).replace(new RegExp(tEscR(tEscH(q)),'gi'),s=>`<mark class="highlight">${s}</mark>`):tEscH(m.text);
+    return`<div class="t-mitem"><div class="t-mleft"><div class="t-mdn">${md}</div><div class="t-mdd">${wd}<br>${parts[0]||''}</div></div><div style="flex:1"><div class="t-mbubble" id="t4-bubble-${ri}">${tH}</div><div style="display:flex;gap:5px;margin-top:.55rem;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t4Copy(${ri})">📋 복사</button><button class="t-btn t-btn-g t-btn-sm" onclick="t4StartEdit(${ri})">수정</button><button class="t-btn t-btn-d" onclick="t4Delete(${ri})">삭제</button></div></div></div>`;
+  }).join('');
+}
+function t4Copy(i){const text=t4msgs[i].text;navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
+function t4StartEdit(i){const b=document.getElementById('t4-bubble-'+i);b.classList.add('editing');b.innerHTML=`<textarea id="t4-eta-${i}" style="min-height:95px">${tEscH(t4msgs[i].text)}</textarea><div style="padding:0 .9rem .75rem;display:flex;gap:5px"><button class="t-btn t-btn-p t-btn-sm" onclick="t4SaveEdit(${i})">저장</button><button class="t-btn t-btn-g t-btn-sm" onclick="t4Render()">취소</button></div>`;}
+function t4SaveEdit(i){const v=(document.getElementById('t4-eta-'+i).value||'').trim();if(!v){tShowToast('❗ 내용을 입력하세요');return;}t4msgs[i].text=v;t4Save_();t4Render();tShowToast('✅ 수정되었습니다');}
+function t4Delete(i){if(!confirm('이 문자 기록을 삭제할까요?'))return;t4msgs.splice(i,1);t4Save_();t4Render();tShowToast('🗑 삭제되었습니다');tDashRefresh();}
+
+/* ══ 탭5 - 약점 기록소 ══ */
+let t5items=[], t5editIdx=null, t5newPhotos=[], t5editPhotos=[], t5activeFilter=null;
+function t5Load(){const r=localStorage.getItem(TK5);t5items=r?JSON.parse(r):[];t5Render();}
+function t5Save_(){ localStorage.setItem(TK5,JSON.stringify(t5items)); }
+function t5UpdatePath(){
+  const s=(document.getElementById('t5-subject').value||'').trim(),u1=(document.getElementById('t5-unit1').value||'').trim(),u2=(document.getElementById('t5-unit2').value||'').trim(),t=(document.getElementById('t5-type').value||'').trim(),parts=[s,u1,u2].filter(Boolean),prev=document.getElementById('t5-path-preview');
+  if(!parts.length&&!t){prev.innerHTML='<span style="color:#8A8278;font-size:.76rem">아래를 입력하면 경로가 표시됩니다</span>';return;}
+  let h=parts.map(p=>`<span class="t-pseg">${tEscH(p)}</span><span class="t-psep">›</span>`).join('');
+  if(t)h+=`<span class="t-pleaf">${tEscH(t)}</span>`;
+  prev.innerHTML=h;
+}
+function t5HandlePhotos(input){Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{t5newPhotos.push(e.target.result);t5RenderNewPrev();};r.readAsDataURL(f);});input.value='';}
+function t5RenderNewPrev(){const c=document.getElementById('t5-new-preview');c.innerHTML=t5newPhotos.map((s,i)=>`<div class="t-pthumb"><img src="${s}" alt="사진${i+1}"><button class="t-rmbtn" onclick="t5newPhotos.splice(${i},1);t5RenderNewPrev()">✕</button></div>`).join('');}
+function t5Add(){
+  const subject=(document.getElementById('t5-subject').value||'').trim(),unit1=(document.getElementById('t5-unit1').value||'').trim(),unit2=(document.getElementById('t5-unit2').value||'').trim(),type=(document.getElementById('t5-type').value||'').trim(),memo=(document.getElementById('t5-memo').value||'').trim();
+  if(!subject){tShowToast('❗ 과목을 입력하세요');return;}if(!type){tShowToast('❗ 특정 유형을 입력하세요');return;}
+  t5items.unshift({id:Date.now(),subject,unit1,unit2,type,memo,photos:[...t5newPhotos],date:tToday()});
+  t5Save_();['t5-subject','t5-unit1','t5-unit2','t5-type','t5-memo'].forEach(id=>document.getElementById(id).value='');
+  t5newPhotos=[];t5RenderNewPrev();t5UpdatePath();t5Render();tShowToast('📌 약점이 기록되었습니다');tDashRefresh();
+}
+function t5Render(){
+  const q=(document.getElementById('t5-search').value||'').toLowerCase();
+  t5RenderFilters();
+  let filtered=t5items;
+  if(t5activeFilter)filtered=filtered.filter(w=>w.subject===t5activeFilter);
+  if(q)filtered=filtered.filter(w=>[w.subject,w.unit1,w.unit2,w.type,w.memo].join(' ').toLowerCase().includes(q));
+  document.getElementById('t5-count').textContent=filtered.length+'건';
+  const list=document.getElementById('t5-list');
+  if(!filtered.length){list.innerHTML=`<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">🎯</div>${q||t5activeFilter?'검색 결과 없음':'아직 기록이 없습니다'}</div>`;return;}
+  list.innerHTML=filtered.map(w=>{
+    const ri=t5items.indexOf(w),parts=[w.subject,w.unit1,w.unit2].filter(Boolean);
+    const photosH=w.photos&&w.photos.length?`<div class="t-wcphotos">${w.photos.map((src,pi)=>`<div class="t-wcphoto" onclick="tOpenLightbox('${src}')"><img src="${src}" alt="사진${pi+1}"></div>`).join('')}</div>`:'';
+    return`<div class="t-wcard"><div class="t-wcpath">${parts.map(p=>`<span class="t-wcseg">${tEscH(p)}</span><span class="t-wcsep">›</span>`).join('')}<span class="t-wcleaf">${tEscH(w.type)}</span><span class="t-wcdate">${w.date||''}</span></div><div class="t-wcmemo">${tEscH(w.memo||'메모 없음')}</div>${photosH}<div style="display:flex;gap:5px;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t5OpenEdit(${ri})">수정</button><button class="t-btn t-btn-d" onclick="t5Delete(${ri})">삭제</button></div></div>`;
+  }).join('');
+}
+function t5RenderFilters(){const subjects=[...new Set(t5items.map(w=>w.subject).filter(Boolean))];const c=document.getElementById('t5-filters');if(!subjects.length){c.innerHTML='';return;}c.innerHTML=`<span class="t-fchip ${!t5activeFilter?'active':''}" onclick="t5SetFilter(null)">전체</span>`+subjects.map(s=>`<span class="t-fchip ${t5activeFilter===s?'active':''}" onclick="t5SetFilter('${tEscH(s)}')">${tEscH(s)}</span>`).join('');}
+function t5SetFilter(v){t5activeFilter=v;t5Render();}
+function t5Delete(i){if(!confirm('이 약점 기록을 삭제할까요?'))return;t5items.splice(i,1);t5Save_();t5Render();tShowToast('🗑 삭제되었습니다');tDashRefresh();}
+function t5OpenEdit(i){t5editIdx=i;const w=t5items[i];document.getElementById('t5e-subject').value=w.subject||'';document.getElementById('t5e-unit1').value=w.unit1||'';document.getElementById('t5e-unit2').value=w.unit2||'';document.getElementById('t5e-type').value=w.type||'';document.getElementById('t5e-memo').value=w.memo||'';t5editPhotos=[...(w.photos||[])];t5RenderEditPrev();document.getElementById('t5-edit-modal').classList.add('open');}
+function t5CloseModal(){document.getElementById('t5-edit-modal').classList.remove('open');t5editIdx=null;t5editPhotos=[];}
+function t5HandleEditPhotos(input){Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{t5editPhotos.push(e.target.result);t5RenderEditPrev();};r.readAsDataURL(f);});input.value='';}
+function t5RenderEditPrev(){const c=document.getElementById('t5e-preview');c.innerHTML=t5editPhotos.map((s,i)=>`<div class="t-pthumb"><img src="${s}" alt="사진${i+1}"><button class="t-rmbtn" onclick="t5editPhotos.splice(${i},1);t5RenderEditPrev()">✕</button></div>`).join('');}
+function t5SaveEdit(){if(t5editIdx===null)return;const w=t5items[t5editIdx];w.subject=document.getElementById('t5e-subject').value.trim();w.unit1=document.getElementById('t5e-unit1').value.trim();w.unit2=document.getElementById('t5e-unit2').value.trim();w.type=document.getElementById('t5e-type').value.trim();w.memo=document.getElementById('t5e-memo').value.trim();w.photos=[...t5editPhotos];t5Save_();t5Render();t5CloseModal();tShowToast('✅ 수정되었습니다');}
+document.getElementById('t5-edit-modal').addEventListener('click',function(e){if(e.target===this)t5CloseModal();});
+
+/* ══ 탭6 - 데이터 이전 & 백업 ══ */
+function t6RefreshSummary(){
+  const students=JSON.parse(localStorage.getItem(TK1)||'[]');
+  const l=JSON.parse(localStorage.getItem(TK3)||'[]'),m=JSON.parse(localStorage.getItem(TK4)||'[]'),w=JSON.parse(localStorage.getItem(TK5)||'[]');
+  document.getElementById('t6-sum-students').textContent=Array.isArray(students)?students.length:1;
+  document.getElementById('t6-sum-lessons').textContent=l.length;
+  document.getElementById('t6-sum-msgs').textContent=m.length;
+  document.getElementById('t6-sum-weakness').textContent=w.length;
+}
+function t6BackupOnly(){
+  const data={t1:JSON.parse(localStorage.getItem(TK1)||'[]'),t2:JSON.parse(localStorage.getItem(TK2)||'[]'),t3:JSON.parse(localStorage.getItem(TK3)||'[]'),t4:JSON.parse(localStorage.getItem(TK4)||'[]'),t5:JSON.parse(localStorage.getItem(TK5)||'[]').map(item=>({...item,photos:[]})),_at:new Date().toISOString(),_v:2};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a'),dateStr=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`tutoring_backup_${dateStr}.json`;a.click();URL.revokeObjectURL(url);
+  tShowToast('💾 백업 파일이 저장되었습니다');
+}
+function t6RestoreFromFile(input){
+  const file=input.files[0]; if(!file)return;
+  if(!confirm('백업 파일에서 데이터를 복원할까요?\n현재 데이터는 덮어씌워집니다.'))return;
+  const reader=new FileReader();
+  reader.onload=e=>{tApplyImport(e.target.result,'백업 파일');};
+  reader.readAsText(file);input.value='';
+}
+function tImportFromText(){
+  const text=document.getElementById('t-import-json').value.trim();
+  if(!text){tShowToast('❗ JSON을 붙여넣어 주세요');return;}
+  tApplyImport(text,'붙여넣기');
+}
+function tImportFromFile(e){
+  const file=e.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>tApplyImport(ev.target.result,'파일');
+  reader.readAsText(file); e.target.value='';
+}
+function tApplyImport(text, source){
+  const msgEl=document.getElementById('t-import-msg');
+  try{
+    const data=JSON.parse(text);
+    const keys=['t1','t2','t3','t4','t5'];
+    if(!keys.some(k=>k in data)) throw new Error('올바른 과외 앱 데이터가 아닙니다');
+    // 기존 사진 유지
+    if(data.t5){
+      const ex=JSON.parse(localStorage.getItem(TK5)||'[]'),pm={};
+      ex.forEach(item=>{if(item.id)pm[item.id]=item.photos||[];});
+      data.t5=data.t5.map(item=>({...item,photos:pm[item.id]||item.photos||[]}));
+    }
+    keys.forEach(k=>{if(data[k]!==undefined)localStorage.setItem(k,JSON.stringify(data[k]));});
+    // 재로드
+    t1Load(); t2Load(); t3Load(); t4Load(); t5Load(); tDashRefresh(); t6RefreshSummary();
+    msgEl.textContent='✅ 데이터 이전 완료! '+( data.t1?.length||0)+'명 학생, '+(data.t3?.length||0)+'회 수업 불러왔습니다';
+    msgEl.style.color='#2E7D52';
+    tShowToast('✅ 데이터 이전 완료!');
+    document.getElementById('t-import-json').value='';
+  }catch(err){
+    msgEl.textContent='✗ 오류: '+err.message;
+    msgEl.style.color='#C0392B';
+    tShowToast('❌ '+err.message);
+  }
+}
+
 /* ── SYNC ── */
 function openSync(){
   document.getElementById('import-ta').value='';
@@ -1328,54 +2203,55 @@ async function cloudUpload(){
   if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    // Apps Script requires GET with data encoded as query param (POST with no-cors can't read response)
-    // We use a URL-safe base64-like approach via encodeURIComponent on a shortened payload
     const data = JSON.stringify({_v:2,_t:new Date().toISOString(),...S});
-    const res = await fetch(gasUrl, {
+
+    // POST + no-cors: 응답을 읽을 수 없지만 저장은 됨
+    await fetch(gasUrl, {
       method: 'POST',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain'},
       body: data
     });
-    const text = await res.text();
-    let parsed;
-    try { parsed = JSON.parse(text); } catch(e){ parsed = null; }
-    if(parsed && parsed.status === 'saved'){
+
+    // 저장 확인: 잠시 후 GET으로 타임스탬프 비교
+    await new Promise(r => setTimeout(r, 1500));
+    const check = await fetch(gasUrl + '?action=read');
+    const checkText = await check.text();
+    const checkJson = JSON.parse(checkText);
+    // 저장한 타임스탬프랑 비교
+    const savedT = new Date(checkJson._t || 0);
+    const sentT  = new Date(JSON.parse(data)._t);
+    const diff   = Math.abs(savedT - sentT);
+    if(diff < 5000){
       updateCloudStatus('synced');
       showM('exp-msg','☁️ Drive에 저장 완료!','ok');
-    } else if(parsed && parsed.error){
-      updateCloudStatus('error', parsed.error);
     } else {
-      // Apps Script might redirect — treat any 200 as success
-      if(res.ok){ updateCloudStatus('synced'); showM('exp-msg','☁️ Drive에 저장 완료!','ok'); }
-      else { updateCloudStatus('error','서버 오류 '+res.status); }
+      updateCloudStatus('error','저장 확인 실패 — 재시도해주세요');
+      showM('exp-msg','✗ 저장 확인 실패','err');
     }
   }catch(e){
-    // CORS error = script URL is wrong or not deployed as "Anyone" access
-    if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
-      updateCloudStatus('error','CORS 오류 — Apps Script 배포 설정 확인');
-      showM('imp-msg','⚠️ 액세스 권한을 "모든 사용자"로 재배포해주세요','err');
-    } else {
-      updateCloudStatus('error', e.message);
-    }
+    updateCloudStatus('error', e.message);
+    showM('exp-msg','✗ '+e.message,'err');
   }
 }
 async function cloudDownload(){
   if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    const res = await fetch(gasUrl+'?action=read');
-    if(!res.ok) throw new Error('서버 오류 '+res.status);
+    const res = await fetch(gasUrl + '?action=read');
+    if(!res.ok) throw new Error('서버 오류 ' + res.status);
     const text = await res.text();
+    const json = JSON.parse(text);
+    if(json.error === 'no_file'){
+      updateCloudStatus('error','Drive에 저장된 데이터가 없습니다');
+      showM('imp-msg','⚠️ 먼저 "Drive에 저장"을 해주세요','err');
+      return;
+    }
     applyImp(text);
     updateCloudStatus('synced');
     showM('imp-msg','☁️ Drive에서 불러오기 완료!','ok');
   }catch(e){
-    if(e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
-      updateCloudStatus('error','CORS 오류 — Apps Script 배포 설정 확인');
-      showM('imp-msg','⚠️ 액세스 권한을 "모든 사용자"로 재배포해주세요','err');
-    } else {
-      updateCloudStatus('error', e.message);
-    }
+    updateCloudStatus('error', e.message);
   }
 }
 
