@@ -372,7 +372,60 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 [data-theme="dark"] .smsg.ok  { color: #6adf6a; }
 [data-theme="dark"] .smsg.err { color: #ff7070; }
 
-/* ── FOCUS PANEL ("지금 끝낼 일들") ── */
+/* Cloud sync section */
+.cloud-url-row { display: flex; gap: 5px; margin-top: 6px; }
+.cloud-url-input {
+  flex: 1; font-family: var(--mono); font-size: .62rem;
+  border: 1px solid var(--border-mid); background: var(--card-bg); color: var(--text);
+  border-radius: var(--r); padding: 4px 7px; outline: none;
+}
+.cloud-url-input:focus { border-color: var(--s-md); }
+.cloud-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .63rem; padding: 5px 0; color: var(--muted);
+}
+.cloud-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-soft); flex-shrink: 0; }
+.cloud-dot.synced  { background: #2a7a2a; }
+.cloud-dot.syncing { background: #e0a020; animation: dotPulse .8s ease-in-out infinite; }
+.cloud-dot.error   { background: #aa2222; }
+@keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── EXAM COUNTDOWN BANNER ── */
+#exam-banner {
+  display: none;
+  margin-bottom: 12px;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 2px solid;
+  animation: bannerPulse 3s ease-in-out infinite;
+}
+#exam-banner.show { display: block; }
+#exam-banner.level-urgent { border-color: var(--urg-bg); background: var(--urg-bg); color: var(--urg-fg); }
+#exam-banner.level-soon   { border-color: var(--soon-bd); background: var(--soon-bg); color: var(--soon-fg); }
+#exam-banner.level-ok     { border-color: var(--s-md); background: var(--s-lt); color: var(--s-dk); }
+@keyframes bannerPulse {
+  0%,100% { opacity:1; } 50% { opacity:.85; }
+}
+.banner-inner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; flex-wrap: wrap;
+}
+.banner-icon { font-size: 1.2rem; flex-shrink: 0; }
+.banner-main { flex: 1; min-width: 0; }
+.banner-title { font-size: .82rem; font-weight: 900; letter-spacing: .04em; }
+.banner-sub { font-size: .67rem; margin-top: 2px; opacity: .8; }
+.banner-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.banner-pill {
+  font-family: var(--mono); font-size: .62rem; font-weight: 700;
+  padding: 2px 9px; border-radius: 99px;
+  border: 1.5px solid currentColor; white-space: nowrap;
+}
+.banner-dismiss {
+  background: none; border: 1px solid currentColor; border-radius: var(--r);
+  color: inherit; font-size: .6rem; padding: 2px 7px; cursor: pointer;
+  font-family: var(--font); opacity: .7; flex-shrink: 0;
+}
+.banner-dismiss:hover { opacity: 1; }
 #focus-panel {
   display: none;
   position: fixed; top: 0; right: 0; bottom: 0; width: 340px;
@@ -383,6 +436,28 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   box-shadow: -4px 0 20px rgba(0,0,0,.12);
 }
 #focus-panel.open { display: flex; }
+
+/* Timer inside focus items */
+.fp-timer {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 8px; margin-top: 4px;
+  background: var(--col-bg); border-radius: var(--r);
+  border: 1px solid var(--border-soft);
+}
+.fp-timer-display {
+  font-family: var(--mono); font-size: .88rem; font-weight: 700;
+  letter-spacing: .06em; color: var(--s-dk); flex: 1; text-align: center;
+}
+.fp-timer-display.running { color: var(--urg-bg); }
+.fp-tbtn {
+  font-size: .6rem; padding: 2px 7px; border-radius: var(--r);
+  border: 1px solid var(--border-mid); background: var(--btn-bg);
+  color: var(--text); cursor: pointer; font-family: var(--font); font-weight: 600;
+  transition: all .12s;
+}
+.fp-tbtn:hover { background: var(--btn-acc); color: var(--btn-acc-fg); border-color: var(--btn-acc); }
+.fp-tbtn.running { background: var(--urg-bg); color: var(--urg-fg); border-color: var(--urg-bg); }
+.fp-elapsed { font-family: var(--mono); font-size: .57rem; color: var(--muted); margin-top: 2px; }
 
 .fp-head {
   display: flex; align-items: center; gap: 8px;
@@ -489,6 +564,19 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
     <button class="btn" onclick="openSync()">⇅ 동기화</button>
     <button class="btn" onclick="toggleTrash()">휴지통</button>
     <button class="btn btn-focus" id="focus-btn" onclick="toggleFocus()">⚡ 지금 끝낼 일들</button>
+  </div>
+</div>
+
+<!-- EXAM COUNTDOWN BANNER -->
+<div id="exam-banner">
+  <div class="banner-inner">
+    <span class="banner-icon">📅</span>
+    <div class="banner-main">
+      <div class="banner-title" id="banner-title"></div>
+      <div class="banner-sub" id="banner-sub"></div>
+    </div>
+    <div class="banner-pills" id="banner-pills"></div>
+    <button class="banner-dismiss" onclick="dismissBanner()">나중에</button>
   </div>
 </div>
 
@@ -696,6 +784,26 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 <div id="sync-modal">
   <div class="sync-box">
     <h2>⇅ 데이터 동기화</h2>
+
+    <!-- Google Drive Sync -->
+    <div class="sync-sec" style="border:1.5px solid var(--s-md);border-radius:var(--r);padding:12px;background:var(--s-lt)">
+      <h3 style="color:var(--s-dk)">☁️ Google Drive 자동 동기화</h3>
+      <p class="sync-note" style="margin-top:4px">Apps Script URL을 한 번만 입력하면 버튼 하나로 노트북↔아이패드 동기화돼요.</p>
+      <div class="cloud-url-row">
+        <input class="cloud-url-input" id="gas-url" placeholder="https://script.google.com/macros/s/..." value="">
+        <button class="btn acc" onclick="saveGasUrl()" style="border-color:var(--s-md);background:var(--s-dk);color:var(--s-lt)">저장</button>
+      </div>
+      <div class="cloud-status" id="cloud-status">
+        <span class="cloud-dot" id="cloud-dot"></span>
+        <span id="cloud-status-txt">URL을 입력하세요</span>
+      </div>
+      <div class="sync-btns" style="margin-top:4px">
+        <button class="btn" onclick="cloudUpload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬆ Drive에 저장</button>
+        <button class="btn" onclick="cloudDownload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬇ Drive에서 불러오기</button>
+      </div>
+    </div>
+
+    <div style="margin:10px 0;border-top:1px solid var(--border-soft)"></div>
     <div class="sync-sec">
       <h3>내보내기</h3>
       <p class="sync-note">현재 데이터를 JSON 파일로 저장합니다.</p>
@@ -1095,6 +1203,155 @@ function impFile(e){ const file=e.target.files[0]; if(!file)return; const r=new 
 function impText(){ const text=document.getElementById('import-ta').value.trim(); if(!text){showM('imp-msg','텍스트를 입력하세요','err');return;} applyImp(text); }
 function applyImp(text){ try{ const p=JSON.parse(text); const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash']; if(!keys.some(k=>k in p))throw new Error('올바른 대시보드 데이터가 아닙니다'); keys.forEach(k=>{if(k in p)S[k]=p[k];}); save(); render(); showM('imp-msg','✓ 데이터를 성공적으로 불러왔습니다!','ok'); }catch(e){showM('imp-msg','✗ 오류: '+e.message,'err');} }
 function showM(id,msg,type){ const el=document.getElementById(id); el.textContent=msg; el.className='smsg '+type; setTimeout(()=>{el.textContent='';},4000); }
+
+/* ── EXAM COUNTDOWN BANNER ── */
+let bannerDismissedDate = '';
+function rBanner(){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const todayStr=today.toISOString().slice(0,10);
+  if(bannerDismissedDate===todayStr) return;
+  const upcoming=[...S.exam,...S.yex]
+    .map(e=>({...e,dv:Math.round((new Date(e.dt||e.date)-today)/86400000)}))
+    .filter(e=>e.dv>=0&&e.dv<=30).sort((a,b)=>a.dv-b.dv);
+  const banner=document.getElementById('exam-banner');
+  if(!upcoming.length){banner.classList.remove('show');return;}
+  const near=upcoming[0];
+  banner.className='show '+(near.dv<=3?'level-urgent':near.dv<=10?'level-soon':'level-ok');
+  document.getElementById('banner-title').textContent=
+    near.dv===0?'⚠️ 오늘 시험이 있어요!':
+    near.dv<=3?`D-${near.dv} · 시험이 ${near.dv}일 남았어요!`:
+    `다음 시험까지 D-${near.dv}`;
+  document.getElementById('banner-sub').textContent=(near.subj||near.ttl)+(near.note?' · '+near.note:'');
+  document.getElementById('banner-pills').innerHTML=upcoming.slice(0,4).map(e=>`<span class="banner-pill">D-${e.dv} ${e.subj||e.ttl}</span>`).join('');
+}
+function dismissBanner(){
+  bannerDismissedDate=new Date().toISOString().slice(0,10);
+  document.getElementById('exam-banner').classList.remove('show');
+}
+
+/* ── STUDY TIMER ── */
+const timers={};
+function getTimer(fid){ if(!timers[fid])timers[fid]={start:null,elapsed:0,interval:null,running:false}; return timers[fid]; }
+function timerToggle(fid){
+  const t=getTimer(fid);
+  if(t.running){clearInterval(t.interval);t.elapsed+=Date.now()-t.start;t.running=false;}
+  else{t.start=Date.now();t.running=true;t.interval=setInterval(()=>timerTick(fid),500);}
+  timerTick(fid);
+}
+function timerReset(fid){
+  const t=getTimer(fid);clearInterval(t.interval);
+  t.elapsed=0;t.start=null;t.running=false;timerTick(fid);
+}
+function timerTick(fid){
+  const t=getTimer(fid);
+  const total=t.running?t.elapsed+(Date.now()-t.start):t.elapsed;
+  const secs=Math.floor(total/1000);
+  const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+  const fmt=(h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const disp=document.getElementById('ftd-'+fid);
+  const btn=document.getElementById('ftb-'+fid);
+  if(disp){disp.textContent=fmt;disp.className='fp-timer-display'+(t.running?' running':'');}
+  if(btn){btn.textContent=t.running?'⏸ 일시정지':'▶ 시작';btn.className='fp-tbtn'+(t.running?' running':'');}
+}
+function fmtTimer(fid){
+  const t=getTimer(fid);
+  const total=t.running?t.elapsed+(Date.now()-t.start):t.elapsed;
+  const secs=Math.floor(total/1000); if(!secs)return '';
+  return (Math.floor(secs/3600)?Math.floor(secs/3600)+'h ':'')+(Math.floor((secs%3600)/60)?Math.floor((secs%3600)/60)+'m ':'')+(secs%60)+'s';
+}
+function fmtTimerDisp(fid){
+  const t=getTimer(fid);
+  const total=t.running?t.elapsed+(Date.now()-t.start):t.elapsed;
+  const secs=Math.floor(total/1000),h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+  return (h?String(h).padStart(2,'0')+':':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+/* Override rFpItems to include timer */
+function rFpItems(){
+  const el=document.getElementById('fp-items');
+  const cnt=document.getElementById('fp-cnt');
+  cnt.textContent=focusItems.filter(f=>!f.done).length;
+  if(!focusItems.length){el.innerHTML='<div class="fp-empty">위 목록에서 항목을 클릭해 추가하세요</div>';return;}
+  el.innerHTML=focusItems.map(f=>{
+    const t=getTimer(f.id);
+    return '<div class="fp-item'+(f.done?' done-item':'')+'">'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">'
+          +'<span class="fp-item-cat">'+f.cat+'</span>'
+          +'<span class="fp-item-lbl">'+f.label+'</span>'
+          +(f.done
+            ?'<span style="font-size:.62rem;color:var(--muted)">완료 ✓'+(fmtTimer(f.id)?' ('+fmtTimer(f.id)+')')+'</span>'
+            :'<button class="fp-item-done-btn" onclick="fpDone('+f.id+')">완료</button>')
+          +'<button class="fp-item-del" onclick="fpRemove('+f.id+')">✕</button>'
+        +'</div>'
+        +(f.ddate?'<div class="fp-elapsed">📅 '+fmtD(f.ddate)+'</div>':'')
+        +(!f.done?
+          '<div class="fp-timer">'
+            +'<span class="fp-timer-display'+(t.running?' running':'')+'" id="ftd-'+f.id+'">'+fmtTimerDisp(f.id)+'</span>'
+            +'<button class="fp-tbtn'+(t.running?' running':'')+'" id="ftb-'+f.id+'" onclick="timerToggle('+f.id+')">'+(t.running?'⏸ 일시정지':'▶ 시작')+'</button>'
+            +'<button class="fp-tbtn" onclick="timerReset('+f.id+')" title="초기화">↺</button>'
+          +'</div>'
+        :'')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── GOOGLE DRIVE SYNC (via Apps Script) ── */
+const GAS_KEY='dash6_gas_url';
+let gasUrl=localStorage.getItem(GAS_KEY)||'';
+/* Extend openSync to prefill URL */
+const _origOpenSync=openSync;
+openSync=function(){
+  _origOpenSync();
+  const el=document.getElementById('gas-url');
+  if(el)el.value=gasUrl;
+  updateCloudStatus(gasUrl?'idle':'nourl');
+};
+function saveGasUrl(){
+  const url=document.getElementById('gas-url').value.trim();
+  gasUrl=url; if(url)localStorage.setItem(GAS_KEY,url);
+  updateCloudStatus(url?'idle':'nourl');
+  showM('imp-msg','✓ URL이 저장됐어요','ok');
+}
+function updateCloudStatus(state,extra){
+  const dot=document.getElementById('cloud-dot'),txt=document.getElementById('cloud-status-txt');
+  if(!dot||!txt)return;
+  const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  const map={
+    nourl:  ['','URL을 입력하세요'],
+    idle:   ['','연결됨 · 동기화 대기 중'],
+    syncing:['syncing','동기화 중...'],
+    synced: ['synced','✓ 완료 '+( extra||now)],
+    error:  ['error','✗ '+( extra||'오류')]
+  };
+  const[cls,msg]=map[state]||['',''];
+  dot.className='cloud-dot'+(cls?' '+cls:'');
+  txt.textContent=msg;
+}
+async function cloudUpload(){
+  if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
+  updateCloudStatus('syncing');
+  try{
+    await fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({_v:2,_t:new Date().toISOString(),...S})});
+    updateCloudStatus('synced');
+  }catch(e){updateCloudStatus('error',e.message);}
+}
+async function cloudDownload(){
+  if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
+  updateCloudStatus('syncing');
+  try{
+    const res=await fetch(gasUrl+'?action=read',{method:'GET'});
+    if(!res.ok)throw new Error('서버 오류 '+res.status);
+    applyImp(await res.text());
+    updateCloudStatus('synced');
+  }catch(e){updateCloudStatus('error',e.message);}
+}
+
+/* Hook banner into render */
+const _origRender=render;
+render=function(){_origRender();rBanner();};
+rBanner();
 </script>
 </body>
 </html>
