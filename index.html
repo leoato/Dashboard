@@ -836,6 +836,14 @@ let calM = {school: new Date(), yoon: new Date()};
 let ed = {hw:null,lec:null,exam:null,prep:null,yex:null};
 const SK='dash6', TK='dash6_theme';
 
+/* ── 전역 변수 (IIFE 실행 전에 선언되어야 함) ── */
+let focusItems = [];
+let fpPickerOpen = true;
+let bannerDismissedDate = '';
+const GAS_KEY = 'dash6_gas_url';
+let gasUrl = localStorage.getItem(GAS_KEY) || '';
+const timers = {};
+
 /* ── INIT ── */
 (function(){
   const raw = localStorage.getItem(SK);
@@ -1097,8 +1105,6 @@ function rCal(which){
 function chM(which,delta){ const c=calM[which]; calM[which]=new Date(c.getFullYear(),c.getMonth()+delta,1); rCal(which); }
 
 /* ── FOCUS PANEL ── */
-let focusItems = []; // [{id, cat, label, ddate, srcId, done}]
-let fpPickerOpen = true;
 
 function toggleFocus(){
   const panel = document.getElementById('focus-panel');
@@ -1185,9 +1191,6 @@ function fpRemove(fid){
 }
 
 /* ── SYNC ── */
-const GAS_KEY='dash6_gas_url';
-let gasUrl=localStorage.getItem(GAS_KEY)||'';
-
 function openSync(){
   document.getElementById('import-ta').value='';
   document.getElementById('exp-msg').textContent='';
@@ -1209,7 +1212,6 @@ function applyImp(text){ try{ const p=JSON.parse(text); const keys=['hw','lec','
 function showM(id,msg,type){ const el=document.getElementById(id); el.textContent=msg; el.className='smsg '+type; setTimeout(()=>{el.textContent='';},4000); }
 
 /* ── EXAM COUNTDOWN BANNER ── */
-let bannerDismissedDate = '';
 function rBanner(){
   const today=new Date(); today.setHours(0,0,0,0);
   const todayStr=today.toISOString().slice(0,10);
@@ -1234,7 +1236,6 @@ function dismissBanner(){
 }
 
 /* ── STUDY TIMER ── */
-const timers={};
 function getTimer(fid){ if(!timers[fid])timers[fid]={start:null,elapsed:0,interval:null,running:false}; return timers[fid]; }
 function timerToggle(fid){
   const t=getTimer(fid);
