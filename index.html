@@ -1669,6 +1669,9 @@ function rFpSource(){
   S.lec.forEach(l=>{
     items.push({srcId:'lec-'+l.id, cat:'강의', label:(l.ttl||l.subj+' 강의'), ddate:l.due, subCat:l.subj, rawCat:'lec', rawId:l.id});
   });
+  S.prep.filter(p=>!p.done).forEach(p=>{
+    items.push({srcId:'prep-'+p.id, cat:'수업준비', label:p.ttl, ddate:p.due, subCat:'과외', rawCat:'prep', rawId:p.id});
+  });
   items.sort((a,b)=>(a.ddate&&b.ddate)?dd(a.ddate)-dd(b.ddate):a.ddate?-1:1);
 
   if(!items.length){
@@ -1715,8 +1718,9 @@ function fpDone(fid){
   if(f.rawCat==='hw'){
     const x = S.hw.find(h=>h.id===f.rawId);
     if(x){ x.done=true; save(); rHW(); }
-  } else if(f.rawCat==='lec'){
-    // lec doesn't have done flag — just remove from source list view
+  } else if(f.rawCat==='prep'){
+    const x = S.prep.find(p=>p.id===f.rawId);
+    if(x){ x.done=true; save(); rPREP(); }
   }
   rFpItems(); rFpSource();
 }
@@ -1913,7 +1917,7 @@ function t3Save(){
   t3curMsg=lesson;t3OpenMsg();tShowToast('✅ '+num+'회차 수업이 저장되었습니다');tDashRefresh();
 }
 function t3OpenMsg(){document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
-function t3BuildMsg(l,closing){let m=`안녕하세요 어머님, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim();return m.trim();}
+function t3BuildMsg(l,closing){let m=`안녕하세요 어머니, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim();return m.trim();}
 function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
 function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
 function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});localStorage.setItem(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
@@ -2283,6 +2287,41 @@ async function cloudDownload(){
 }
 
 rBanner();
+
+/* ── AUTO BACKUP (10분마다 자동 저장) ── */
+(function(){
+  function showAutoBackupToast(msg){
+    let el = document.getElementById('auto-backup-toast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'auto-backup-toast';
+      el.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--btn-acc);color:var(--btn-acc-fg);padding:6px 18px;border-radius:99px;font-size:.68rem;font-weight:600;font-family:var(--font);box-shadow:0 4px 16px rgba(0,0,0,.18);opacity:0;transition:opacity .4s;pointer-events:none;z-index:9999;white-space:nowrap;';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    setTimeout(()=>{ el.style.opacity = '0'; }, 3000);
+  }
+
+  function autoBackup(){
+    try{
+      const tutoring = {
+        t1: JSON.parse(localStorage.getItem('t1')||'[]'),
+        t2: JSON.parse(localStorage.getItem('t2')||'[]'),
+        t3: JSON.parse(localStorage.getItem('t3')||'[]'),
+        t4: JSON.parse(localStorage.getItem('t4')||'[]'),
+        t5: JSON.parse(localStorage.getItem('t5')||'[]').map(item=>({...item,photos:[]}))
+      };
+      const data = JSON.stringify({_v:2,_t:new Date().toISOString(),...S,_tutoring:tutoring});
+      localStorage.setItem('dash6_autobackup', data);
+      localStorage.setItem('dash6_autobackup_time', new Date().toISOString());
+      const now = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      showAutoBackupToast('💾 자동 백업 완료  ' + now);
+    } catch(e){ console.warn('auto backup failed', e); }
+  }
+
+  setInterval(autoBackup, 10 * 60 * 1000); // 10분
+})();
 </script>
 </body>
 </html>
