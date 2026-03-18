@@ -2231,7 +2231,7 @@ async function cloudUpload(){
   if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    const data = JSON.stringify({_v:2,_t:new Date().toISOString(),...S});
+    const data = getExp(); // ← getExp()로 교체 — 과외 데이터(_tutoring) 포함
 
     // POST + no-cors: 응답을 읽을 수 없지만 저장은 됨
     await fetch(gasUrl, {
@@ -2246,7 +2246,6 @@ async function cloudUpload(){
     const check = await fetch(gasUrl + '?action=read');
     const checkText = await check.text();
     const checkJson = JSON.parse(checkText);
-    // 저장한 타임스탬프랑 비교
     const savedT = new Date(checkJson._t || 0);
     const sentT  = new Date(JSON.parse(data)._t);
     const diff   = Math.abs(savedT - sentT);
