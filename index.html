@@ -794,6 +794,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <button class="tbtn"    onclick="setTheme('sage')"  id="t-sage">세이지</button>
     </div>
     <button class="btn" onclick="openSync()">⇅ 동기화</button>
+    <span id="backup-time-display" style="font-family:var(--mono);font-size:.58rem;color:var(--muted);white-space:nowrap;"></span>
     <button class="btn" onclick="toggleTrash()">휴지통</button>
     <button class="btn btn-focus" id="focus-btn" onclick="toggleFocus()">⚡ 지금 끝낼 일들</button>
   </div>
@@ -1917,7 +1918,7 @@ function t3Save(){
   t3curMsg=lesson;t3OpenMsg();tShowToast('✅ '+num+'회차 수업이 저장되었습니다');tDashRefresh();
 }
 function t3OpenMsg(){document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
-function t3BuildMsg(l,closing){let m=`안녕하세요 어머님, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim();return m.trim();}
+function t3BuildMsg(l,closing){let m=`안녕하세요 어머니, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim();return m.trim();}
 function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
 function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
 function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});localStorage.setItem(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
@@ -2317,10 +2318,26 @@ rBanner();
       localStorage.setItem('dash6_autobackup_time', new Date().toISOString());
       const now = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
       showAutoBackupToast('💾 자동 백업 완료  ' + now);
+      const el = document.getElementById('backup-time-display');
+      if(el) el.textContent = '💾 ' + now + ' 백업됨';
     } catch(e){ console.warn('auto backup failed', e); }
   }
 
   setInterval(autoBackup, 10 * 60 * 1000); // 10분
+
+  // 페이지 로드 시 마지막 백업 시간 표시
+  (function(){
+    const t = localStorage.getItem('dash6_autobackup_time');
+    const el = document.getElementById('backup-time-display');
+    if(t && el){
+      const d = new Date(t);
+      const hm = d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+      const today = new Date();
+      const isToday = d.toDateString() === today.toDateString();
+      const label = isToday ? hm : (d.getMonth()+1)+'/'+d.getDate()+' '+hm;
+      el.textContent = '💾 ' + label + ' 백업됨';
+    }
+  })();
 })();
 </script>
 </body>
