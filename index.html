@@ -1389,9 +1389,28 @@ const timers = {};
   applyTheme(th);
   render();
   setInterval(tick, 1000); tick();
+  // 페이지 열 때 Drive에서 자동 불러오기
+  if(gasUrl){
+    setTimeout(async ()=>{
+      try{
+        const res = await fetch(gasUrl + '?action=read');
+        if(!res.ok) return;
+        const text = await res.text();
+        const json = JSON.parse(text);
+        if(json.error === 'no_file') return;
+        // Drive 데이터가 더 최신인 경우만 불러오기
+        const driveTime = new Date(json._t || 0);
+        const localTime = new Date(JSON.parse(localStorage.getItem(SK)||'{}')._saved || 0);
+        if(driveTime > localTime){
+          applyImp(text);
+          showAutoBackupToast('☁️ Drive 최신 데이터로 불러왔어요');
+        }
+      }catch(e){ console.log('auto load failed', e); }
+    }, 1500);
+  }
 })();
 
-function save(){ localStorage.setItem(SK, JSON.stringify(S)); }
+function save(){ localStorage.setItem(SK, JSON.stringify({...S, _saved: new Date().toISOString()})); }
 
 function tick(){
   const n = new Date();
