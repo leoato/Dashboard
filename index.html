@@ -787,6 +787,11 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   <div class="topbar-title">할일 대시보드</div>
   <div class="topbar-right">
     <span class="clock" id="clock"></span>
+    <div class="theme-switcher" style="margin-right:2px">
+      <button class="tbtn" onclick="setFontSize(-1)" title="글자 작게">A-</button>
+      <button class="tbtn" onclick="setFontSize(0)" title="기본 크기">A</button>
+      <button class="tbtn" onclick="setFontSize(1)" title="글자 크게">A+</button>
+    </div>
     <div class="theme-switcher">
       <button class="tbtn on" onclick="setTheme('mono')"  id="t-mono">흑백</button>
       <button class="tbtn"    onclick="setTheme('paper')" id="t-paper">종이</button>
@@ -844,7 +849,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="card-head"><span>수업 준비</span><button class="btn" onclick="tf('prep-add')">+ 추가</button></div>
         <div id="prep-add" class="add-form" style="display:none;">
           <input type="text" id="prep-ttl" placeholder="준비 내용">
-          <div class="row"><input type="date" id="prep-due" style="flex:1"><button class="btn acc" onclick="addPREP()">저장</button></div>
+          <div class="row"><button class="btn sm" onclick="setToday('prep-due')">오늘</button><input type="date" id="prep-due" style="flex:1"><button class="btn acc" onclick="addPREP()">저장</button></div>
         </div>
         <div class="slist" id="prep-list"><div class="empty">수업 준비 항목이 없습니다</div></div>
       </div>
@@ -926,7 +931,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div id="hw-add" class="add-form" style="display:none;">
           <select id="hw-subj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
           <input type="text" id="hw-ttl" placeholder="과제 내용">
-          <div class="row"><input type="date" id="hw-due" style="flex:1"><button class="btn acc" onclick="addHW()">저장</button></div>
+          <div class="row"><button class="btn sm" onclick="setToday('hw-due')">오늘</button><input type="date" id="hw-due" style="flex:1"><button class="btn acc" onclick="addHW()">저장</button></div>
         </div>
         <div id="hw-ep" class="ep">
           <select id="hw-esubj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
@@ -944,7 +949,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div id="lec-add" class="add-form" style="display:none;">
           <select id="lec-subj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
           <input type="text" id="lec-ttl" placeholder="수강 내용 (선택)">
-          <div class="row"><input type="date" id="lec-due" style="flex:1"><button class="btn acc" onclick="addLEC()">저장</button></div>
+          <div class="row"><button class="btn sm" onclick="setToday('lec-due')">오늘</button><input type="date" id="lec-due" style="flex:1"><button class="btn acc" onclick="addLEC()">저장</button></div>
         </div>
         <div id="lec-ep" class="ep">
           <select id="lec-esubj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
@@ -1412,6 +1417,28 @@ const timers = {};
 
 function save(){ localStorage.setItem(SK, JSON.stringify({...S, _saved: new Date().toISOString()})); }
 
+/* ── 오늘 날짜 설정 ── */
+function setToday(id){
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,'0');
+  const d = String(today.getDate()).padStart(2,'0');
+  document.getElementById(id).value = y+'-'+m+'-'+d;
+}
+
+/* ── 글자 크기 조절 ── */
+const FS_KEY = 'dash6_fontsize';
+const FS_SIZES = {'-1': '85%', '0': '100%', '1': '115%'};
+function setFontSize(level){
+  localStorage.setItem(FS_KEY, level);
+  applyFontSize(level);
+}
+function applyFontSize(level){
+  document.documentElement.style.fontSize = FS_SIZES[String(level)] || '100%';
+}
+// 초기 적용
+(function(){ applyFontSize(localStorage.getItem(FS_KEY)||'0'); })();
+
 function tick(){
   const n = new Date();
   const d = n.toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});
@@ -1692,6 +1719,9 @@ function rFpSource(){
   S.prep.filter(p=>!p.done).forEach(p=>{
     items.push({srcId:'prep-'+p.id, cat:'수업준비', label:p.ttl, ddate:p.due, subCat:'과외', rawCat:'prep', rawId:p.id});
   });
+  S.todo.filter(t=>!t.done).forEach(t=>{
+    items.push({srcId:'todo-'+t.id, cat:'할일', label:t.ttl, ddate:null, subCat:'개인', rawCat:'todo', rawId:t.id});
+  });
   items.sort((a,b)=>(a.ddate&&b.ddate)?dd(a.ddate)-dd(b.ddate):a.ddate?-1:1);
 
   if(!items.length){
@@ -1741,6 +1771,9 @@ function fpDone(fid){
   } else if(f.rawCat==='prep'){
     const x = S.prep.find(p=>p.id===f.rawId);
     if(x){ x.done=true; save(); rPREP(); }
+  } else if(f.rawCat==='todo'){
+    const x = S.todo.find(t=>t.id===f.rawId);
+    if(x){ x.done=true; save(); rTODO(); }
   }
   rFpItems(); rFpSource();
 }
