@@ -301,7 +301,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
 .ov-panels {
   flex: 1;
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  display: grid; grid-template-columns: 1fr 1fr 1fr 1.2fr;
   overflow: hidden;
 }
 .ov-panel {
@@ -316,6 +316,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #school-overlay.open .ov-panel:nth-child(1) { opacity: 1; transform: none; transition-delay: .06s; }
 #school-overlay.open .ov-panel:nth-child(2) { opacity: 1; transform: none; transition-delay: .13s; }
 #school-overlay.open .ov-panel:nth-child(3) { opacity: 1; transform: none; transition-delay: .20s; }
+#school-overlay.open .ov-panel:nth-child(4) { opacity: 1; transform: none; transition-delay: .27s; }
 
 .ov-ph {
   display: flex; align-items: center; justify-content: space-between;
@@ -336,6 +337,23 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
 /* Subject mini-cards in overlay */
 .sc { border: 1.5px solid var(--s-md); border-radius: var(--r); background: var(--card-bg); overflow: hidden; margin-bottom: 2px; }
+
+/* 공부 진도 카드 */
+.study-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 4px; border-bottom: 1px dashed var(--border-dash);
+  font-size: .69rem;
+}
+.study-item:last-child { border-bottom: none; }
+.study-item.done .study-lbl { color: var(--muted); }
+.study-done-badge {
+  font-size: .55rem; padding: 1px 5px;
+  background: var(--p-lt); color: var(--p-dk);
+  border: 1px solid var(--p-md); border-radius: var(--r);
+  white-space: nowrap; flex-shrink: 0;
+}
+.study-lbl { flex: 1; min-width: 0; }
+.study-memo { font-size: .6rem; color: var(--muted); margin-top: 1px; }
 .sc-head { display: flex; align-items: center; justify-content: space-between; padding: 5px 9px; background: var(--s-lt); border-bottom: 1px solid var(--s-md); font-size: .65rem; font-weight: 700; letter-spacing: .06em; color: var(--s-dk); }
 .sc-body { padding: 6px 9px; }
 .sc-cnt { font-family: var(--mono); font-size: .55rem; background: var(--s-md); color: #fff; border-radius: 99px; padding: 1px 6px; }
@@ -837,6 +855,10 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="card-head"><span>시험</span><button class="btn" onclick="openSchool()">자세히</button></div>
         <div class="slist" id="exam-main"><div class="empty">시험 일정이 없습니다</div></div>
       </div>
+      <div class="card card-s">
+        <div class="card-head"><span>📚 공부 진도</span><button class="btn" onclick="openSchool()">자세히</button></div>
+        <div class="slist" id="study-main"><div class="empty">공부 진도가 없습니다</div></div>
+      </div>
     </div>
   </div>
 
@@ -980,6 +1002,20 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           <div class="mc-head"><button class="mc-nav" onclick="chM('school',-1)">◀</button><span id="school-lbl"></span><button class="mc-nav" onclick="chM('school',1)">▶</button></div>
           <div class="mc-grid" id="school-grid"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- 공부 진도 관리 -->
+    <div class="ov-panel">
+      <div class="ov-ph">📚 공부 진도 관리<button class="ov-abtn" onclick="tf('study-add')">+ 추가</button></div>
+      <div class="ov-body">
+        <div id="study-add" class="add-form" style="display:none;">
+          <select id="study-subj"><option value="">과목 선택</option><option>전자기학</option><option>객프</option><option>논리회로</option><option>회로이론</option><option>신시</option><option>승마</option></select>
+          <input type="text" id="study-ttl" placeholder="예: 2주차, Ch.3, 단원2">
+          <input type="text" id="study-memo" placeholder="메모 (선택)">
+          <div class="row"><button class="btn acc" onclick="addSTUDY()" style="flex:1">추가</button></div>
+        </div>
+        <div id="study-cards"></div>
       </div>
     </div>
 
@@ -1373,7 +1409,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 <script>
 'use strict';
 const SUBJS = ['전자기학','객프','논리회로','회로이론','신시','승마'];
-let S = {hw:[],lec:[],exam:[],prep:[],yoon:'',plan:[],yex:[],todo:[],trash:[]};
+let S = {hw:[],lec:[],exam:[],prep:[],yoon:'',plan:[],yex:[],todo:[],trash:[],study:[]};
 let calM = {school: new Date(), yoon: new Date()};
 let ed = {hw:null,lec:null,exam:null,prep:null,yex:null};
 const SK='dash6', TK='dash6_theme';
@@ -1390,6 +1426,7 @@ const timers = {};
 (function(){
   const raw = localStorage.getItem(SK);
   if(raw) try { S = JSON.parse(raw); } catch(e){}
+  if(!S.study) S.study = []; // 기존 데이터 호환
   const th = localStorage.getItem(TK) || 'mono';
   applyTheme(th);
   render();
@@ -1449,7 +1486,7 @@ function tick(){
 }
 
 function render(){
-  rHW(); rLEC(); rEXAM(); rPREP(); rYoon(); rPLAN(); rYEX(); rTODO(); rTrash();
+  rHW(); rLEC(); rEXAM(); rPREP(); rYoon(); rPLAN(); rYEX(); rTODO(); rTrash(); rSTUDY();
   rCal('school'); rCal('yoon');
   rBanner();
   if(document.getElementById('focus-panel').classList.contains('open')){ rFpSource(); rFpItems(); }
@@ -1653,6 +1690,52 @@ function rYEX(){ const el=document.getElementById('yex-list'); if(!S.yex.length)
 
 /* ── TODO ── */
 function addTODO(){ const ttl=gv('todo-ttl').trim(); if(!ttl)return; S.todo.push({id:Date.now(),ttl,done:false}); save(); rTODO(); document.getElementById('todo-ttl').value=''; }
+
+/* ── 공부 진도 관리 ── */
+function addSTUDY(){
+  const subj=gv('study-subj'),ttl=gv('study-ttl').trim(),memo=gv('study-memo').trim();
+  if(!subj||!ttl){alert('과목과 진도 내용을 입력하세요');return;}
+  S.study.push({id:Date.now(),subj,ttl,memo,done:false,doneAt:null});
+  save(); rSTUDY(); clr('study-subj','study-ttl','study-memo'); hd('study-add');
+}
+function chkSTUDY(id){
+  const x=S.study.find(i=>i.id==id); if(!x)return;
+  x.done=!x.done;
+  x.doneAt=x.done?new Date().toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit'}).replace('. ','').replace('.',''):null;
+  save(); rSTUDY();
+}
+function rSTUDY(){
+  // 메인 대시보드 요약
+  const me=document.getElementById('study-main');
+  if(me){
+    const undone=S.study.filter(x=>!x.done);
+    if(!S.study.length) me.innerHTML='<div class="empty">공부 진도가 없습니다</div>';
+    else if(!undone.length) me.innerHTML='<div class="empty">모든 진도 완료 ✓</div>';
+    else me.innerHTML=undone.slice(0,5).map(x=>'<div class="irow"><span class="stag">'+x.subj+'</span><span class="ilbl">'+x.ttl+'</span></div>').join('')+(undone.length>5?'<div class="empty">+ '+(undone.length-5)+'개 더…</div>':'');
+  }
+  const c=document.getElementById('study-cards');
+  if(!c)return;
+  if(!S.study.length){c.innerHTML='<div class="empty">+ 추가 버튼으로 공부 진도를 기록하세요</div>';return;}
+  const map={};
+  SUBJS.forEach(s=>{const it=S.study.filter(x=>x.subj===s);if(it.length)map[s]=it;});
+  S.study.forEach(x=>{if(!map[x.subj])map[x.subj]=[x];});
+  c.innerHTML=Object.entries(map).map(([subj,items])=>{
+    const undone=items.filter(x=>!x.done).length;
+    const rows=items.map(x=>`
+      <div class="study-item ${x.done?'done':''}">
+        <input type="checkbox" ${x.done?'checked':''} onchange="chkSTUDY(${x.id})" style="flex-shrink:0">
+        <div class="study-lbl">
+          <div>${x.ttl}${x.done?` <span class="study-done-badge">✓ ${x.doneAt||''} 완료</span>`:''}</div>
+          ${x.memo?`<div class="study-memo">${x.memo}</div>`:''}
+        </div>
+        <button class="btn del" onclick="delI('study',${x.id},'공부진도: ${esc(x.ttl)}')">✕</button>
+      </div>`).join('');
+    return `<div class="sc">
+      <div class="sc-head"><span>${subj}</span><span class="sc-cnt">${undone}</span></div>
+      <div class="sc-body">${rows}</div>
+    </div>`;
+  }).join('');
+}
 function chkTODO(id){ const x=S.todo.find(i=>i.id==id); if(!x)return; if(x.done){pushT('todo','할일: '+x.ttl,x);S.todo=S.todo.filter(i=>i.id!=id);}else x.done=true; save(); rTODO(); rTrash(); }
 function rTODO(){ const el=document.getElementById('todo-list'); if(!S.todo.length){el.innerHTML='<div class="empty">할일이 없습니다</div>';return;} el.innerHTML=[...S.todo].sort((a,b)=>a.done-b.done).map(t=>'<div class="crow '+(t.done?'done':'')+'"><input type="checkbox" '+(t.done?'checked':'')+' onchange="chkTODO('+t.id+')"><span class="lbl">'+t.ttl+'</span><button class="btn del" onclick="delI(\'todo\','+t.id+',\'할일: '+esc(t.ttl)+'\')">✕</button></div>').join(''); }
 
@@ -1970,7 +2053,7 @@ function t3Save(){
   t3curMsg=lesson;t3OpenMsg();tShowToast('✅ '+num+'회차 수업이 저장되었습니다');tDashRefresh();
 }
 function t3OpenMsg(){document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
-function t3BuildMsg(l,closing){let m=`안녕하세요 어머니, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim();return m.trim();}
+function t3BuildMsg(l,closing){let m=`안녕하세요 어머님, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim()+'\n\n';m+='언제나 최선을 다하겠습니다. 감사합니다.';return m.trim();}
 function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
 function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
 function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});localStorage.setItem(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
@@ -2152,7 +2235,7 @@ function impText(){ const text=document.getElementById('import-ta').value.trim()
 function applyImp(text){
   try{
     const p=JSON.parse(text);
-    const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash'];
+    const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash','study'];
     if(!keys.some(k=>k in p)&&!p._tutoring) throw new Error('올바른 데이터가 아닙니다');
     keys.forEach(k=>{if(k in p)S[k]=p[k];}); save(); render();
     if(p._tutoring){
