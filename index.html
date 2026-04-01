@@ -819,6 +819,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
     <button class="btn" onclick="openSync()">⇅ 동기화</button>
     <span id="backup-time-display" style="font-family:var(--mono);font-size:.58rem;color:var(--muted);white-space:nowrap;"></span>
     <button class="btn" onclick="toggleTrash()">휴지통</button>
+    <button class="btn" onclick="openPlanner()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">📋 중간고사 플래너</button>
     <button class="btn btn-focus" id="focus-btn" onclick="toggleFocus()">⚡ 지금 끝낼 일들</button>
   </div>
 </div>
@@ -1427,6 +1428,14 @@ const timers = {};
   const raw = localStorage.getItem(SK);
   if(raw) try { S = JSON.parse(raw); } catch(e){}
   if(!S.study) S.study = []; // 기존 데이터 호환
+  if(!Array.isArray(S.hw)) S.hw=[];
+  if(!Array.isArray(S.lec)) S.lec=[];
+  if(!Array.isArray(S.exam)) S.exam=[];
+  if(!Array.isArray(S.prep)) S.prep=[];
+  if(!Array.isArray(S.plan)) S.plan=[];
+  if(!Array.isArray(S.yex)) S.yex=[];
+  if(!Array.isArray(S.todo)) S.todo=[];
+  if(!Array.isArray(S.trash)) S.trash=[];
   const th = localStorage.getItem(TK) || 'mono';
   applyTheme(th);
   render();
@@ -2475,5 +2484,548 @@ rBanner();
   })();
 })();
 </script>
+
+<!-- ══ 중간고사 플래너 오버레이 ══ -->
+<div id="planner-overlay" style="display:none;position:fixed;inset:0;z-index:600;flex-direction:column;overflow:hidden;background:#f7f7f7;">
+
+<style>
+#planner-overlay * { box-sizing:border-box; }
+#planner-overlay header.pl-hd{background:#111;color:#fff;height:52px;padding:0 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+#planner-overlay .pl-logo{font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:1.05rem;}
+#planner-overlay .pl-logo span{color:#888;font-weight:400;}
+#planner-overlay .pl-hd-r{display:flex;align-items:center;gap:10px;}
+#planner-overlay .pl-dday{font-family:'DM Mono',monospace;font-size:0.7rem;background:#fff;color:#111;border-radius:3px;padding:2px 7px;font-weight:700;}
+#planner-overlay .pl-back{background:transparent;border:1px solid rgba(255,255,255,0.3);color:#ccc;border-radius:3px;padding:3px 10px;font-size:0.7rem;cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+#planner-overlay .pl-back:hover{border-color:#fff;color:#fff;}
+#planner-overlay nav.pl-nav{background:#fff;border-bottom:1px solid #e0e0e0;display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+#planner-overlay nav.pl-nav::-webkit-scrollbar{display:none;}
+#planner-overlay .pl-tab{padding:0.6rem 1rem;border:none;background:transparent;color:#999;font-family:var(--font);font-size:0.73rem;font-weight:500;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+#planner-overlay .pl-tab:hover{color:#111;}
+#planner-overlay .pl-tab.active{color:#111;border-bottom-color:#111;font-weight:700;}
+#planner-overlay .pl-area{flex:1;overflow-y:auto;}
+#planner-overlay .pl-panel{display:none;padding:1.3rem;max-width:900px;margin:0 auto;}
+#planner-overlay .pl-panel.active{display:block;}
+#planner-overlay .pl-card{background:#fff;border:1px solid #e0e0e0;border-radius:9px;padding:1.2rem;margin-bottom:.9rem;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+#planner-overlay .pl-card-hd{font-family:'Nanum Myeongjo',serif;font-size:.85rem;font-weight:700;color:#555;margin-bottom:.85rem;padding-bottom:.45rem;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:6px;}
+#planner-overlay .pl-hero{background:#111;color:#fff;border-radius:9px;padding:1.4rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+#planner-overlay .pl-hero-title{font-family:'Nanum Myeongjo',serif;font-size:1.2rem;font-weight:800;margin-bottom:2px;}
+#planner-overlay .pl-hero-sub{font-family:'DM Mono',monospace;font-size:0.58rem;color:rgba(255,255,255,.35);letter-spacing:1px;}
+#planner-overlay .pl-dday-big{font-family:'DM Mono',monospace;font-size:2.6rem;font-weight:700;line-height:1;}
+#planner-overlay .pl-ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.65rem;margin-bottom:.9rem;}
+#planner-overlay .pl-ov-card{background:#fff;border:1px solid #e0e0e0;border-radius:7px;padding:.9rem;text-align:center;}
+#planner-overlay .pl-ov-pct{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:700;line-height:1;margin-bottom:3px;}
+#planner-overlay .pl-ov-name{font-size:.62rem;color:#999;margin-bottom:6px;}
+#planner-overlay .pl-ov-bar-bg{height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden;}
+#planner-overlay .pl-ov-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+#planner-overlay .pl-ov-risk{font-size:.58rem;margin-top:4px;font-weight:600;}
+#planner-overlay .pl-wk-list{display:flex;flex-direction:column;gap:5px;}
+#planner-overlay .pl-wk{display:flex;gap:9px;padding:.7rem .85rem;border-radius:6px;background:#fff;border:1px solid #e0e0e0;}
+#planner-overlay .pl-wk.cur{border-color:#111;border-left:3px solid #111;padding-left:.7rem;}
+#planner-overlay .pl-wk-num{font-family:'DM Mono',monospace;font-size:.6rem;color:#999;min-width:44px;margin-top:1px;font-weight:700;line-height:1.6;}
+#planner-overlay .pl-wk.cur .pl-wk-num{color:#111;}
+#planner-overlay .pl-wk-body{font-size:.73rem;line-height:1.65;color:#555;}
+#planner-overlay .pl-today-rec{font-size:.76rem;line-height:1.9;color:#555;}
+#planner-overlay .pl-tag{display:inline-block;border-radius:3px;padding:1px 6px;font-size:.65rem;font-weight:700;margin:1px 2px;}
+#planner-overlay .pl-subj-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:1.1rem;margin-bottom:.8rem;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+#planner-overlay .pl-subj-hd{display:flex;align-items:center;gap:7px;margin-bottom:.75rem;}
+#planner-overlay .pl-subj-badge{border-radius:3px;padding:2px 7px;font-size:.67rem;font-weight:700;}
+#planner-overlay .pl-subj-name{font-family:'Nanum Myeongjo',serif;font-size:.9rem;font-weight:700;}
+#planner-overlay .pl-subj-risk{font-size:.6rem;margin-left:auto;padding:2px 6px;border-radius:8px;font-weight:600;}
+#planner-overlay .pl-prog-bg{background:#f0f0f0;border-radius:4px;height:6px;margin-bottom:3px;overflow:hidden;}
+#planner-overlay .pl-prog-fill{height:100%;border-radius:4px;transition:width .45s;}
+#planner-overlay .pl-prog-lbls{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.55rem;color:#999;margin-bottom:.75rem;}
+#planner-overlay .pl-cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:3px;}
+#planner-overlay .pl-cl-item{display:flex;align-items:center;gap:6px;font-size:.7rem;cursor:pointer;padding:3px 5px;border-radius:4px;transition:background .12s;color:#555;}
+#planner-overlay .pl-cl-item:hover{background:#f0f0f0;}
+#planner-overlay .pl-cl-item input{width:12px;height:12px;accent-color:#111;cursor:pointer;flex-shrink:0;}
+#planner-overlay .pl-cl-item.done span{text-decoration:line-through;color:#999;}
+#planner-overlay .pl-subj-note{font-size:.65rem;color:#999;margin-top:7px;padding-top:6px;border-top:1px solid #e0e0e0;line-height:1.6;}
+#planner-overlay .pl-memo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:.8rem;}
+#planner-overlay .pl-memo-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:1rem;position:relative;overflow:hidden;transition:all .15s;}
+#planner-overlay .pl-memo-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.11);transform:translateY(-1px);}
+#planner-overlay .pl-mc-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:8px 8px 0 0;}
+#planner-overlay .pl-mc-subj{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:1px;margin-bottom:4px;font-weight:700;}
+#planner-overlay .pl-mc-title{font-family:'Nanum Myeongjo',serif;font-size:.85rem;font-weight:700;margin-bottom:5px;}
+#planner-overlay .pl-mc-items{font-size:.67rem;color:#555;line-height:1.75;}
+#planner-overlay .pl-mc-pri{position:absolute;top:.8rem;right:.8rem;font-size:.56rem;padding:2px 5px;border-radius:5px;font-weight:700;}
+#planner-overlay .pl-toast{position:absolute;bottom:1.4rem;right:1.4rem;background:#111;color:#fff;padding:.6rem 1rem;border-radius:5px;font-size:.75rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);opacity:0;transform:translateY(6px);transition:all .22s;pointer-events:none;z-index:9999;}
+#planner-overlay .pl-toast.show{opacity:1;transform:translateY(0);}
+/* 달력 */
+#planner-overlay .pl-cal-tabs{display:flex;gap:5px;margin-bottom:.9rem;}
+#planner-overlay .pl-cal-tab{padding:.35rem .9rem;border-radius:4px;border:1px solid #e0e0e0;background:#fff;font-size:.7rem;cursor:pointer;color:#555;transition:all .15s;}
+#planner-overlay .pl-cal-tab.active{background:#111;color:#fff;border-color:#111;}
+#planner-overlay .pl-legend{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:.8rem;}
+#planner-overlay .pl-leg-item{display:inline-flex;align-items:center;gap:4px;font-size:.6rem;font-weight:600;}
+#planner-overlay .pl-leg-dot{width:8px;height:8px;border-radius:2px;display:inline-block;}
+#planner-overlay .pl-week-nav{display:flex;align-items:center;gap:8px;margin-bottom:.8rem;}
+#planner-overlay .pl-week-nav button{background:#f0f0f0;border:1px solid #e0e0e0;border-radius:4px;padding:3px 9px;font-size:.68rem;cursor:pointer;color:#111;transition:all .15s;}
+#planner-overlay .pl-week-nav button:hover{background:#111;color:#fff;}
+#planner-overlay .pl-wn-lbl{font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;}
+#planner-overlay .pl-wn-prog{font-size:.62rem;color:#999;margin-left:auto;}
+#planner-overlay .pl-g7{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+#planner-overlay .pl-cal-head{text-align:center;font-family:'DM Mono',monospace;font-size:.56rem;color:#999;padding:4px 0;}
+#planner-overlay .pl-cal-head.sun{color:#c0392b;} #planner-overlay .pl-cal-head.sat{color:#1a5fa8;}
+#planner-overlay .pl-cal-cell{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:5px;min-height:90px;cursor:pointer;transition:all .12s;position:relative;}
+#planner-overlay .pl-cal-cell:hover{border-color:#111;}
+#planner-overlay .pl-cal-cell.today{border-color:#111;border-width:2px;}
+#planner-overlay .pl-cal-cell.past{opacity:.48;}
+#planner-overlay .pl-cal-cell.exam-day{background:#111;border-color:#111;}
+#planner-overlay .pl-cal-cell.empty{background:transparent;border-color:transparent;pointer-events:none;}
+#planner-overlay .pl-cell-dn{font-family:'DM Mono',monospace;font-size:.58rem;color:#999;margin-bottom:2px;font-weight:700;}
+#planner-overlay .pl-cell-dn.tnow{color:#111;font-size:.65rem;}
+#planner-overlay .pl-exam-day .pl-cell-dn{color:#fff;}
+#planner-overlay .pl-chips{display:flex;flex-direction:column;gap:2px;}
+#planner-overlay .pl-chip{border-radius:2px;padding:1px 4px;font-size:.52rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;}
+#planner-overlay .pl-chip.ev{background:#f0f0f0;color:#555;}
+#planner-overlay .pl-cell-h{position:absolute;bottom:4px;right:4px;font-family:'DM Mono',monospace;font-size:.52rem;color:#999;}
+#planner-overlay .pl-exam-day .pl-cell-h{color:rgba(255,255,255,.4);}
+#planner-overlay .pl-det-box{background:#fff;border:1px solid #e0e0e0;border-radius:7px;padding:1rem;margin-top:.8rem;display:none;}
+#planner-overlay .pl-det-box.open{display:block;}
+#planner-overlay .pl-det-title{font-family:'Nanum Myeongjo',serif;font-size:.9rem;font-weight:700;margin-bottom:.7rem;padding-bottom:.45rem;border-bottom:1px solid #e0e0e0;}
+#planner-overlay .pl-det-sec{margin-bottom:.6rem;}
+#planner-overlay .pl-det-lbl{font-family:'DM Mono',monospace;font-size:.55rem;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+#planner-overlay .pl-det-tags{display:flex;flex-wrap:wrap;gap:3px;}
+#planner-overlay .pl-det-tag{border-radius:3px;padding:2px 7px;font-size:.67rem;font-weight:600;}
+#planner-overlay .pl-det-note{font-size:.67rem;color:#555;padding:5px 8px;background:#f0f0f0;border-radius:4px;line-height:1.6;}
+/* 월간 */
+#planner-overlay .pl-mh{text-align:center;font-family:'DM Mono',monospace;font-size:.56rem;color:#999;padding:4px 0;}
+#planner-overlay .pl-mh.sun{color:#c0392b;} #planner-overlay .pl-mh.sat{color:#1a5fa8;}
+#planner-overlay .pl-mc-cell{background:#fff;border:1px solid #e0e0e0;border-radius:5px;padding:4px;min-height:60px;cursor:pointer;transition:all .12s;position:relative;}
+#planner-overlay .pl-mc-cell:hover{border-color:#111;}
+#planner-overlay .pl-mc-cell.today{border-color:#111;border-width:2px;}
+#planner-overlay .pl-mc-cell.past{opacity:.42;}
+#planner-overlay .pl-mc-cell.out{background:#f7f7f7;border-color:transparent;pointer-events:none;}
+#planner-overlay .pl-mc-cell.exam-day{background:#111;}
+#planner-overlay .pl-mc-dn{font-family:'DM Mono',monospace;font-size:.55rem;color:#999;margin-bottom:2px;}
+#planner-overlay .pl-mc-dn.tnow{color:#111;font-weight:700;}
+#planner-overlay .pl-mc-cell.exam-day .pl-mc-dn{color:#fff;}
+#planner-overlay .pl-mc-dots{display:flex;flex-wrap:wrap;gap:2px;margin-top:2px;}
+#planner-overlay .pl-mc-dot{width:6px;height:6px;border-radius:1px;}
+#planner-overlay .pl-mc-ev{font-size:.48rem;color:#999;line-height:1.4;}
+</style>
+
+<header class="pl-hd">
+  <div class="pl-logo">중간고사 <span>플래너</span></div>
+  <div class="pl-hd-r">
+    <div class="pl-dday" id="pl-dday-badge">D-?</div>
+    <button class="pl-back" onclick="closePlanner()">← 대시보드</button>
+  </div>
+</header>
+<nav class="pl-nav">
+  <button class="pl-tab active" onclick="plShowTab('summary')">요약</button>
+  <button class="pl-tab" onclick="plShowTab('calendar')">달력</button>
+  <button class="pl-tab" onclick="plShowTab('tracker')">진도</button>
+  <button class="pl-tab" onclick="plShowTab('memo')">암기카드</button>
+</nav>
+<div class="pl-area">
+
+  <!-- 요약 -->
+  <div class="pl-panel active" id="pl-panel-summary">
+    <div class="pl-hero">
+      <div><div class="pl-hero-title">2026 중간고사</div><div class="pl-hero-sub">MIDTERM · 2026.04.21 · 5 SUBJECTS</div></div>
+      <div><div class="pl-dday-big" id="pl-hero-day">D-?</div><div style="font-family:'DM Mono',monospace;font-size:.55rem;color:rgba(255,255,255,.3);text-align:right;margin-top:2px;">DAYS LEFT</div></div>
+    </div>
+    <div class="pl-card"><div class="pl-card-hd">📌 과목별 현황 <span style="font-size:.6rem;color:#999;font-weight:400;margin-left:6px;">※ 대시보드 시험 일정과 연동됨</span></div><div class="pl-ov-grid" id="pl-ov-grid"></div></div>
+    <div class="pl-card"><div class="pl-card-hd">📅 주차별 전략</div><div class="pl-wk-list" id="pl-wk-list"></div></div>
+    <div class="pl-card"><div class="pl-card-hd">✦ 오늘의 공부 추천</div><div class="pl-today-rec" id="pl-today-rec"></div></div>
+  </div>
+
+  <!-- 달력 -->
+  <div class="pl-panel" id="pl-panel-calendar">
+    <div style="font-family:'Nanum Myeongjo',serif;font-size:1.1rem;font-weight:700;margin-bottom:.15rem;">학습 달력</div>
+    <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:#999;letter-spacing:.5px;margin-bottom:1.1rem;">3/30 → 4/21 · MIDTERM COUNTDOWN</div>
+    <div class="pl-cal-tabs">
+      <button class="pl-cal-tab active" id="pl-tabW" onclick="plSwitchCal('week')">주간</button>
+      <button class="pl-cal-tab" id="pl-tabM" onclick="plSwitchCal('month')">월간 (4월)</button>
+    </div>
+    <div id="pl-viewW">
+      <div class="pl-card">
+        <div class="pl-week-nav">
+          <button onclick="plPrevWeek()">◀</button>
+          <div class="pl-wn-lbl" id="pl-wn-lbl"></div>
+          <button onclick="plNextWeek()">▶</button>
+          <div class="pl-wn-prog" id="pl-wn-prog"></div>
+        </div>
+        <div class="pl-legend" id="pl-leg-w"></div>
+        <div class="pl-g7" id="pl-cal-heads"></div>
+        <div style="height:4px"></div>
+        <div class="pl-g7" id="pl-cal-cells"></div>
+      </div>
+      <div class="pl-det-box" id="pl-det-w"><div class="pl-det-title" id="pl-det-title-w"></div><div id="pl-det-body-w"></div></div>
+    </div>
+    <div id="pl-viewM" style="display:none">
+      <div class="pl-card">
+        <div style="font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;color:#555;margin-bottom:.75rem;">2026년 4월</div>
+        <div class="pl-legend" id="pl-leg-m"></div>
+        <div class="pl-g7" id="pl-m-heads"></div>
+        <div style="height:4px"></div>
+        <div class="pl-g7" id="pl-m-cells"></div>
+      </div>
+      <div class="pl-det-box" id="pl-det-m"><div class="pl-det-title" id="pl-det-title-m"></div><div id="pl-det-body-m"></div></div>
+    </div>
+  </div>
+
+  <!-- 진도 -->
+  <div class="pl-panel" id="pl-panel-tracker">
+    <div style="font-family:'Nanum Myeongjo',serif;font-size:1.1rem;font-weight:700;margin-bottom:.15rem;">과목별 진도 트래커</div>
+    <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:#999;letter-spacing:.5px;margin-bottom:1.1rem;">체크 → 자동 저장 · 진도율 실시간 반영</div>
+    <div id="pl-tracker-content"></div>
+  </div>
+
+  <!-- 암기카드 -->
+  <div class="pl-panel" id="pl-panel-memo">
+    <div style="background:#111;color:#fff;border-radius:9px;padding:1.1rem;margin-bottom:.9rem;">
+      <div style="font-family:'Nanum Myeongjo',serif;font-size:.9rem;font-weight:700;margin-bottom:2px;">🧠 알바 중 암기 카드</div>
+      <div style="font-size:.65rem;color:rgba(255,255,255,.4);">화·목 학원 알바 쉬는시간에 짧게 반복하기</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.55);margin-top:5px;">⏰ 화·목 15:00 – 20:30 · 카이스트수학학원</div>
+    </div>
+    <div style="border:1px solid #e0e0e0;border-radius:7px;padding:.8rem .9rem;border-left:3px solid #111;margin-bottom:1rem;background:#fff;">
+      <div style="font-weight:700;font-size:.72rem;margin-bottom:2px;">💡 활용법</div>
+      <div style="font-size:.67rem;color:#555;line-height:1.65;">알바 시작 전에 오늘 외울 카드 1~2개만 골라서 폰 메모에 복사.<br>쉬는시간마다 꺼내서 눈으로 반복. 양 욕심 금지 — 3~5개 공식이면 충분.</div>
+    </div>
+    <div class="pl-memo-grid" id="pl-memo-deck"></div>
+  </div>
+
+</div>
+<div class="pl-toast" id="pl-toast"></div>
+</div>
+
+
+<script>
+/* ══ 중간고사 플래너 JS ══ */
+const PL_EXAM = new Date('2026-04-21'); PL_EXAM.setHours(0,0,0,0);
+const PL_START = new Date('2026-03-30'); PL_START.setHours(0,0,0,0);
+
+const PL_SUBJ = {
+  전긱:{c:'#c0392b',bg:'#fdf2f1',full:'전자기학',risk:'mid',rl:'🟡 중간'},
+  논회:{c:'#b07d10',bg:'#fdf8ee',full:'논리회로',risk:'low',rl:'🟢 양호'},
+  회이:{c:'#1a5fa8',bg:'#eef4fc',full:'회로이론',risk:'high',rl:'🔴 최고위험'},
+  신시:{c:'#c06010',bg:'#fdf4ee',full:'신호와시스템',risk:'high',rl:'🔴 높음'},
+  객프:{c:'#287a3c',bg:'#eef8f1',full:'객체지향프로그래밍',risk:'mid',rl:'🟡 중간'},
+};
+const PL_DEF_PROG = {전긱:50,논회:60,회이:0,신시:30,객프:10};
+const PL_CL = {
+  전긱:[{id:'전긱1',l:'교수님 PPT 정리'},{id:'전긱2',l:'핵심 공식 암기'},{id:'전긱3',l:'교재 연습문제'},{id:'전긱4',l:'족보 풀기'},{id:'전긱5',l:'1주차 Ch1~4'},{id:'전긱6',l:'2주차 Ch5~8'}],
+  논회:[{id:'논회1',l:'교수님 PPT 정리'},{id:'논회2',l:'교재 연습문제'},{id:'논회3',l:'진리표/카르노맵'},{id:'논회4',l:'논리식 변환'},{id:'논회5',l:'최종 총정리'}],
+  회이:[{id:'회이1',l:'온라인 강의 다시보기'},{id:'회이2',l:'뽕교수 유튜브'},{id:'회이3',l:'교수님 PPT 정리'},{id:'회이4',l:'PPT 연습문제'},{id:'회이5',l:'1주차: 기본 개념'},{id:'회이6',l:'2주차: 응용'},{id:'회이7',l:'3주차: 총정리'}],
+  신시:[{id:'신시1',l:'교수님 PPT 정리'},{id:'신시2',l:'요약문제 풀기'},{id:'신시3',l:'교재 연습문제'},{id:'신시4',l:'족보 찾기·풀기'},{id:'신시5',l:'푸리에/라플라스'}],
+  객프:[{id:'객프1',l:'교수님 PPT 정리'},{id:'객프2',l:'족보 풀기'},{id:'객프3',l:'치트시트 초안'},{id:'객프4',l:'치트시트 완성'},{id:'객프5',l:'코드 패턴 암기'}],
+};
+const PL_CARDS = [
+  {s:'전긱',p:1,t:'전자기학 핵심 공식',items:['가우스 법칙: ∮D·dS = Q_enc','앙페르 법칙: ∮H·dl = I_enc','패러데이 법칙: ∮E·dl = −dΦ/dt','쿨롱 법칙: F = kq₁q₂/r²','좌표계 변환 (직교↔원통↔구면)']},
+  {s:'전긱',p:2,t:'벡터 연산',items:['∇·A (발산)','∇×A (회전)','∇V (기울기)','∇²V (라플라시안)','스토크스·발산 정리']},
+  {s:'논회',p:2,t:'불 대수 & 게이트',items:["드모르간: (AB)'=A'+B'",'흡수 법칙: A+AB=A','SOP/POS 변환','카르노맵 묶음 규칙','AND OR NOT XOR NAND NOR']},
+  {s:'논회',p:3,t:'플립플롭 & 순서회로',items:['반가산기/전가산기 진리표','MUX / DEMUX','D·JK·T 플립플롭 특성표','상태 다이어그램']},
+  {s:'객프',p:2,t:'치트시트 코드 패턴',items:['클래스 선언 + 생성자/소멸자','상속: class B : public A','가상함수 & override','new/delete 메모리 관리','STL: vector map set']},
+];
+
+let plInited = false;
+let plCalMode = 'week';
+let plWkStart = (function(){
+  const s = new Date(); s.setHours(0,0,0,0);
+  s.setDate(s.getDate() - s.getDay());
+  const mn = new Date('2026-03-23'); mn.setHours(0,0,0,0);
+  return s < mn ? mn : s;
+})();
+
+function openPlanner(){
+  document.getElementById('planner-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  if(!plInited){ plInited=true; plInit(); }
+  else { plUpdateDday(); plRenderOv(); }
+}
+function closePlanner(){
+  document.getElementById('planner-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function plInit(){
+  plUpdateDday();
+  plRenderWeek();
+  plRenderTracker();
+  plRenderMemo();
+  plRenderOv();
+  plRenderWkPlan();
+  plRenderTodayRec();
+}
+
+function plShowTab(id){
+  document.querySelectorAll('#planner-overlay .pl-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#planner-overlay .pl-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pl-panel-'+id).classList.add('active');
+  document.querySelector(`#planner-overlay .pl-tab[onclick="plShowTab('${id}')"]`).classList.add('active');
+}
+
+function plUpdateDday(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.ceil((PL_EXAM - today) / 86400000);
+  const s = diff>0?`D-${diff}`:diff===0?'D-DAY':`D+${-diff}`;
+  document.getElementById('pl-dday-badge').textContent = s;
+  document.getElementById('pl-hero-day').textContent = s;
+}
+
+/* 대시보드 시험 데이터에서 시험 날짜 가져오기 (연동) */
+function plGetExamDates(){
+  const dates = {};
+  if(typeof S !== 'undefined' && S.exam){
+    S.exam.forEach(e=>{
+      if(!dates[e.dt]) dates[e.dt]=[];
+      dates[e.dt].push(e.subj||'');
+    });
+  }
+  // 플래너 기본 시험일 추가
+  dates['2026-04-21'] = dates['2026-04-21'] || ['중간고사'];
+  return dates;
+}
+
+function plGetDayData(d){
+  const dt = new Date(d); dt.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dow = dt.getDay();
+  const inRange = dt >= PL_START && dt <= PL_EXAM;
+  const isPast = dt < today;
+  const isToday = dt.getTime()===today.getTime();
+  const isExam = dt.getTime()===PL_EXAM.getTime();
+  let classes=[],extra=[],events=[],hours=0,albaDay=false;
+  if(inRange){
+    if(dow===1){classes=['전긱','논회','객프'];hours=4;events.push('윤서과외 19~21');}
+    if(dow===2){classes=['신시'];hours=7;albaDay=true;events.push('학원알바 15~20:30');}
+    if(dow===3){classes=['전긱','논회','객프'];hours=9;}
+    if(dow===4){classes=['신시'];hours=6;albaDay=true;events.push('학원알바 15~20:30');}
+    if(dow===5){hours=5;events.push('도서관근로','윤서과외 19~21');}
+    if(dow===6){hours=9;events.push('도서관근로');}
+    if(dow===0){hours=15;}
+    const diff=Math.floor((dt-PL_START)/86400000);
+    const wk=Math.min(3,Math.floor(diff/7)+1);
+    const em={
+      1:{1:['회이'],2:['객프암기'],3:['신시','회이'],4:['논회'],5:['객프'],6:['회이','전긱'],0:['회이','신시','전긱']},
+      2:{1:['회이'],2:['객프치트시트'],3:['신시','회이'],4:['전긱'],5:['객프치트시트'],6:['전긱','신시'],0:['회이','신시','전긱']},
+      3:{1:['회이족보'],2:['객프암기'],3:['전긱족보','회이'],4:['신시족보'],5:['객프완성'],6:['전긱족보','논회'],0:['신시족보','전긱','회이']},
+    };
+    extra=(em[wk]&&em[wk][dow])||[];
+  } else {
+    if(dow===1||dow===3){hours=dow===1?4:9;}
+    else if(dow===2||dow===4){hours=dow===2?7:6;albaDay=dow===2||dow===4;}
+    else if(dow===5){hours=5;}else if(dow===6){hours=9;}else{hours=15;}
+  }
+  return {dt,dow,inRange,isPast,isToday,isExam,classes,extra,events,hours,albaDay};
+}
+
+function plMakeLegend(elId){
+  const el=document.getElementById(elId); if(!el)return;
+  el.innerHTML=Object.entries(PL_SUBJ).map(([k,s])=>
+    `<span class="pl-leg-item" style="color:${s.c}"><span class="pl-leg-dot" style="background:${s.c}"></span>${k}</span>`
+  ).join('');
+}
+
+function plRenderWeek(){
+  plMakeLegend('pl-leg-w');
+  const dn=['일','월','화','수','목','금','토'];
+  const heads=document.getElementById('pl-cal-heads'); if(!heads)return;
+  heads.innerHTML=dn.map((d,i)=>`<div class="pl-cal-head ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
+  const days=[];for(let i=0;i<7;i++){const x=new Date(plWkStart);x.setDate(x.getDate()+i);days.push(x);}
+  document.getElementById('pl-wn-lbl').textContent=`${days[0].getMonth()+1}/${days[0].getDate()} – ${days[6].getMonth()+1}/${days[6].getDate()}`;
+  const today=new Date();today.setHours(0,0,0,0);
+  const tot=Math.floor((PL_EXAM-PL_START)/86400000)+1;
+  const pas=Math.max(0,Math.floor((today-PL_START)/86400000));
+  document.getElementById('pl-wn-prog').textContent=`${pas}/${tot}일`;
+  const examDates=plGetExamDates();
+  document.getElementById('pl-cal-cells').innerHTML=days.map(d=>{
+    const data=plGetDayData(d);
+    const ds=d.toISOString().slice(0,10);
+    if(d<PL_START&&!data.isToday) return `<div class="pl-cal-cell empty"></div>`;
+    let cls='pl-cal-cell';
+    if(data.isPast)cls+=' past';
+    if(data.isToday)cls+=' today';
+    if(data.isExam)cls+=' exam-day pl-exam-day';
+    let chips='';
+    data.events.forEach(e=>chips+=`<div class="pl-chip ev">${e}</div>`);
+    data.classes.forEach(s=>chips+=`<div class="pl-chip" style="background:${PL_SUBJ[s].bg};color:${PL_SUBJ[s].c}">${s}</div>`);
+    data.extra.slice(0,2).forEach(e=>{const k=Object.keys(PL_SUBJ).find(k=>e.includes(k));if(k)chips+=`<div class="pl-chip" style="background:${PL_SUBJ[k].bg};color:${PL_SUBJ[k].c}">+${e}</div>`;});
+    if(examDates[ds])chips+=`<div class="pl-chip" style="background:${data.isExam?'#fff':'#111'};color:${data.isExam?'#111':'#fff'}">🎯 시험</div>`;
+    if(data.albaDay&&data.inRange)chips+=`<div class="pl-chip ev">📖 암기</div>`;
+    return `<div class="${cls}" onclick="plOpenDet('${ds}','W')">
+      <div class="pl-cell-dn ${data.isToday?'tnow':''}">${d.getMonth()+1}/${d.getDate()}</div>
+      <div class="pl-chips">${chips}</div>
+      <div class="pl-cell-h">${data.hours?data.hours+'h':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function plPrevWeek(){const p=new Date(plWkStart);p.setDate(p.getDate()-7);const mn=new Date('2026-03-23');mn.setHours(0,0,0,0);if(p>=mn){plWkStart=p;plRenderWeek();}}
+function plNextWeek(){const n=new Date(plWkStart);n.setDate(n.getDate()+7);const mx=new Date('2026-04-20');mx.setHours(0,0,0,0);if(n<=mx){plWkStart=n;plRenderWeek();}}
+
+function plSwitchCal(m){
+  plCalMode=m;
+  document.getElementById('pl-viewW').style.display=m==='week'?'block':'none';
+  document.getElementById('pl-viewM').style.display=m==='month'?'block':'none';
+  document.getElementById('pl-tabW').classList.toggle('active',m==='week');
+  document.getElementById('pl-tabM').classList.toggle('active',m==='month');
+  if(m==='month')plRenderMonth(); else plRenderWeek();
+}
+
+function plRenderMonth(){
+  plMakeLegend('pl-leg-m');
+  const dn=['일','월','화','수','목','금','토'];
+  document.getElementById('pl-m-heads').innerHTML=dn.map((d,i)=>`<div class="pl-mh ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
+  const today=new Date();today.setHours(0,0,0,0);
+  const apr1=new Date('2026-04-01');apr1.setHours(0,0,0,0);
+  const startDow=apr1.getDay();
+  const examDates=plGetExamDates();
+  let html='';
+  for(let i=0;i<startDow;i++)html+=`<div class="pl-mc-cell out"></div>`;
+  for(let day=1;day<=30;day++){
+    const d=new Date(`2026-04-${String(day).padStart(2,'0')}`);d.setHours(0,0,0,0);
+    const ds=d.toISOString().slice(0,10);
+    const data=plGetDayData(d);
+    let cls='pl-mc-cell';
+    if(data.isPast)cls+=' past';
+    if(data.isToday)cls+=' today';
+    if(data.isExam)cls+=' exam-day';
+    if(!data.inRange)cls+=' out';
+    let dots=data.classes.map(s=>`<div class="pl-mc-dot" style="background:${PL_SUBJ[s].c}" title="${s}"></div>`).join('');
+    data.extra.slice(0,2).forEach(e=>{const k=Object.keys(PL_SUBJ).find(k=>e.includes(k));if(k)dots+=`<div class="pl-mc-dot" style="background:${PL_SUBJ[k].bg};border:1px solid ${PL_SUBJ[k].c}"></div>`;});
+    if(examDates[ds])dots+=`<div class="pl-mc-dot" style="background:#111"></div>`;
+    let ev='';
+    if(data.albaDay&&data.inRange)ev+='<div class="pl-mc-ev">알바</div>';
+    if(data.isExam)ev+='<div class="pl-mc-ev" style="color:#fff;font-weight:700;">시험</div>';
+    html+=`<div class="${cls}" onclick="plOpenDet('${ds}','M')">
+      <div class="pl-mc-dn ${data.isToday?'tnow':''}">${day}</div>
+      <div class="pl-mc-dots">${dots}</div>${ev}
+    </div>`;
+  }
+  document.getElementById('pl-m-cells').innerHTML=html;
+}
+
+function plOpenDet(dateStr,sfx){
+  const d=new Date(dateStr);d.setHours(0,0,0,0);
+  const data=plGetDayData(d);
+  const dn=['일','월','화','수','목','금','토'];
+  const examDates=plGetExamDates();
+  const ds=d.toISOString().slice(0,10);
+  document.getElementById('pl-det-title-'+sfx.toLowerCase()).textContent=`${d.getMonth()+1}월 ${d.getDate()}일 (${dn[data.dow]}) · 가용 ${data.hours}h`;
+  let html='';
+  if(data.events.length){html+=`<div class="pl-det-sec"><div class="pl-det-lbl">일정</div><div class="pl-det-tags">`;data.events.forEach(e=>html+=`<span class="pl-det-tag" style="background:#f0f0f0;color:#555">${e}</span>`);html+=`</div></div>`;}
+  if(data.classes.length){html+=`<div class="pl-det-sec"><div class="pl-det-lbl">수업 (복습 필수)</div><div class="pl-det-tags">`;data.classes.forEach(s=>html+=`<span class="pl-det-tag" style="background:${PL_SUBJ[s].bg};color:${PL_SUBJ[s].c}">${PL_SUBJ[s].full}</span>`);html+=`</div></div>`;}
+  if(data.extra.length){html+=`<div class="pl-det-sec"><div class="pl-det-lbl">추가 공부</div><div class="pl-det-tags">`;data.extra.forEach(e=>{const k=Object.keys(PL_SUBJ).find(k=>e.includes(k));const c=k?PL_SUBJ[k].c:'#555',b=k?PL_SUBJ[k].bg:'#f0f0f0';html+=`<span class="pl-det-tag" style="background:${b};color:${c}">${e}</span>`;});html+=`</div></div>`;}
+  if(examDates[ds]&&examDates[ds].length){html+=`<div class="pl-det-sec"><div class="pl-det-lbl">시험 일정</div><div class="pl-det-tags">`;examDates[ds].forEach(s=>html+=`<span class="pl-det-tag" style="background:#111;color:#fff">🎯 ${s||'시험'}</span>`);html+=`</div></div>`;}
+  if(data.albaDay&&data.inRange)html+=`<div class="pl-det-sec"><div class="pl-det-lbl">알바 중 암기</div><div class="pl-det-note">전긱 공식 3~5개 + 논회 진리표 반복 → 암기카드 탭 참고</div></div>`;
+  const box=document.getElementById('pl-det-'+sfx.toLowerCase());
+  document.getElementById('pl-det-body-'+sfx.toLowerCase()).innerHTML=html;
+  box.classList.add('open');
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* 진도 트래커 */
+function plGetProg(){return JSON.parse(localStorage.getItem('mp_prog')||JSON.stringify(PL_DEF_PROG));}
+function plGetChk(){return JSON.parse(localStorage.getItem('mp_chk')||'{}');}
+function plSaveChk(c){localStorage.setItem('mp_chk',JSON.stringify(c));}
+function plCalcPct(k){
+  const p=plGetProg(),c=plGetChk(),items=PL_CL[k]||[];
+  const base=p[k]||0;
+  const done=items.filter(i=>c[i.id]).length;
+  return Math.min(100,base+Math.round((done/items.length)*(100-base)));
+}
+
+function plRenderTracker(){
+  const chk=plGetChk();
+  const el=document.getElementById('pl-tracker-content'); if(!el)return;
+  el.innerHTML=Object.entries(PL_SUBJ).map(([key,s])=>{
+    const pct=plCalcPct(key),base=plGetProg()[key]||0;
+    const rc=s.risk==='high'?'color:#c0392b;background:#fdf2f1':s.risk==='mid'?'color:#b07d10;background:#fdf8ee':'color:#287a3c;background:#eef8f1';
+    const cl=PL_CL[key]||[];
+    const items=cl.map(i=>`<label class="pl-cl-item ${chk[i.id]?'done':''}" onclick="plToggleChk('${i.id}')">
+      <input type="checkbox" ${chk[i.id]?'checked':''} onclick="event.stopPropagation();plToggleChk('${i.id}')">
+      <span>${i.l}</span></label>`).join('');
+    const notes={회이:`<div class="pl-subj-note">⚠️ 이해도 0% 최우선 · 독서실 필수 · 뽕교수 유튜브 병행</div>`,논회:`<div class="pl-subj-note">ℹ️ 족보 없음 (신임 교수) · PPT + 교재 연습문제 집중</div>`,신시:`<div class="pl-subj-note">📝 교수님 요약문제 필수 · 족보 없으면 찾아볼 것</div>`,객프:`<div class="pl-subj-note">💡 도서관 근로 중 치트시트 작업 가능 · 시험 중 파일 1개 참고 허용</div>`};
+    return `<div class="pl-subj-card">
+      <div class="pl-subj-hd">
+        <div class="pl-subj-badge" style="background:${s.bg};color:${s.c}">${key}</div>
+        <div class="pl-subj-name">${s.full}</div>
+        <div class="pl-subj-risk" style="${rc}">${s.rl}</div>
+      </div>
+      <div class="pl-prog-bg"><div class="pl-prog-fill" style="width:${pct}%;background:${s.c}"></div></div>
+      <div class="pl-prog-lbls"><span>시작 ${base}%</span><span>현재 <strong>${pct}%</strong></span><span>목표 100%</span></div>
+      <div class="pl-cl-grid">${items}</div>
+      ${notes[key]||''}
+    </div>`;
+  }).join('');
+}
+function plToggleChk(id){const c=plGetChk();c[id]=!c[id];plSaveChk(c);plRenderTracker();plRenderOv();plShowToast(c[id]?'✅ 완료':'↩ 해제');}
+
+/* 요약 */
+function plRenderOv(){
+  const el=document.getElementById('pl-ov-grid'); if(!el)return;
+  el.innerHTML=Object.entries(PL_SUBJ).map(([k,s])=>{
+    const pct=plCalcPct(k);
+    const rc=s.risk==='high'?'color:#c0392b;background:#fdf2f1':s.risk==='mid'?'color:#b07d10;background:#fdf8ee':'color:#287a3c;background:#eef8f1';
+    return `<div class="pl-ov-card">
+      <div class="pl-ov-pct" style="color:${s.c}">${pct}%</div>
+      <div class="pl-ov-name">${s.full}</div>
+      <div class="pl-ov-bar-bg"><div class="pl-ov-bar-fill" style="width:${pct}%;background:${s.c}"></div></div>
+      <div class="pl-ov-risk" style="${rc}">${s.rl}</div>
+    </div>`;
+  }).join('');
+}
+
+function plRenderWkPlan(){
+  const el=document.getElementById('pl-wk-list'); if(!el)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.max(0,Math.floor((today-PL_START)/86400000));
+  const cur=Math.min(3,Math.floor(diff/7)+1);
+  const plans=[
+    {w:'1주차',d:'3/30~4/5',body:'회이 온라인강의 시작 · 전긱/신시 PPT 복습 완성 · 객프 코드 모으기'},
+    {w:'2주차',d:'4/6~4/12',body:'전 과목 연습문제 집중 · 회이 뽕교수 병행 · 전긱 공식 암기 완성 · 객프 치트시트 초안'},
+    {w:'3주차',d:'4/13~4/20',body:'전 과목 족보 · 논회 최종 정리 · 객프 치트시트 완성 · 취약 부분 보강'},
+  ];
+  el.innerHTML=plans.map((p,i)=>
+    `<div class="pl-wk ${i+1===cur?'cur':''}">
+      <div class="pl-wk-num">${p.w}<br><span style="font-weight:400">${p.d}</span></div>
+      <div class="pl-wk-body"><strong>${i+1===cur?'▶ 현재 · ':''}</strong>${p.body}</div>
+    </div>`).join('');
+}
+
+function plRenderTodayRec(){
+  const el=document.getElementById('pl-today-rec'); if(!el)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const data=plGetDayData(today);
+  const dn=['일','월','화','수','목','금','토'];
+  let html=`<strong>${today.getMonth()+1}월 ${today.getDate()}일 (${dn[today.getDay()]}) · 가용 ${data.hours}h</strong><br>`;
+  if(!data.inRange&&today<PL_START){
+    html+=`<span style="color:#999">플랜 시작 전이야. 지금 회이 개념부터 미리 시작해두는 걸 추천해.</span>`;
+  } else if(!data.inRange&&today>PL_EXAM){
+    html+=`<span style="color:#999">시험이 끝났어. 수고했어! 🎉</span>`;
+  } else {
+    if(data.classes.length)html+=`📚 수업: ${data.classes.map(s=>`<span class="pl-tag" style="background:${PL_SUBJ[s].bg};color:${PL_SUBJ[s].c}">${s}</span>`).join(' ')} → 복습 필수<br>`;
+    if(data.extra.length)html+=`➕ 추가: ${data.extra.map(e=>{const k=Object.keys(PL_SUBJ).find(k=>e.includes(k));return`<span class="pl-tag" style="background:${k?PL_SUBJ[k].bg:'#f0f0f0'};color:${k?PL_SUBJ[k].c:'#555'}">${e}</span>`;}).join(' ')}<br>`;
+    if(data.albaDay)html+=`🏫 알바 중: <strong>전긱 공식 3~5개 + 논회 진리표</strong> 반복<br>`;
+    if(!data.classes.length&&!data.extra.length&&!data.isExam)html+=`자유 공부일 — 회이 + 신시 독서실 집중 추천`;
+  }
+  el.innerHTML=html;
+}
+
+function plRenderMemo(){
+  const el=document.getElementById('pl-memo-deck'); if(!el)return;
+  el.innerHTML=PL_CARDS.map(c=>{
+    const s=PL_SUBJ[c.s];
+    const pc=c.p===1?'color:#c0392b;background:#fdf2f1':c.p===2?'color:#b07d10;background:#fdf8ee':'color:#287a3c;background:#eef8f1';
+    const pl=c.p===1?'최우선':c.p===2?'권장':'여유시';
+    return `<div class="pl-memo-card">
+      <div class="pl-mc-bar" style="background:${s.c}"></div>
+      <div class="pl-mc-subj" style="color:${s.c}">${c.s} · ${s.full}</div>
+      <div class="pl-mc-title">${c.t}</div>
+      <div class="pl-mc-items">${c.items.map(i=>`• ${i}`).join('<br>')}</div>
+      <div class="pl-mc-pri" style="${pc}">${pl}</div>
+    </div>`;
+  }).join('');
+}
+
+function plShowToast(msg){
+  const t=document.getElementById('pl-toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+</script>
+
 </body>
 </html>
