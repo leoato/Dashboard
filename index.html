@@ -2622,18 +2622,18 @@ rBanner();
   <!-- 요약 -->
   <div class="pl-panel active" id="pl-panel-summary">
     <div class="pl-hero">
-      <div><div class="pl-hero-title">2026 중간고사</div><div class="pl-hero-sub">MIDTERM · 2026.04.21 · 5 SUBJECTS</div></div>
+      <div><div class="pl-hero-title">2026 기말고사</div><div class="pl-hero-sub">FINAL · 2026.06.10~16 · 5 SUBJECTS</div></div>
       <div><div class="pl-dday-big" id="pl-hero-day">D-?</div><div style="font-family:'DM Mono',monospace;font-size:.55rem;color:rgba(255,255,255,.3);text-align:right;margin-top:2px;">DAYS LEFT</div></div>
     </div>
     <div class="pl-card"><div class="pl-card-hd">📌 과목별 현황 <span style="font-size:.6rem;color:#999;font-weight:400;margin-left:6px;">※ 대시보드 시험 일정과 연동됨</span></div><div class="pl-ov-grid" id="pl-ov-grid"></div></div>
-    <div class="pl-card"><div class="pl-card-hd">📅 주차별 전략</div><div class="pl-wk-list" id="pl-wk-list"></div></div>
+    <div class="pl-card"><div class="pl-card-hd">📅 날짜별 플랜 <span style="font-size:.6rem;color:#999;font-weight:400;margin-left:6px;">각 날짜별 수정 버튼으로 편집 가능</span></div><div class="pl-wk-list" id="pl-wk-list"></div></div>
     <div class="pl-card"><div class="pl-card-hd">✦ 오늘의 공부 추천</div><div class="pl-today-rec" id="pl-today-rec"></div></div>
   </div>
 
   <!-- 달력 -->
   <div class="pl-panel" id="pl-panel-calendar">
     <div style="font-family:'Nanum Myeongjo',serif;font-size:1.1rem;font-weight:700;margin-bottom:.15rem;">학습 달력</div>
-    <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:#999;letter-spacing:.5px;margin-bottom:1.1rem;">3/30 → 4/21 · MIDTERM COUNTDOWN</div>
+    <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:#999;letter-spacing:.5px;margin-bottom:1.1rem;">5/31 → 6/16 · FINAL COUNTDOWN</div>
     <div class="pl-cal-tabs">
       <button class="pl-cal-tab active" id="pl-tabW" onclick="plSwitchCal('week')">주간</button>
       <button class="pl-cal-tab" id="pl-tabM" onclick="plSwitchCal('month')">월간 (4월)</button>
@@ -2677,7 +2677,7 @@ rBanner();
     <div style="background:#111;color:#fff;border-radius:9px;padding:1.1rem;margin-bottom:.9rem;">
       <div style="font-family:'Nanum Myeongjo',serif;font-size:.9rem;font-weight:700;margin-bottom:2px;">🧠 알바 중 암기 카드</div>
       <div style="font-size:.65rem;color:rgba(255,255,255,.4);">화·목 학원 알바 쉬는시간에 짧게 반복하기</div>
-      <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.55);margin-top:5px;">⏰ 화·목 15:00 – 20:30 · 카이스트수학학원</div>
+      <div style="font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.55);margin-top:5px;">⏰ 화·목 학원알바 · 도서관근로 쉬는시간 활용</div>
     </div>
     <div style="border:1px solid #e0e0e0;border-radius:7px;padding:.8rem .9rem;border-left:3px solid #111;margin-bottom:1rem;background:#fff;">
       <div style="font-weight:700;font-size:.72rem;margin-bottom:2px;">💡 활용법</div>
@@ -2693,8 +2693,8 @@ rBanner();
 
 <script>
 /* ══ 중간고사 플래너 JS ══ */
-const PL_EXAM = new Date('2026-04-21'); PL_EXAM.setHours(0,0,0,0);
-const PL_START = new Date('2026-03-30'); PL_START.setHours(0,0,0,0);
+const PL_EXAM = new Date('2026-06-16'); PL_EXAM.setHours(0,0,0,0);
+const PL_START = new Date('2026-05-31'); PL_START.setHours(0,0,0,0);
 
 const PL_SUBJ = {
   전긱:{c:'#c0392b',bg:'#fdf2f1',full:'전자기학',risk:'mid',rl:'🟡 중간'},
@@ -2724,7 +2724,7 @@ let plCalMode = 'week';
 let plWkStart = (function(){
   const s = new Date(); s.setHours(0,0,0,0);
   s.setDate(s.getDate() - s.getDay());
-  const mn = new Date('2026-03-23'); mn.setHours(0,0,0,0);
+  const mn = new Date('2026-05-25'); mn.setHours(0,0,0,0);
   return s < mn ? mn : s;
 })();
 
@@ -2774,7 +2774,9 @@ function plGetExamDates(){
     });
   }
   // 플래너 기본 시험일 추가
-  dates['2026-04-21'] = dates['2026-04-21'] || ['중간고사'];
+  dates['2026-06-10'] = dates['2026-06-10'] || ['전자기학 시험 09:00'];
+  dates['2026-06-15'] = dates['2026-06-15'] || ['객프 시험 16:30'];
+  dates['2026-06-16'] = dates['2026-06-16'] || ['신시 12:00, 회이 20:00'];
   return dates;
 }
 
@@ -2785,29 +2787,16 @@ function plGetDayData(d){
   const inRange = dt >= PL_START && dt <= PL_EXAM;
   const isPast = dt < today;
   const isToday = dt.getTime()===today.getTime();
-  const isExam = dt.getTime()===PL_EXAM.getTime();
-  let classes=[],extra=[],events=[],hours=0,albaDay=false;
-  if(inRange){
-    if(dow===1){classes=['전긱','논회','객프'];hours=4;events.push('윤서과외 19~21');}
-    if(dow===2){classes=['신시'];hours=7;albaDay=true;events.push('학원알바 15~20:30');}
-    if(dow===3){classes=['전긱','논회','객프'];hours=9;}
-    if(dow===4){classes=['신시'];hours=6;albaDay=true;events.push('학원알바 15~20:30');}
-    if(dow===5){hours=5;events.push('도서관근로','윤서과외 19~21');}
-    if(dow===6){hours=9;events.push('도서관근로');}
-    if(dow===0){hours=15;}
-    const diff=Math.floor((dt-PL_START)/86400000);
-    const wk=Math.min(3,Math.floor(diff/7)+1);
-    const em={
-      1:{1:['회이'],2:['객프암기'],3:['신시','회이'],4:['논회'],5:['객프'],6:['회이','전긱'],0:['회이','신시','전긱']},
-      2:{1:['회이'],2:['객프치트시트'],3:['신시','회이'],4:['전긱'],5:['객프치트시트'],6:['전긱','신시'],0:['회이','신시','전긱']},
-      3:{1:['회이족보'],2:['객프암기'],3:['전긱족보','회이'],4:['신시족보'],5:['객프완성'],6:['전긱족보','논회'],0:['신시족보','전긱','회이']},
-    };
-    extra=(em[wk]&&em[wk][dow])||[];
-  } else {
-    if(dow===1||dow===3){hours=dow===1?4:9;}
-    else if(dow===2||dow===4){hours=dow===2?7:6;albaDay=dow===2||dow===4;}
-    else if(dow===5){hours=5;}else if(dow===6){hours=9;}else{hours=15;}
-  }
+  const isExam = ['2026-06-10','2026-06-15','2026-06-16'].includes(dt.toISOString().slice(0,10));
+
+  // 날짜별 플랜 (localStorage에서 불러오거나 기본값)
+  const planData = plGetDayPlan(dt.toISOString().slice(0,10));
+  const events = planData.events || [];
+  const extra = planData.study ? [planData.study] : [];
+  const hours = planData.hours || 0;
+  const albaDay = planData.albaDay || false;
+  const classes = planData.classes || [];
+
   return {dt,dow,inRange,isPast,isToday,isExam,classes,extra,events,hours,albaDay};
 }
 
@@ -2852,8 +2841,8 @@ function plRenderWeek(){
   }).join('');
 }
 
-function plPrevWeek(){const p=new Date(plWkStart);p.setDate(p.getDate()-7);const mn=new Date('2026-03-23');mn.setHours(0,0,0,0);if(p>=mn){plWkStart=p;plRenderWeek();}}
-function plNextWeek(){const n=new Date(plWkStart);n.setDate(n.getDate()+7);const mx=new Date('2026-04-20');mx.setHours(0,0,0,0);if(n<=mx){plWkStart=n;plRenderWeek();}}
+function plPrevWeek(){const p=new Date(plWkStart);p.setDate(p.getDate()-7);const mn=new Date('2026-05-25');mn.setHours(0,0,0,0);if(p>=mn){plWkStart=p;plRenderWeek();}}
+function plNextWeek(){const n=new Date(plWkStart);n.setDate(n.getDate()+7);const mx=new Date('2026-06-15');mx.setHours(0,0,0,0);if(n<=mx){plWkStart=n;plRenderWeek();}}
 
 function plSwitchCal(m){
   plCalMode=m;
@@ -2869,13 +2858,13 @@ function plRenderMonth(){
   const dn=['일','월','화','수','목','금','토'];
   document.getElementById('pl-m-heads').innerHTML=dn.map((d,i)=>`<div class="pl-mh ${i===0?'sun':i===6?'sat':''}">${d}</div>`).join('');
   const today=new Date();today.setHours(0,0,0,0);
-  const apr1=new Date('2026-04-01');apr1.setHours(0,0,0,0);
+  const apr1=new Date('2026-06-01');apr1.setHours(0,0,0,0);
   const startDow=apr1.getDay();
   const examDates=plGetExamDates();
   let html='';
   for(let i=0;i<startDow;i++)html+=`<div class="pl-mc-cell out"></div>`;
   for(let day=1;day<=30;day++){
-    const d=new Date(`2026-04-${String(day).padStart(2,'0')}`);d.setHours(0,0,0,0);
+    const d=new Date(`2026-06-${String(day).padStart(2,'0')}`);d.setHours(0,0,0,0);
     const ds=d.toISOString().slice(0,10);
     const data=plGetDayData(d);
     let cls='pl-mc-cell';
@@ -2968,38 +2957,167 @@ function plRenderOv(){
   }).join('');
 }
 
+/* ── 날짜별 플랜 데이터 ── */
+const PL_DEFAULT_PLANS = {
+  '2026-05-31':{events:[],classes:[],study:'논회 플립플롭 집중 (막힌 거 뚫기)',hours:10,albaDay:false},
+  '2026-06-01':{events:['전긱수업','논회수업','객프수업','윤서과외'],classes:['전긱','논회','객프'],study:'빈시간: 회이 온라인강의 2개',hours:4,albaDay:false},
+  '2026-06-02':{events:['신시수업','학원알바'],classes:['신시'],study:'빈시간: 신시 8장',hours:3,albaDay:true},
+  '2026-06-03':{events:['전긱수업','논회수업','객프수업'],classes:['전긱','논회','객프'],study:'빈시간: 회이 온라인강의 2개',hours:5,albaDay:false},
+  '2026-06-04':{events:['신시수업','학원알바'],classes:['신시'],study:'빈시간: 신시 9장',hours:3,albaDay:true},
+  '2026-06-05':{events:['도서관근로','윤서과외'],classes:[],study:'전긱 문제풀이',hours:5,albaDay:false},
+  '2026-06-06':{events:['도서관근로','학원알바'],classes:[],study:'전긱 문제풀이 + 논회 Ch5~6',hours:5,albaDay:true},
+  '2026-06-07':{events:[],classes:[],study:'전긱 올인 (마무리) + 밤샘',hours:15,albaDay:false},
+  '2026-06-08':{events:['수업들'],classes:['전긱','논회','객프','신시'],study:'빈시간: 논회 Ch7~8',hours:4,albaDay:false},
+  '2026-06-09':{events:[],classes:[],study:'전긱 전날 밤샘 마무리',hours:12,albaDay:false},
+  '2026-06-10':{events:['🎯 전긱 시험 09:00'],classes:[],study:'이후: 신시 10장',hours:5,albaDay:false},
+  '2026-06-11':{events:[],classes:[],study:'신시 11장 + 객프 Ch9~10',hours:10,albaDay:false},
+  '2026-06-12':{events:['도서관근로','윤서과외'],classes:[],study:'신시 마무리',hours:5,albaDay:false},
+  '2026-06-13':{events:['도서관근로','학원알바'],classes:[],study:'객프 Ch11~13 코드패턴',hours:5,albaDay:true},
+  '2026-06-14':{events:[],classes:[],study:'객프 올인 밤샘',hours:15,albaDay:false},
+  '2026-06-15':{events:['🎯 객프 시험 16:30'],classes:[],study:'이후: 신시+회이 벼락치기',hours:5,albaDay:false},
+  '2026-06-16':{events:['🎯 신시 12:00','🎯 회이 20:00'],classes:[],study:'오전: 신시 / 오후~저녁: 회이',hours:0,albaDay:false},
+};
+
+function plGetDayPlan(dateStr){
+  const custom = JSON.parse(localStorage.getItem('pl_plans')||'{}');
+  return custom[dateStr] || PL_DEFAULT_PLANS[dateStr] || {events:[],classes:[],study:'',hours:0,albaDay:false};
+}
+function plSaveDayPlan(dateStr, plan){
+  const custom = JSON.parse(localStorage.getItem('pl_plans')||'{}');
+  custom[dateStr] = plan;
+  localStorage.setItem('pl_plans', JSON.stringify(custom));
+}
+function plResetDayPlan(dateStr){
+  const custom = JSON.parse(localStorage.getItem('pl_plans')||'{}');
+  delete custom[dateStr];
+  localStorage.setItem('pl_plans', JSON.stringify(custom));
+}
+
 function plRenderWkPlan(){
   const el=document.getElementById('pl-wk-list'); if(!el)return;
   const today=new Date();today.setHours(0,0,0,0);
-  const diff=Math.max(0,Math.floor((today-PL_START)/86400000));
-  const cur=Math.min(3,Math.floor(diff/7)+1);
-  const plans=[
-    {w:'1주차',d:'3/30~4/5',body:'회이 온라인강의 시작 · 전긱/신시 PPT 복습 완성 · 객프 코드 모으기'},
-    {w:'2주차',d:'4/6~4/12',body:'전 과목 연습문제 집중 · 회이 뽕교수 병행 · 전긱 공식 암기 완성 · 객프 치트시트 초안'},
-    {w:'3주차',d:'4/13~4/20',body:'전 과목 족보 · 논회 최종 정리 · 객프 치트시트 완성 · 취약 부분 보강'},
-  ];
-  el.innerHTML=plans.map((p,i)=>
-    `<div class="pl-wk ${i+1===cur?'cur':''}">
-      <div class="pl-wk-num">${p.w}<br><span style="font-weight:400">${p.d}</span></div>
-      <div class="pl-wk-body"><strong>${i+1===cur?'▶ 현재 · ':''}</strong>${p.body}</div>
-    </div>`).join('');
+  const dates = Object.keys(PL_DEFAULT_PLANS).sort();
+  el.innerHTML = dates.map(ds=>{
+    const d = new Date(ds); d.setHours(0,0,0,0);
+    const plan = plGetDayPlan(ds);
+    const isToday = d.getTime()===today.getTime();
+    const isPast = d < today;
+    const dn=['일','월','화','수','목','금','토'][d.getDay()];
+    const custom = JSON.parse(localStorage.getItem('pl_plans')||'{}');
+    const isCustom = !!custom[ds];
+    return `<div class="pl-wk ${isToday?'cur':''}" style="${isPast?'opacity:.5':''}">
+      <div class="pl-wk-num">${(d.getMonth()+1)}/${d.getDate()}(${dn})<br>
+        <span style="font-weight:400;font-size:.55rem;color:${isCustom?'#287a3c':'#999'}">${isCustom?'✏️수정됨':'기본'}</span>
+      </div>
+      <div class="pl-wk-body" style="flex:1">
+        ${plan.events.length?`<span style="font-size:.65rem;color:#555">${plan.events.join(' · ')}</span><br>`:''}
+        <strong>${isToday?'▶ 오늘 · ':''}</strong>${plan.study||'—'}
+      </div>
+      <button onclick="plOpenEditPlan('${ds}')" style="flex-shrink:0;border:1px solid #e0e0e0;background:#fff;border-radius:4px;padding:2px 7px;font-size:.6rem;cursor:pointer;color:#555;font-family:var(--font)">수정</button>
+    </div>`;
+  }).join('');
+}
+
+/* 플랜 수정 모달 */
+function plOpenEditPlan(dateStr){
+  const plan = plGetDayPlan(dateStr);
+  const d = new Date(dateStr);
+  const dn=['일','월','화','수','목','금','토'][d.getDay()];
+  const label = `${d.getMonth()+1}/${d.getDate()}(${dn})`;
+  const isCustom = !!JSON.parse(localStorage.getItem('pl_plans')||'{}')[dateStr];
+
+  let modal = document.getElementById('pl-edit-modal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'pl-edit-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:700;display:flex;align-items:center;justify-content:center;padding:1rem;';
+    document.getElementById('planner-overlay').appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:1.3rem;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;">
+      <div style="font-family:'Nanum Myeongjo',serif;font-size:1rem;font-weight:700;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #e0e0e0;">
+        ${label} 플랜 수정
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        <div>
+          <label style="font-family:'DM Mono',monospace;font-size:.58rem;color:#999;display:block;margin-bottom:3px;">고정 일정 (쉼표로 구분)</label>
+          <input id="pl-edit-events" type="text" value="${(plan.events||[]).join(', ')}"
+            style="width:100%;border:1.5px solid #e0e0e0;border-radius:6px;padding:.45rem .7rem;font-size:.8rem;font-family:var(--font);outline:none;">
+        </div>
+        <div>
+          <label style="font-family:'DM Mono',monospace;font-size:.58rem;color:#999;display:block;margin-bottom:3px;">공부 내용</label>
+          <textarea id="pl-edit-study" rows="3"
+            style="width:100%;border:1.5px solid #e0e0e0;border-radius:6px;padding:.45rem .7rem;font-size:.8rem;font-family:var(--font);outline:none;resize:vertical;">${plan.study||''}</textarea>
+        </div>
+        <div style="display:flex;gap:.7rem;">
+          <div style="flex:1;">
+            <label style="font-family:'DM Mono',monospace;font-size:.58rem;color:#999;display:block;margin-bottom:3px;">가용 시간 (h)</label>
+            <input id="pl-edit-hours" type="number" min="0" max="24" value="${plan.hours||0}"
+              style="width:100%;border:1.5px solid #e0e0e0;border-radius:6px;padding:.45rem .7rem;font-size:.8rem;font-family:var(--font);outline:none;">
+          </div>
+          <div style="flex:1;display:flex;align-items:flex-end;padding-bottom:2px;">
+            <label style="display:flex;align-items:center;gap:5px;font-size:.75rem;cursor:pointer;">
+              <input type="checkbox" id="pl-edit-alba" ${plan.albaDay?'checked':''} style="width:14px;height:14px;accent-color:#111;">
+              알바 있는 날
+            </label>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;margin-top:1rem;flex-wrap:wrap;">
+        <button onclick="plSaveEditPlan('${dateStr}')"
+          style="flex:1;background:#111;color:#fff;border:none;border-radius:6px;padding:.55rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font);">저장</button>
+        ${isCustom?`<button onclick="plResetEditPlan('${dateStr}')"
+          style="background:#fdf2f1;color:#c0392b;border:1.5px solid rgba(192,57,43,.2);border-radius:6px;padding:.55rem .9rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font);">기본값으로</button>`:''}
+        <button onclick="plCloseEditPlan()"
+          style="background:#f0f0f0;color:#555;border:1px solid #e0e0e0;border-radius:6px;padding:.55rem .9rem;font-size:.75rem;cursor:pointer;font-family:var(--font);">취소</button>
+      </div>
+    </div>`;
+  modal.style.display = 'flex';
+}
+function plSaveEditPlan(dateStr){
+  const events = document.getElementById('pl-edit-events').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const study = document.getElementById('pl-edit-study').value.trim();
+  const hours = parseInt(document.getElementById('pl-edit-hours').value)||0;
+  const albaDay = document.getElementById('pl-edit-alba').checked;
+  plSaveDayPlan(dateStr, {events, study, hours, albaDay, classes:[]});
+  plCloseEditPlan();
+  plRenderWkPlan();
+  plRenderTodayRec();
+  plRenderWeek();
+  plShowToast('✅ 플랜이 저장됐어요!');
+}
+function plResetEditPlan(dateStr){
+  plResetDayPlan(dateStr);
+  plCloseEditPlan();
+  plRenderWkPlan();
+  plRenderTodayRec();
+  plRenderWeek();
+  plShowToast('↩ 기본값으로 복원됐어요');
+}
+function plCloseEditPlan(){
+  const m = document.getElementById('pl-edit-modal');
+  if(m) m.style.display='none';
 }
 
 function plRenderTodayRec(){
   const el=document.getElementById('pl-today-rec'); if(!el)return;
   const today=new Date();today.setHours(0,0,0,0);
-  const data=plGetDayData(today);
+  const ds=today.toISOString().slice(0,10);
   const dn=['일','월','화','수','목','금','토'];
-  let html=`<strong>${today.getMonth()+1}월 ${today.getDate()}일 (${dn[today.getDay()]}) · 가용 ${data.hours}h</strong><br>`;
-  if(!data.inRange&&today<PL_START){
-    html+=`<span style="color:#999">플랜 시작 전이야. 지금 회이 개념부터 미리 시작해두는 걸 추천해.</span>`;
-  } else if(!data.inRange&&today>PL_EXAM){
-    html+=`<span style="color:#999">시험이 끝났어. 수고했어! 🎉</span>`;
+  const plan=plGetDayPlan(ds);
+  let html=`<strong>${today.getMonth()+1}월 ${today.getDate()}일 (${dn[today.getDay()]}) · 가용 ${plan.hours||0}h</strong>`;
+  html+=` <button onclick="plOpenEditPlan('${ds}')" style="border:1px solid #e0e0e0;background:#fff;border-radius:3px;padding:1px 6px;font-size:.58rem;cursor:pointer;color:#555;font-family:var(--font);">수정</button><br>`;
+  if(today<PL_START){
+    html+=`<span style="color:#999">플랜 시작 전이야. 논회 플립플롭 예습해두는 걸 추천해.</span>`;
+  } else if(today>PL_EXAM){
+    html+=`<span style="color:#999">기말고사가 끝났어. 수고했어! 🎉</span>`;
+  } else if(!PL_DEFAULT_PLANS[ds]&&!JSON.parse(localStorage.getItem('pl_plans')||'{}')[ds]){
+    html+=`<span style="color:#999">오늘 플랜이 없어. 수정 버튼으로 추가해봐!</span>`;
   } else {
-    if(data.classes.length)html+=`📚 수업: ${data.classes.map(s=>`<span class="pl-tag" style="background:${PL_SUBJ[s].bg};color:${PL_SUBJ[s].c}">${s}</span>`).join(' ')} → 복습 필수<br>`;
-    if(data.extra.length)html+=`➕ 추가: ${data.extra.map(e=>{const k=Object.keys(PL_SUBJ).find(k=>e.includes(k));return`<span class="pl-tag" style="background:${k?PL_SUBJ[k].bg:'#f0f0f0'};color:${k?PL_SUBJ[k].c:'#555'}">${e}</span>`;}).join(' ')}<br>`;
-    if(data.albaDay)html+=`🏫 알바 중: <strong>전긱 공식 3~5개 + 논회 진리표</strong> 반복<br>`;
-    if(!data.classes.length&&!data.extra.length&&!data.isExam)html+=`자유 공부일 — 회이 + 신시 독서실 집중 추천`;
+    if(plan.events&&plan.events.length)html+=`📌 ${plan.events.join(' · ')}<br>`;
+    if(plan.classes&&plan.classes.length)html+=`📚 수업: ${plan.classes.map(s=>`<span class="pl-tag" style="background:${PL_SUBJ[s]?PL_SUBJ[s].bg:'#f0f0f0'};color:${PL_SUBJ[s]?PL_SUBJ[s].c:'#555'}">${s}</span>`).join(' ')}<br>`;
+    if(plan.study)html+=`✏️ <strong>${plan.study}</strong><br>`;
+    if(plan.albaDay)html+=`🏫 알바 있는 날 — 암기카드 탭 활용해봐<br>`;
   }
   el.innerHTML=html;
 }
