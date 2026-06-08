@@ -1201,6 +1201,16 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-lgrid" id="t3-grid"><div style="font-size:.76rem;color:#8A8278">아직 기록이 없습니다</div></div>
       </div>
       <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📅</span>수업 달력
+          <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+            <button class="t-btn t-btn-g t-btn-sm" onclick="t3CalNav(-1)">‹</button>
+            <span id="t3-cal-label" style="font-family:'Space Mono',monospace;font-size:.72rem;min-width:78px;text-align:center;color:#1A2340"></span>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="t3CalNav(1)">›</button>
+          </span>
+        </div>
+        <div id="t3-cal"></div>
+      </div>
+      <div class="t-card">
         <div class="t-ctitle"><span class="t-ic">✏️</span>새 수업 기록 <span id="t3-next-badge" style="font-family:'Space Mono',monospace;font-size:.68rem;background:#E8652A;color:white;padding:.12rem .55rem;border-radius:4px;margin-left:4px"></span></div>
         <div class="t-fr">
           <div class="t-fg"><label class="tl">날짜</label><input type="date" id="t3-date"></div>
@@ -2182,9 +2192,41 @@ function t3BuildMsg(l,closing){let m=`안녕하세요 어머님, 오늘 ${l.num}
 function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
 function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
 function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});localStorage.setItem(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
-function t3Render(){t3RenderGrid();t3RenderList();}
+function t3Render(){t3RenderGrid();t3RenderList();t3RenderCal();}
 function t3RenderGrid(){const g=document.getElementById('t3-grid');if(!t3lessons.length){g.innerHTML='<div style="font-size:.74rem;color:#8A8278">아직 기록이 없습니다</div>';return;}g.innerHTML=t3lessons.map((l,i)=>{const d=l.date?l.date.slice(5).replace('-','/'):'';return`<div class="t-lbox done" onclick="t3ScrollTo(${i})" title="${l.date}"><span class="t-lnum">${l.num}</span><span class="t-ldate">${d}</span></div>`;}).join('');}
 function t3ScrollTo(i){const el=document.getElementById('t3-rec-'+(t3lessons.length-1-i));if(el)el.scrollIntoView({behavior:'smooth'});}
+let t3CalMonth=null;
+function t3CalNav(delta){if(!t3CalMonth)t3CalMonth=new Date();t3CalMonth=new Date(t3CalMonth.getFullYear(),t3CalMonth.getMonth()+delta,1);t3RenderCal();}
+function t3RenderCal(){
+  const host=document.getElementById('t3-cal');if(!host)return;
+  if(!t3CalMonth){
+    let base=new Date();
+    if(t3lessons.length){const ds=t3lessons.map(l=>l.date).filter(Boolean).sort();if(ds.length)base=new Date(ds[ds.length-1]);}
+    t3CalMonth=new Date(base.getFullYear(),base.getMonth(),1);
+  }
+  const y=t3CalMonth.getFullYear(),mo=t3CalMonth.getMonth();
+  const lbl=document.getElementById('t3-cal-label');if(lbl)lbl.textContent=y+'.'+String(mo+1).padStart(2,'0');
+  const byDate={};t3lessons.forEach(l=>{if(l.date){(byDate[l.date]=byDate[l.date]||[]).push(l);}});
+  const startDow=new Date(y,mo,1).getDay(),dim=new Date(y,mo+1,0).getDate();
+  const td=new Date(),todStr=td.getFullYear()+'-'+String(td.getMonth()+1).padStart(2,'0')+'-'+String(td.getDate()).padStart(2,'0');
+  const dn=['일','월','화','수','목','금','토'];
+  let head=dn.map((d,i)=>`<div style="text-align:center;font-size:.58rem;font-weight:700;color:${i===0?'#C0392B':i===6?'#2C3E6B':'#8A8278'};padding:3px 0">${d}</div>`).join('');
+  let cells='';
+  for(let i=0;i<startDow;i++)cells+='<div></div>';
+  for(let day=1;day<=dim;day++){
+    const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const ls=byDate[ds],isToday=ds===todStr;
+    const dow=new Date(y,mo,day).getDay(),dcol=dow===0?'#C0392B':dow===6?'#2C3E6B':'#1A2340';
+    if(ls&&ls.length){
+      const nums=ls.map(l=>l.num).sort((a,b)=>a-b),idx=t3lessons.indexOf(ls[0]);
+      const badge=(nums.length===1?nums[0]:nums.join(','))+'회';
+      cells+=`<div onclick="t3ScrollTo(${idx})" title="${ds} · ${badge} 수업" style="cursor:pointer;border:1.5px solid #E8652A;background:#1A2340;border-radius:7px;min-height:42px;padding:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:.58rem;color:rgba(245,240,232,.6)">${day}</span><span style="font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;color:#F28C5E">${badge}</span></div>`;
+    }else{
+      cells+=`<div style="min-height:42px;padding:3px;border-radius:7px;border:1px solid rgba(26,35,64,.08);display:flex;align-items:flex-start;justify-content:center;${isToday?'background:#EDE7D9;':''}"><span style="font-size:.6rem;color:${dcol};${isToday?'font-weight:700':''}">${day}</span></div>`;
+    }
+  }
+  host.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${head}${cells}</div>`;
+}
 function t3RenderList(){
   const list=document.getElementById('t3-list');
   if(!t3lessons.length){list.innerHTML='<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">📖</div>아직 기록이 없습니다</div>';return;}
@@ -2280,7 +2322,7 @@ function t6RefreshSummary(){
   document.getElementById('t6-sum-weakness').textContent=w.length;
 }
 function t6BackupOnly(){
-  const data={t1:JSON.parse(localStorage.getItem(TK1)||'[]'),t2:JSON.parse(localStorage.getItem(TK2)||'[]'),t3:JSON.parse(localStorage.getItem(TK3)||'[]'),t4:JSON.parse(localStorage.getItem(TK4)||'[]'),t5:JSON.parse(localStorage.getItem(TK5)||'[]').map(item=>({...item,photos:[]})),_at:new Date().toISOString(),_v:2};
+  const data={t1:JSON.parse(localStorage.getItem(TK1)||'[]'),t2:JSON.parse(localStorage.getItem(TK2)||'[]'),t3:JSON.parse(localStorage.getItem(TK3)||'[]'),t4:JSON.parse(localStorage.getItem(TK4)||'[]'),t5:JSON.parse(localStorage.getItem(TK5)||'[]').map(item=>({...item,photos:[]})),tutor_scores:JSON.parse(localStorage.getItem(TK7)||'[]'),_at:new Date().toISOString(),_v:2};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a'),dateStr=new Date().toISOString().slice(0,10);
   a.href=url;a.download=`tutoring_backup_${dateStr}.json`;a.click();URL.revokeObjectURL(url);
@@ -2308,7 +2350,7 @@ function tApplyImport(text, source){
   const msgEl=document.getElementById('t-import-msg');
   try{
     const data=JSON.parse(text);
-    const keys=['t1','t2','t3','t4','t5'];
+    const keys=['t1','t2','t3','t4','t5','tutor_scores'];
     if(!keys.some(k=>k in data)) throw new Error('올바른 과외 앱 데이터가 아닙니다');
     // 기존 사진 유지
     if(data.t5){
@@ -2318,7 +2360,7 @@ function tApplyImport(text, source){
     }
     keys.forEach(k=>{if(data[k]!==undefined)localStorage.setItem(k,JSON.stringify(data[k]));});
     // 재로드
-    t1Load(); t2Load(); t3Load(); t4Load(); t5Load(); tDashRefresh(); t6RefreshSummary();
+    t1Load(); t2Load(); t3Load(); t4Load(); t5Load(); t7Load(); tDashRefresh(); t6RefreshSummary();
     msgEl.textContent='✅ 데이터 이전 완료! '+( data.t1?.length||0)+'명 학생, '+(data.t3?.length||0)+'회 수업 불러왔습니다';
     msgEl.style.color='#2E7D52';
     tShowToast('✅ 데이터 이전 완료!');
