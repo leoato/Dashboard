@@ -1038,8 +1038,56 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
     <button class="t-tab-btn" data-ttab="tab4" onclick="tShowTab('tab4')">💬 안내 문자</button>
     <button class="t-tab-btn" data-ttab="tab5" onclick="tShowTab('tab5')">🎯 약점 기록</button>
     <button class="t-tab-btn" data-ttab="tab6" onclick="tShowTab('tab6')">🔄 동기화</button>
+    <button class="t-tab-btn" data-ttab="tab7" onclick="tShowTab('tab7')">📊 성적</button>
   </nav>
   <div class="t-area">
+
+    <!-- 탭7: 성적 트래커 -->
+    <div id="t-panel-tab7" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">성적 트래커</div>
+      <div class="t-psub">TAB 07 — SCORE TRACKER</div>
+
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">✏️</span>시험 성적 기록</div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">시험 이름</label><input type="text" id="t7-name" placeholder="예: 6월 모의고사"></div>
+          <div class="t-fg"><label class="tl">종류</label><select id="t7-type"><option value="모의고사">모의고사</option><option value="내신">내신</option></select></div>
+        </div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">날짜</label><input type="date" id="t7-date"></div>
+          <div class="t-fg"><label class="tl">학생 (선택)</label><input type="text" id="t7-student" placeholder="학생 이름"></div>
+        </div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">점수</label><input type="number" id="t7-score" placeholder="0-100" min="0" max="100"></div>
+          <div class="t-fg"><label class="tl">등급</label><input type="text" id="t7-grade" placeholder="예: 2등급"></div>
+        </div>
+        <div class="t-fg full" style="margin-bottom:.85rem"><label class="tl">확인된 약점 포인트</label><textarea id="t7-weak" placeholder="이번 시험에서 드러난 취약 단원·유형"></textarea></div>
+        <input type="hidden" id="t7-edit-id" value="">
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="t-btn t-btn-p" onclick="t7Add()" id="t7-add-btn">＋ 기록 추가</button>
+          <button class="t-btn t-btn-g t-btn-sm" onclick="t7ResetForm()" id="t7-cancel-btn" style="display:none">취소</button>
+        </div>
+      </div>
+
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📈</span>점수 추이
+          <select id="t7-filter-student" onchange="t7Render()" style="margin-left:auto;width:auto;min-width:120px"><option value="">전체 학생</option></select>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:.62rem;color:#2C3E6B;margin-bottom:.3rem;font-weight:700">● 모의고사</div>
+        <div id="t7-chart-mock"></div>
+        <div class="t-sep"></div>
+        <div style="font-family:'Space Mono',monospace;font-size:.62rem;color:#E8652A;margin-bottom:.3rem;font-weight:700">● 내신</div>
+        <div id="t7-chart-naesin"></div>
+      </div>
+
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">📋</span>전체 기록</div>
+        <div id="t7-list"></div>
+      </div>
+    </div>
+    </div>
+
 
     <!-- 대시보드 -->
     <div id="t-panel-dashboard" class="t-panel active">
@@ -1900,6 +1948,7 @@ function tShowTab(id){
   tCurrentTab=id;
   if(id==='dashboard') tDashRefresh();
   if(id==='tab6') t6RefreshSummary();
+  if(id==='tab7') t7Render();
 }
 
 /* ── 공통 유틸 ── */
@@ -1916,13 +1965,80 @@ function tCloseLightbox(){document.getElementById('t-lightbox').classList.remove
 
 /* ── localStorage 키 (기존 앱과 동일) ── */
 const TK1='t1',TK2='t2',TK3='t3',TK4='t4',TK5='t5';
+const TK7='tutor_scores';
+let t7scores=[];
+function t7Load(){const r=localStorage.getItem(TK7);t7scores=r?JSON.parse(r):[];const d=document.getElementById('t7-date');if(d&&!d.value)d.value=tToday();t7Render();}
+function t7Save_(){localStorage.setItem(TK7,JSON.stringify(t7scores));}
+function t7ResetForm(){document.getElementById('t7-edit-id').value='';document.getElementById('t7-name').value='';document.getElementById('t7-score').value='';document.getElementById('t7-grade').value='';document.getElementById('t7-weak').value='';document.getElementById('t7-student').value='';document.getElementById('t7-date').value=tToday();document.getElementById('t7-add-btn').textContent='＋ 기록 추가';document.getElementById('t7-cancel-btn').style.display='none';}
+function t7Add(){
+  const name=document.getElementById('t7-name').value.trim();
+  const type=document.getElementById('t7-type').value;
+  const date=document.getElementById('t7-date').value;
+  const score=document.getElementById('t7-score').value;
+  const grade=document.getElementById('t7-grade').value.trim();
+  const weak=document.getElementById('t7-weak').value.trim();
+  const student=document.getElementById('t7-student').value.trim();
+  if(!name||!date){tShowToast('❗ 시험 이름과 날짜를 입력하세요');return;}
+  const editId=document.getElementById('t7-edit-id').value;
+  if(editId){const x=t7scores.find(s=>s.id==editId);if(x)Object.assign(x,{name,type,date,score,grade,weak,student});tShowToast('✅ 수정되었습니다');}
+  else{t7scores.push({id:Date.now(),name,type,date,score,grade,weak,student});tShowToast('✅ 기록이 추가되었습니다');}
+  t7Save_();t7ResetForm();t7Render();
+}
+function t7Edit(id){const x=t7scores.find(s=>s.id==id);if(!x)return;document.getElementById('t7-edit-id').value=x.id;document.getElementById('t7-name').value=x.name||'';document.getElementById('t7-type').value=x.type||'모의고사';document.getElementById('t7-date').value=x.date||'';document.getElementById('t7-score').value=x.score||'';document.getElementById('t7-grade').value=x.grade||'';document.getElementById('t7-weak').value=x.weak||'';document.getElementById('t7-student').value=x.student||'';document.getElementById('t7-add-btn').textContent='저장';document.getElementById('t7-cancel-btn').style.display='';const tc=document.querySelector('#t-panel-tab7 .t-tc');if(tc)tc.scrollIntoView({behavior:'smooth'});}
+function t7Delete(id){if(!confirm('이 기록을 삭제할까요?'))return;t7scores=t7scores.filter(s=>s.id!=id);t7Save_();t7Render();tShowToast('🗑 삭제되었습니다');}
+function t7PopulateStudentFilter(){const sel=document.getElementById('t7-filter-student');if(!sel)return;const cur=sel.value;const names=[...new Set(t7scores.map(s=>s.student).filter(Boolean))];sel.innerHTML='<option value="">전체 학생</option>'+names.map(n=>`<option value="${tEscH(n)}">${tEscH(n)}</option>`).join('');sel.value=cur;}
+function t7Chart(type,filterStudent){
+  let rows=t7scores.filter(s=>s.type===type&&s.score!==''&&s.score!=null&&!isNaN(parseFloat(s.score)));
+  if(filterStudent)rows=rows.filter(s=>s.student===filterStudent);
+  rows=rows.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(!rows.length)return '<div style="font-size:.74rem;color:#8A8278;padding:.4rem 0">데이터가 없습니다</div>';
+  const W=Math.max(280,rows.length*70),H=150,pad=28,top=14;
+  const xs=rows.map((r,i)=>rows.length===1?W/2:pad+i*(W-pad*2)/(rows.length-1));
+  const color=type==='모의고사'?'#2C3E6B':'#E8652A';
+  const y=v=>top+(100-v)/100*(H-top-pad);
+  let grid='';
+  for(let v=0;v<=100;v+=25){const yy=y(v);grid+=`<line x1="${pad}" y1="${yy}" x2="${W-pad}" y2="${yy}" stroke="rgba(26,35,64,.10)" stroke-width="1"/><text x="2" y="${(yy+3).toFixed(1)}" font-size="8" fill="#8A8278" font-family="monospace">${v}</text>`;}
+  let path='';rows.forEach((r,i)=>{const X=xs[i],Y=y(parseFloat(r.score));path+=(i===0?'M':'L')+X.toFixed(1)+' '+Y.toFixed(1)+' ';});
+  let pts='';rows.forEach((r,i)=>{const X=xs[i],Y=y(parseFloat(r.score));const d=(r.date||'').slice(5).replace('-','/');pts+=`<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="3.5" fill="${color}"><title>${tEscH(r.name)} (${d}): ${r.score}점</title></circle><text x="${X.toFixed(1)}" y="${(Y-7).toFixed(1)}" font-size="8.5" text-anchor="middle" fill="${color}" font-weight="700">${tEscH(String(r.score))}</text><text x="${X.toFixed(1)}" y="${(H-pad+12).toFixed(1)}" font-size="7.5" text-anchor="middle" fill="#8A8278" font-family="monospace">${d}</text>`;});
+  return `<div style="overflow-x:auto"><svg width="${W}" height="${H+6}" viewBox="0 0 ${W} ${H+6}" style="display:block">${grid}<path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>${pts}</svg></div>`;
+}
+function t7Render(){
+  t7PopulateStudentFilter();
+  const fsel=document.getElementById('t7-filter-student');const fs=fsel?fsel.value:'';
+  const cm=document.getElementById('t7-chart-mock');if(cm)cm.innerHTML=t7Chart('모의고사',fs);
+  const cn=document.getElementById('t7-chart-naesin');if(cn)cn.innerHTML=t7Chart('내신',fs);
+  const el=document.getElementById('t7-list');if(!el)return;
+  let rows=t7scores.slice();if(fs)rows=rows.filter(s=>s.student===fs);
+  rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!rows.length){el.innerHTML='<div style="font-size:.76rem;color:#8A8278">기록이 없습니다</div>';return;}
+  el.innerHTML=rows.map(s=>{
+    const tc=s.type==='내신'?'#E8652A':'#2C3E6B';
+    return `<div style="border:1.5px solid rgba(26,35,64,.12);border-radius:10px;padding:.7rem .85rem;margin-bottom:.6rem;background:#fff">
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:.35rem">
+        <span style="background:${tc};color:#fff;border-radius:14px;padding:.12rem .55rem;font-size:.62rem;font-weight:700;font-family:'Space Mono',monospace">${tEscH(s.type||'')}</span>
+        <span style="font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:.9rem;color:#1A2340">${tEscH(s.name||'')}</span>
+        ${s.student?`<span style="font-size:.66rem;color:#8A8278">· ${tEscH(s.student)}</span>`:''}
+        <span style="font-family:'Space Mono',monospace;font-size:.6rem;color:#8A8278;margin-left:auto">${tEscH((s.date||'').replace(/-/g,'.'))}</span>
+      </div>
+      <div style="display:flex;gap:1.2rem;flex-wrap:wrap;margin-bottom:.4rem">
+        <div><span style="font-size:.6rem;color:#8A8278">점수 </span><span style="font-family:'Space Mono',monospace;font-size:1.05rem;font-weight:700;color:${tc}">${s.score!==''&&s.score!=null?tEscH(String(s.score)):'—'}</span></div>
+        <div><span style="font-size:.6rem;color:#8A8278">등급 </span><span style="font-family:'Space Mono',monospace;font-size:1.05rem;font-weight:700;color:#1A2340">${s.grade?tEscH(s.grade):'—'}</span></div>
+      </div>
+      ${s.weak?`<div style="font-size:.72rem;line-height:1.55;color:#1A2340;background:#EDE7D9;border-radius:8px;padding:.5rem .7rem;border-left:3px solid ${tc};white-space:pre-line;margin-bottom:.4rem"><span style="font-weight:700;font-size:.62rem;color:#8A8278">약점 </span>${tEscH(s.weak)}</div>`:''}
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="t-btn t-btn-g t-btn-sm" onclick="t7Edit(${s.id})">수정</button>
+        <button class="t-btn t-btn-d" onclick="t7Delete(${s.id})">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 /* ── 초기화 ── */
 let tInited=false;
 function tInit(){
   if(tInited) return;
   tInited=true;
-  t1Load(); t2Load(); t3Load(); t4Load(); t5Load();
+  t1Load(); t2Load(); t3Load(); t4Load(); t5Load(); t7Load();
   tDashRefresh();
 }
 
