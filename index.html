@@ -817,6 +817,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <button class="tbtn"    onclick="setTheme('sage')"  id="t-sage">세이지</button>
     </div>
     <button class="btn" onclick="openSync()">⇅ 동기화</button>
+    <span id="sync-badge" onclick="openSync()" title="동기화 상태" style="font-size:.58rem;color:var(--muted);display:none;white-space:nowrap;align-self:center;cursor:pointer"></span>
     <span id="backup-time-display" style="font-family:var(--mono);font-size:.58rem;color:var(--muted);white-space:nowrap;"></span>
     <button class="btn" onclick="toggleTrash()">휴지통</button>
     <button class="btn" onclick="openPlanner()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">📋 중간고사 플래너</button>
@@ -1438,6 +1439,10 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <button class="btn" onclick="cloudUpload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬆ Drive에 저장</button>
         <button class="btn" onclick="cloudDownload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬇ Drive에서 불러오기</button>
       </div>
+      <p class="sync-note" style="margin-top:6px">✅ 수업·문자 입력 시 <b>자동으로 Drive에 저장</b>되고, 열 때 더 최신이면 자동으로 받아옵니다. 오래된 데이터로 덮어쓰려 하면 먼저 확인합니다.</p>
+      <div class="sync-btns" style="margin-top:4px">
+        <button class="btn" onclick="restorePresync()" title="마지막 가져오기/동기화 직전 상태로 복구">↩ 직전 상태로 되돌리기</button>
+      </div>
     </div>
 
     <div style="margin:10px 0;border-top:1px solid var(--border-soft)"></div>
@@ -1481,6 +1486,22 @@ const GAS_KEY = 'dash6_gas_url';
 let gasUrl = localStorage.getItem(GAS_KEY) || '';
 const timers = {};
 
+/* ── 동기화 안전장치 (자동 업로드 / 덮어쓰기 가드 / 미저장 표시 / 되돌리기) ── */
+let _syncSuppress=false, _autoSyncTimer=null;
+function _stampMs(iso){ return new Date(iso||0).getTime(); }
+function localEditTime(){ try{ return Math.max(_stampMs(localStorage.getItem('dash6_lastedit')), _stampMs((JSON.parse(localStorage.getItem(SK)||'{}'))._saved)); }catch(e){ return _stampMs(localStorage.getItem('dash6_lastedit')); } }
+function markDataChanged(){ if(_syncSuppress) return; try{ localStorage.setItem('dash6_lastedit', new Date().toISOString()); }catch(e){} updateUnsaved(); scheduleAutoSync(); }
+function scheduleAutoSync(){ if(!gasUrl) return; if(_autoSyncTimer) clearTimeout(_autoSyncTimer); _autoSyncTimer=setTimeout(silentCloudUpload, 3500); }
+async function silentCloudUpload(){ if(!gasUrl) return; try{ updateCloudStatus('syncing');
+    try{ const r=await fetch(gasUrl+'?action=read'); if(r.ok){ const j=JSON.parse(await r.text()); if(j&&!j.error){ const driveT=_stampMs(j._t); if(driveT>localEditTime()+1000){ updateCloudStatus('error','Drive에 더 최신 데이터가 있어요 — 동기화 창에서 불러오기 하세요'); return; } } } }catch(e){}
+    const data=getExp(); await fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:data});
+    localStorage.setItem('dash6_lastsync', new Date().toISOString()); updateCloudStatus('synced'); updateUnsaved();
+  }catch(e){ updateCloudStatus('error', e.message); } }
+function fmtSyncT(iso){ if(!iso) return ''; return new Date(iso).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}); }
+function updateUnsaved(){ const el=document.getElementById('sync-badge'); if(!el) return; if(!gasUrl){ el.style.display='none'; return; } const le=localEditTime(), ls=_stampMs(localStorage.getItem('dash6_lastsync')); if(le>ls+1500){ el.textContent='⚠️ 미저장'; el.style.color='#C0392B'; el.style.display=''; } else if(ls){ el.textContent='☁ '+fmtSyncT(localStorage.getItem('dash6_lastsync')); el.style.color='var(--muted)'; el.style.display=''; } else { el.style.display='none'; } }
+function restorePresync(){ const snap=localStorage.getItem('dash6_presync'); if(!snap){ showM('imp-msg','복구할 직전 상태가 없습니다','err'); return; } const ts=localStorage.getItem('dash6_presync_time'); if(!confirm('마지막 가져오기/동기화 직전 상태'+(ts?'('+new Date(ts).toLocaleString('ko-KR')+')':'')+'로 되돌립니다.\n진행할까요?')) return; if(applyImp(snap,{force:true,fromRestore:true})!==false) showM('imp-msg','↩ 직전 상태로 복구했습니다','ok'); }
+(function(){ const _si=localStorage.setItem.bind(localStorage); const WATCH=new Set([SK,'t1','t2','t3','t4','t5','tutor_scores']); localStorage.setItem=function(k,v){ _si(k,v); if(WATCH.has(k)) markDataChanged(); }; })();
+
 /* ── INIT ── */
 (function(){
   const raw = localStorage.getItem(SK);
@@ -1498,6 +1519,7 @@ const timers = {};
   applyTheme(th);
   render();
   setInterval(tick, 1000); tick();
+  setTimeout(updateUnsaved, 400);
   // 페이지 열 때 Drive에서 자동 불러오기
   if(gasUrl){
     setTimeout(async ()=>{
@@ -1511,7 +1533,7 @@ const timers = {};
         const driveTime = new Date(json._t || 0);
         const localTime = new Date(JSON.parse(localStorage.getItem(SK)||'{}')._saved || 0);
         if(driveTime > localTime){
-          applyImp(text);
+          applyImp(text,{force:true});
           showAutoBackupToast('☁️ Drive 최신 데이터로 불러왔어요');
         }
       }catch(e){ console.log('auto load failed', e); }
@@ -2173,7 +2195,7 @@ function t2AddFolder(){const emoji=document.getElementById('t2-new-emoji').value
 let t3lessons=[], t3editIdx=null, t3curMsg=null, t3extraCount=0;
 function t3Load(){const r=localStorage.getItem(TK3);t3lessons=r?JSON.parse(r):[];t3Render();t3SetNext();document.getElementById('t3-date').value=tToday();}
 function t3Save_(){ localStorage.setItem(TK3,JSON.stringify(t3lessons)); }
-function t3SetNext(){const n=t3lessons.length+1;document.getElementById('t3-num').value=n;document.getElementById('t3-next-badge').textContent=n+'회차';}
+function t3SetNext(){const n=(t3lessons.reduce((mx,l)=>Math.max(mx,l.num||0),0)||0)+1;document.getElementById('t3-num').value=n;document.getElementById('t3-next-badge').textContent=n+'회차';}
 function t3AddExtra(){t3extraCount++;const w=document.getElementById('t3-extra-fields'),d=document.createElement('div');d.className='t-exitem';d.innerHTML=`<input type="text" placeholder="항목명" class="t-exkey"><textarea placeholder="내용" style="min-height:48px" class="t-exval"></textarea><button class="t-rmfbtn" onclick="this.parentElement.remove()">✕</button>`;w.appendChild(d);}
 function t3GetExtras(container){const ex={};container.querySelectorAll('.t-exitem').forEach(item=>{const k=item.querySelector('.t-exkey').value.trim(),v=item.querySelector('.t-exval').value.trim();if(k)ex[k]=v;});return ex;}
 function t3Save(){
@@ -2382,6 +2404,7 @@ function openSync(){
   const urlEl=document.getElementById('gas-url');
   if(urlEl) urlEl.value=gasUrl;
   updateCloudStatus(gasUrl?'idle':'nourl');
+  updateUnsaved();
 }
 function closeSync(){ document.getElementById('sync-modal').classList.remove('open'); }
 document.getElementById('sync-modal').addEventListener('click',function(e){if(e.target===this)closeSync();});
@@ -2391,7 +2414,8 @@ function getExp(){
     t2:JSON.parse(localStorage.getItem('t2')||'[]'),
     t3:JSON.parse(localStorage.getItem('t3')||'[]'),
     t4:JSON.parse(localStorage.getItem('t4')||'[]'),
-    t5:JSON.parse(localStorage.getItem('t5')||'[]').map(item=>({...item,photos:[]}))
+    t5:JSON.parse(localStorage.getItem('t5')||'[]').map(item=>({...item,photos:[]})),
+    tutor_scores:JSON.parse(localStorage.getItem('tutor_scores')||'[]')
   };
   return JSON.stringify({_v:2,_t:new Date().toISOString(),...S,_tutoring:tutoring},null,2);
 }
@@ -2399,11 +2423,23 @@ function expJSON(){ const blob=new Blob([getExp()],{type:'application/json'}); c
 function cpJSON(){ navigator.clipboard.writeText(getExp()).then(()=>showM('exp-msg','✓ 클립보드에 복사되었습니다','ok')).catch(()=>showM('exp-msg','✗ 복사 실패','err')); }
 function impFile(e){ const file=e.target.files[0]; if(!file)return; const r=new FileReader(); r.onload=ev=>applyImp(ev.target.result); r.readAsText(file); e.target.value=''; }
 function impText(){ const text=document.getElementById('import-ta').value.trim(); if(!text){showM('imp-msg','텍스트를 입력하세요','err');return;} applyImp(text); }
-function applyImp(text){
+function applyImp(text, opts){
+  opts=opts||{};
   try{
     const p=JSON.parse(text);
     const keys=['hw','lec','exam','prep','yoon','plan','yex','todo','trash','study'];
     if(!keys.some(k=>k in p)&&!p._tutoring) throw new Error('올바른 데이터가 아닙니다');
+    if(!opts.force){
+      const inT=_stampMs(p._t), locT=localEditTime();
+      if(inT && locT && inT < locT-1000){
+        const f=t=>new Date(t).toLocaleString('ko-KR');
+        if(!confirm('⚠️ 가져오려는 데이터('+f(inT)+')가\n현재 기기 데이터('+f(locT)+')보다 오래됐습니다.\n\n그래도 덮어쓸까요? 현재 내용이 사라질 수 있어요.')){
+          showM('imp-msg','취소했습니다 — 현재 데이터를 유지합니다','err'); updateCloudStatus('idle'); return false;
+        }
+      }
+    }
+    if(!opts.fromRestore){ try{ localStorage.setItem('dash6_presync', getExp()); localStorage.setItem('dash6_presync_time', new Date().toISOString()); }catch(e){} }
+    _syncSuppress=true;
     keys.forEach(k=>{if(k in p)S[k]=p[k];}); save(); render();
     if(p._tutoring){
       ['t1','t2','t3','t4'].forEach(k=>{if(p._tutoring[k]!==undefined)localStorage.setItem(k,JSON.stringify(p._tutoring[k]));});
@@ -2412,12 +2448,17 @@ function applyImp(text){
         ex.forEach(item=>{if(item.id)pm[item.id]=item.photos||[];});
         localStorage.setItem('t5',JSON.stringify(p._tutoring.t5.map(item=>({...item,photos:pm[item.id]||item.photos||[]}))));
       }
-      if(tInited){t1Load();t2Load();t3Load();t4Load();t5Load();tDashRefresh();}
+      if(p._tutoring.tutor_scores!==undefined) localStorage.setItem('tutor_scores',JSON.stringify(p._tutoring.tutor_scores));
+      if(tInited){t1Load();t2Load();t3Load();t4Load();t5Load();t7Load();tDashRefresh();}
       showM('imp-msg','✓ 대시보드 + 과외 데이터 모두 불러왔습니다!','ok');
     } else {
       showM('imp-msg','✓ 데이터를 성공적으로 불러왔습니다!','ok');
     }
-  }catch(e){showM('imp-msg','✗ 오류: '+e.message,'err');}
+    localStorage.setItem('dash6_lastedit', p._t||new Date().toISOString());
+    localStorage.setItem('dash6_lastsync', new Date().toISOString());
+    _syncSuppress=false; updateUnsaved();
+    return true;
+  }catch(e){ _syncSuppress=false; showM('imp-msg','✗ 오류: '+e.message,'err'); return false; }
 }
 function showM(id,msg,type){ const el=document.getElementById(id); el.textContent=msg; el.className='smsg '+type; setTimeout(()=>{el.textContent='';},4000); }
 
@@ -2613,7 +2654,8 @@ rBanner();
         t2: JSON.parse(localStorage.getItem('t2')||'[]'),
         t3: JSON.parse(localStorage.getItem('t3')||'[]'),
         t4: JSON.parse(localStorage.getItem('t4')||'[]'),
-        t5: JSON.parse(localStorage.getItem('t5')||'[]').map(item=>({...item,photos:[]}))
+        t5: JSON.parse(localStorage.getItem('t5')||'[]').map(item=>({...item,photos:[]})),
+        tutor_scores: JSON.parse(localStorage.getItem('tutor_scores')||'[]')
       };
       const data = JSON.stringify({_v:2,_t:new Date().toISOString(),...S,_tutoring:tutoring});
       localStorage.setItem('dash6_autobackup', data);
