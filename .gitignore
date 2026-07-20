@@ -1,0 +1,7 @@
+# 편집 전 원본 백업 — git 이력이 대신하므로 추적하지 않는다
+dashboard.backup.html
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
