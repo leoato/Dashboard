@@ -146,7 +146,7 @@ body {
 .card-p .card-head { border-bottom-color: var(--p-md); }
 
 /* ── INPUTS ── */
-input[type="text"], input[type="date"], select, textarea {
+input[type="text"], input[type="password"], input[type="date"], select, textarea {
   font-family: var(--font); font-size: .71rem;
   border: 1px solid var(--border-mid);
   background: var(--card-bg); color: var(--text);
@@ -1101,7 +1101,12 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-card">
         <div class="t-ctitle"><span class="t-ic">📲</span>학생 태블릿 연동 <span id="v2-mode" style="margin-left:auto;font-size:.68rem;color:#6d675e;font-family:'DM Mono',monospace"></span></div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Supabase URL</label><input type="text" id="v2-url" placeholder="https://xxxx.supabase.co" onchange="v2SaveCfg()"></div>
-        <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Supabase anon key</label><input type="text" id="v2-key" placeholder="eyJhbGciOi… (Settings → API)" onchange="v2SaveCfg()"></div>
+        <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Supabase anon key</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="password" id="v2-key" placeholder="eyJhbGciOi… (Settings → API)" onchange="v2SaveCfg()" autocomplete="new-password" style="flex:1">
+            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-key',this)" title="보기/가리기">👁</button>
+          </div>
+        </div>
         <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">페어링 코드</label><input type="text" id="v2-pair" placeholder="YUN-4821" onchange="v2SaveCfg()"></div>
         <button class="t-btn t-btn-p" onclick="v2CopyConnect()">📲 태블릿 연결 코드 복사</button>
         <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-설정법.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
@@ -1109,9 +1114,14 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
       <div class="t-card">
         <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
-        <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
+        <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="password" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()" autocomplete="new-password" style="flex:1">
+            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-gem',this)" title="보기/가리기">👁</button>
+          </div>
+        </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">🔌 연결 테스트</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.3 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.4 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2350,6 +2360,11 @@ function v2SaveCfg(){
   ['url','key','pair','gem'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)v2Set(k,el.value)});
   v2sb=null;v2ModeChip();tShowToast('✅ 연동 설정 저장');v2Render();
 }
+function v2TogglePw(id,btn){
+  const el=document.getElementById(id);
+  el.type=el.type==='password'?'text':'password';
+  btn.textContent=el.type==='password'?'👁':'🙈';
+}
 function v2ModeChip(){
   const t=v2Demo()?'데모 모드':'Supabase 연결됨 · '+v2Pair();
   const m=document.getElementById('v2-mode');if(m)m.textContent=t;
@@ -2498,7 +2513,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='4.3';
+var APP_VER='4.4';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
