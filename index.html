@@ -1111,7 +1111,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">🔌 연결 테스트</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.1 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.2 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2389,27 +2389,71 @@ async function v2DashAlert(){
   el.innerHTML=html;
 }
 async function v2OpenQuestions(){
-  let qs=[];
+  let qs=[],ws=[];
   try{qs=await v2ListQuestions()}
   catch(e){
     const msg=String(e&&e.message||'');
     tShowToast(/does not exist|42P01|questions/i.test(msg)?'❗ questions 테이블이 없습니다 — supabase-v4.sql을 실행해주세요':'❗ 질문을 불러오지 못했어요 — 인터넷 확인',4500);
     return;
   }
-  document.getElementById('v2-q-list').innerHTML=qs.length?qs.map(function(q){return `
-    <div style="border-bottom:1.5px dashed #C9C2B4;padding:10px 2px">
+  try{ws=await v2List()}catch(e){}
+  const wmap={};ws.forEach(function(w){wmap[w.id]=w});
+  const C=['①','②','③','④','⑤'];
+  document.getElementById('v2-q-list').innerHTML=qs.length?qs.map(function(q){
+    const w=wmap[q.worksheet_id];
+    const p=(w&&w.problems&&q.problem_index!=null)?w.problems[q.problem_index]:null;
+    const stBadge=q.status==='answered'?'<span class="t-lbadge" style="background:#3E7C4F;color:#fff">답변함</span>':(q.status==='seen'?'<span class="t-lbadge">확인함</span>':'<span class="t-lbadge" style="background:#D4552A;color:#fff">새 질문</span>');
+    // 문항 원문 (선생님용 정답·풀이 포함)
+    const probBox=p?`<div style="border:1.5px solid #C9C2B4;border-radius:8px;background:#F5EFE2;padding:9px 11px;margin-top:6px;font-size:.8rem;line-height:1.6">
+        <b>${q.problem_index+1}.</b> ${tEscH(p.q)}
+        ${p.choices?`<div style="color:#6d675e;font-size:.74rem;margin-top:3px">${p.choices.map(function(c,j){return C[j]+' '+tEscH(c)}).join('&nbsp;&nbsp;')}</div>`:''}
+        <div style="color:#D4552A;font-size:.74rem;margin-top:5px"><b>정답 ${tEscH(p.answer)}</b> · ${tEscH(p.solution||'')}</div>
+      </div>`
+      :(q.worksheet_title?`<div style="font-size:.74rem;color:#6d675e;margin-top:4px">📄 ${tEscH(q.worksheet_title)}${q.problem_index!=null?' · '+(q.problem_index+1)+'번':''} — 파일 문제지 (아래 사진·정답지에서 확인)</div>`:'');
+    // 답변 영역
+    const ansArea=q.answer
+      ?`<div style="border-left:3px solid #3E7C4F;background:rgba(62,124,79,.06);padding:8px 11px;border-radius:0 6px 6px 0;margin-top:7px;font-size:.8rem;white-space:pre-line"><b>내 답변</b> — ${tEscH(q.answer)}</div>`
+      :`<div style="margin-top:7px">
+          <textarea id="v2-qa-${q.id}" placeholder="답변을 적으면 윤서의 질문하기 화면에 떠요" style="min-height:52px;font-size:.82rem"></textarea>
+          <div style="display:flex;gap:6px;margin-top:5px;justify-content:flex-end">
+            ${q.status==='open'?`<button class="t-btn t-btn-g t-btn-sm" onclick="v2QSeenClick('${q.id}')">답변 없이 확인만</button>`:''}
+            <button class="t-btn t-btn-p t-btn-sm" onclick="v2Answer('${q.id}')">💬 답변 보내기</button>
+          </div>
+        </div>`;
+    return `<div style="border-bottom:1.5px dashed #C9C2B4;padding:11px 2px">
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <b style="font-size:.8rem">🙋 ${q.worksheet_title?tEscH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
         <span style="font-size:.68rem;color:#6d675e;font-family:'DM Mono',monospace">${(q.created_at||'').slice(5,10).replace('-','.')}</span>
-        <div style="flex:1"></div>
-        ${q.status==='open'?`<button class="t-btn t-btn-p t-btn-sm" onclick="v2QSeenClick('${q.id}')">확인</button>`:'<span class="t-lbadge">확인함</span>'}
+        <div style="flex:1"></div>${stBadge}
       </div>
-      <div style="font-size:.8rem;margin-top:4px;white-space:pre-line">${tEscH(q.note)}</div>
-      ${(q.photo_paths||[]).map(function(p){return `<img src="${v2PhotoUrl(p)}" style="max-width:100%;border:1.5px solid #1A1A1A;border-radius:8px;margin-top:6px" loading="lazy">`}).join('')}
+      <div style="font-size:.82rem;margin-top:5px;white-space:pre-line"><b>윤서:</b> ${tEscH(q.note)}</div>
+      ${probBox}
+      ${(q.photo_paths||[]).map(function(pp){return `<img src="${v2PhotoUrl(pp)}" style="max-width:100%;border:1.5px solid #1A1A1A;border-radius:8px;margin-top:6px" loading="lazy">`}).join('')}
+      ${ansArea}
     </div>`}).join(''):'<div style="font-size:.78rem;color:#6d675e">아직 질문이 없습니다</div>';
   document.getElementById('v2-q-modal').classList.add('open');
 }
 async function v2QSeenClick(id){try{await v2QSeen(id);v2OpenQuestions();v2DashAlert();}catch(e){tShowToast('❗ 처리 실패');}}
+async function v2Answer(id){
+  const ta=document.getElementById('v2-qa-'+id);
+  const txt=(ta&&ta.value||'').trim();
+  if(!txt){tShowToast('❗ 답변 내용을 적어주세요');return;}
+  try{
+    if(v2Sb()){
+      const {error}=await v2sb.from('questions').update({answer:txt,status:'answered',answered_at:new Date().toISOString()}).eq('id',id);
+      if(error)throw error;
+    }else{
+      const s=v2StoreGet();const q=s.questions.find(function(x){return x.id===id});
+      if(q){q.answer=txt;q.status='answered';q.answered_at=new Date().toISOString();}
+      v2StoreSave(s);
+    }
+    tShowToast('💬 답변 전송 — 윤서의 질문하기 화면에 표시됩니다');
+    v2OpenQuestions();v2DashAlert();
+  }catch(e){
+    const msg=String(e&&e.message||'');
+    tShowToast(/answer|column/i.test(msg)?'❗ answer 컬럼이 없습니다 — supabase-v5.sql을 실행해주세요':'❗ 전송 실패 — 인터넷 확인',4500);
+  }
+}
 document.getElementById('v2-new-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('v2-sub-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
@@ -2417,7 +2461,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='4.1';
+var APP_VER='4.2';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{

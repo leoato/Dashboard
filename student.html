@@ -127,7 +127,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
       </div>
       <div class="home-cell" onclick="openAsk()">
         <div style="font-size:1.6rem">🙋</div><div class="t">질문하기</div>
-        <div class="muted">막힌 문제를 쌤에게</div>
+        <div class="muted" id="home-ask-cnt">막힌 문제를 쌤에게</div>
       </div>
     </div>
     <div class="muted" id="home-err" style="text-align:center"></div>
@@ -290,6 +290,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
         </div>
       </div>
     </div>
+    <div class="sec-t" style="margin-top:6px">📬 내 질문과 쌤의 답변</div>
+    <div class="card" style="padding:4px 12px"><div class="dashlist" id="myq-list"><div class="muted" style="padding:10px 4px">불러오는 중…</div></div></div>
   </div>
 </div>
 
@@ -299,7 +301,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='4.1';
+var APP_VER='4.2';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -381,6 +383,13 @@ async function submitSheet(w,answers,marks,score,photoBlobs,photoDataUrls){
   const ww=s.worksheets.find(x=>x.id===w.id);if(ww)ww.status='submitted';
   demoSave(s);
 }
+async function listQuestions(){
+  if(sbc()){
+    const {data,error}=await sb.from('questions').select('*').eq('pair_code',pairCode()).order('created_at',{ascending:false});
+    if(error)throw error;return data;
+  }
+  return demoStore().questions.filter(q=>q.pair_code===pairCode()).sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
+}
 async function sendQuestion(wSheet,probIdx,note,photoBlobs,photoDataUrls){
   if(sbc()){
     const paths=[];
@@ -431,6 +440,11 @@ async function renderHome(){
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
   }catch(e){$('home-err').textContent='불러오기 실패 — 인터넷 확인 후 홈에서 새로고침';}
+  try{
+    const qs=await listQuestions();
+    const a=qs.filter(q=>q.status==='answered').length;
+    $('home-ask-cnt').textContent=a?('💬 쌤 답변 '+a+'개'):'막힌 문제를 쌤에게';
+  }catch(e){}
 }
 
 /* ═══ PDF/HTML 뷰어 ═══ */
@@ -716,7 +730,23 @@ function openAsk(){
     :'<div class="muted" style="padding:8px 2px">문제지가 없어요 — 교재 사진으로 질문해요</div>';
   $('ask-probs').innerHTML='<div class="muted" style="padding:8px 2px">왼쪽에서 문제지를 고르거나, 교재 사진만 첨부해도 돼요</div>';
   $('ask-note').value='';$('ask-photos').innerHTML='';
+  renderMyQuestions();
   showScreen('ask');
+}
+async function renderMyQuestions(){
+  let qs=[];
+  try{qs=await listQuestions()}catch(e){$('myq-list').innerHTML='<div class="muted" style="padding:10px 4px">불러오기 실패</div>';return}
+  $('myq-list').innerHTML=qs.length?qs.map(q=>{
+    const st=q.status==='answered'
+      ?'<span class="chip ok">💬 답변 옴</span>'
+      :(q.status==='seen'?'<span class="chip">쌤이 확인함</span>':'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">쌤이 볼 차례</span>');
+    return `<div>
+      <div class="row"><div class="grow" style="font-size:.84rem"><b>${q.worksheet_title?escH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
+      <span class="muted num" style="margin-left:6px">${(q.created_at||'').slice(5,10).replace('-','.')}</span></div>${st}</div>
+      <div class="muted" style="margin-top:3px;white-space:pre-line">나: ${escH(q.note)}</div>
+      ${q.answer?`<div class="sol" style="margin-top:6px;border-left-color:var(--ok);background:rgba(62,124,79,.06)"><b>쌤</b> — ${escH(q.answer)}</div>`:''}
+    </div>`;
+  }).join(''):'<div class="muted" style="padding:10px 4px">아직 보낸 질문이 없어요</div>';
 }
 function askPickSheet(id,el){
   ask.sheet=rows.find(w=>w.id===id);ask.prob=null;
