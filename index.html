@@ -1097,7 +1097,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">🔌 연결 테스트</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v3.2</span></div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v3.3 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2359,6 +2359,13 @@ document.getElementById('v2-new-modal').addEventListener('click',function(e){if(
 document.getElementById('v2-sub-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
+var APP_VER='3.3';
+(function(){ // 배포된 새 버전 감지 시 1회 자동 새로고침 — 캐시 문제 방지
+  fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
+    var m=t.match(/APP_VER='([\d.]+)'/);
+    if(m&&m[1]!==APP_VER&&sessionStorage.getItem('vreload')!==m[1]){sessionStorage.setItem('vreload',m[1]);location.reload();}
+  }).catch(function(){});
+})();
 var v3prob=null,v3title='';
 function v3GemKey(){return v2Cfg('gem')}
 /* 사용 가능한 flash 모델 후보 목록 (좋은 순 정렬) — 구글이 모델명을 바꿔도 404가 안 나게 */

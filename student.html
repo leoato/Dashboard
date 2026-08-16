@@ -127,6 +127,15 @@ input:focus{outline:none;border-color:var(--ink)}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+/* ═══ 버전 · 자동 업데이트 ═══ */
+var APP_VER='3.3';
+(function(){ // 배포된 새 버전 감지 시 1회 자동 새로고침 — 태블릿 캐시 문제 방지
+  fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
+    var m=t.match(/APP_VER='([\d.]+)'/);
+    if(m&&m[1]!==APP_VER&&sessionStorage.getItem('vreload')!==m[1]){sessionStorage.setItem('vreload',m[1]);location.reload();}
+  }).catch(function(){});
+})();
+
 /* ═══ 설정 · 연결 ═══ */
 const $=id=>document.getElementById(id);
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
@@ -191,7 +200,7 @@ async function submitSheet(w,answers,marks,score,photoBlobs,photoDataUrls){
 let curSheet=null,photoBlobs=[],photoDataUrls=[];
 function showScreen(s){['pair','home','solve'].forEach(x=>$('s-'+x).classList.toggle('on',x===s))}
 function boot(){
-  $('mode-chip').textContent=isDemo()?'데모 모드':'연결됨 · '+pairCode();
+  $('mode-chip').textContent=(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
   if(!cfg('paired')){showScreen('pair');return}
   showScreen('home');loadHome();
 }
