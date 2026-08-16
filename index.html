@@ -1111,7 +1111,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">🔌 연결 테스트</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.2 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.3 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1142,7 +1142,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <!-- 로컬 백업 -->
       <div class="t-card">
         <div class="t-ctitle"><span class="t-ic">💾</span>로컬 백업</div>
-        <p style="font-size:.76rem;color:#6d675e;margin-bottom:.85rem;line-height:1.6">현재 과외 데이터를 JSON 파일로 저장합니다. 대시보드의 ⇅ 동기화를 통해 Google Drive와 함께 동기화됩니다.</p>
+        <p style="font-size:.76rem;color:#6d675e;margin-bottom:.85rem;line-height:1.6">현재 과외 데이터를 JSON 파일로 저장합니다. 대시보드의 ⇅ 동기화를 통해 클라우드(Supabase)와 함께 동기화됩니다.</p>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
           <button class="t-btn t-btn-p" onclick="t6BackupOnly()">💾 JSON 백업 저장</button>
         </div>
@@ -1179,23 +1179,23 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   <div class="sync-box">
     <h2>⇅ 데이터 동기화</h2>
 
-    <!-- Google Drive Sync -->
+    <!-- Cloud Sync (Supabase 우선, Drive 예비) -->
     <div class="sync-sec" style="border:1.5px solid var(--s-md);border-radius:var(--r);padding:12px;background:var(--s-lt)">
-      <h3 style="color:var(--s-dk)">☁️ Google Drive 자동 동기화</h3>
-      <p class="sync-note" style="margin-top:4px">Apps Script URL을 한 번만 입력하면 버튼 하나로 노트북↔아이패드 동기화돼요.</p>
+      <h3 style="color:var(--s-dk)">☁️ 클라우드 자동 동기화</h3>
+      <p class="sync-note" style="margin-top:4px"><b>설정 탭의 Supabase 연동이 있으면 자동으로 Supabase에 동기화됩니다</b> (노트북↔아이패드). 아래 Apps Script URL은 Supabase 미설정 시의 예비 경로예요.</p>
       <div class="cloud-url-row">
-        <input class="cloud-url-input" id="gas-url" placeholder="https://script.google.com/macros/s/..." value="">
+        <input class="cloud-url-input" id="gas-url" placeholder="(예비) https://script.google.com/macros/s/..." value="">
         <button class="btn acc" onclick="saveGasUrl()" style="border-color:var(--s-md);background:var(--s-dk);color:var(--s-lt)">저장</button>
       </div>
       <div class="cloud-status" id="cloud-status">
         <span class="cloud-dot" id="cloud-dot"></span>
-        <span id="cloud-status-txt">URL을 입력하세요</span>
+        <span id="cloud-status-txt">연결 확인 중…</span>
       </div>
       <div class="sync-btns" style="margin-top:4px">
-        <button class="btn" onclick="cloudUpload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬆ Drive에 저장</button>
-        <button class="btn" onclick="cloudDownload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬇ Drive에서 불러오기</button>
+        <button class="btn" onclick="cloudUpload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬆ 클라우드에 저장</button>
+        <button class="btn" onclick="cloudDownload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬇ 클라우드에서 불러오기</button>
       </div>
-      <p class="sync-note" style="margin-top:6px">✅ 수업·문자 입력 시 <b>자동으로 Drive에 저장</b>되고, 열 때 더 최신이면 자동으로 받아옵니다. 오래된 데이터로 덮어쓰려 하면 먼저 확인합니다.</p>
+      <p class="sync-note" style="margin-top:6px">✅ 수업·문자 입력 시 <b>자동으로 클라우드에 저장</b>되고, 열 때 더 최신이면 자동으로 받아옵니다. 오래된 데이터로 덮어쓰려 하면 먼저 확인합니다.</p>
       <div class="sync-btns" style="margin-top:4px">
         <button class="btn" onclick="restorePresync()" title="마지막 가져오기/동기화 직전 상태로 복구">↩ 직전 상태로 되돌리기</button>
       </div>
@@ -1240,29 +1240,77 @@ const SK='dash6', TK='dash6_theme';
 const GAS_KEY = 'dash6_gas_url';
 let gasUrl = localStorage.getItem(GAS_KEY) || '';
 
+/* ── 동기화 전송 계층: Supabase 우선, 없으면 Drive(Apps Script) ──
+   충돌 방지·타임스탬프 로직은 그대로 두고 저장소만 갈아끼운다. */
+var _syncClient=null;
+function sbSyncCfg(){ try{ return {u:localStorage.getItem('yt_url')||'', k:localStorage.getItem('yt_key')||'', p:localStorage.getItem('yt_pair')||'YUN-4821'}; }catch(e){ return {u:'',k:'',p:'YUN-4821'}; } }
+function sbSyncReady(){ const c=sbSyncCfg(); return !!(c.u&&c.k&&window.supabase); }
+function sbSyncClient(){ if(_syncClient) return _syncClient; const c=sbSyncCfg(); if(c.u&&c.k&&window.supabase) _syncClient=window.supabase.createClient(c.u,c.k); return _syncClient; }
+function syncAvailable(){ return sbSyncReady()||!!gasUrl; }
+// 읽기: {ok, json?, none?, errMsg?} — json에는 _t(타임스탬프) 보장
+async function cloudRead(){
+  if(sbSyncReady()){
+    try{
+      const {data,error}=await sbSyncClient().from('app_state').select('data,updated_at').eq('pair_code',sbSyncCfg().p).maybeSingle();
+      if(error) return {ok:false,errMsg:/does not exist|42P01|Could not find the table|schema cache/i.test(error.message)?'app_state 테이블 없음 — supabase-v6.sql 실행':error.message};
+      if(!data) return {ok:true,none:true};
+      const j=data.data||{}; if(!j._t) j._t=data.updated_at;
+      return {ok:true,json:j};
+    }catch(e){ return {ok:false,errMsg:e.message}; }
+  }
+  if(gasUrl){
+    try{
+      const r=await fetch(gasUrl+'?action=read');
+      if(!r.ok) return {ok:false,errMsg:'서버 오류 '+r.status};
+      const j=JSON.parse(await r.text());
+      if(j&&j.error==='no_file') return {ok:true,none:true};
+      if(j&&j.error) return {ok:false,errMsg:j.error};
+      return {ok:true,json:j};
+    }catch(e){ return {ok:false,errMsg:e.message}; }
+  }
+  return {ok:false,errMsg:'동기화 설정 없음'};
+}
+// 쓰기: {ok, verified, errMsg?} — verified=true면 재확인 불필요(Supabase)
+async function cloudWrite(dataStr){
+  if(sbSyncReady()){
+    try{
+      const {error}=await sbSyncClient().from('app_state').upsert({pair_code:sbSyncCfg().p,data:JSON.parse(dataStr),updated_at:new Date().toISOString()},{onConflict:'pair_code'});
+      if(error) return {ok:false,verified:false,errMsg:/does not exist|42P01|Could not find the table|schema cache/i.test(error.message)?'app_state 테이블 없음 — supabase-v6.sql 실행':error.message};
+      return {ok:true,verified:true};
+    }catch(e){ return {ok:false,verified:false,errMsg:e.message}; }
+  }
+  if(gasUrl){
+    try{ await fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:dataStr}); return {ok:true,verified:false}; }
+    catch(e){ return {ok:false,verified:false,errMsg:e.message}; }
+  }
+  return {ok:false,verified:false,errMsg:'동기화 설정 없음'};
+}
+
 /* ── 동기화 안전장치 (자동 업로드 / 덮어쓰기 가드 / 미저장 표시 / 되돌리기) ── */
 let _syncSuppress=false, _autoSyncTimer=null;
 function _stampMs(iso){ return new Date(iso||0).getTime(); }
 function localEditTime(){ try{ return Math.max(_stampMs(localStorage.getItem('dash6_lastedit')), _stampMs((JSON.parse(localStorage.getItem(SK)||'{}'))._saved)); }catch(e){ return _stampMs(localStorage.getItem('dash6_lastedit')); } }
 function markDataChanged(){ if(_syncSuppress) return; try{ localStorage.setItem('dash6_lastedit', new Date().toISOString()); }catch(e){} updateUnsaved(); scheduleAutoSync(); }
-function scheduleAutoSync(){ if(!gasUrl) return; if(_autoSyncTimer) clearTimeout(_autoSyncTimer); _autoSyncTimer=setTimeout(silentCloudUpload, 3500); }
-async function silentCloudUpload(){ if(!gasUrl) return; try{ updateCloudStatus('syncing');
-    try{ const r=await fetch(gasUrl+'?action=read'); if(r.ok){ const j=JSON.parse(await r.text()); if(j&&!j.error){ const driveT=_stampMs(j._t); if(driveT>localEditTime()+1000){ updateCloudStatus('error','Drive에 더 최신 데이터가 있어요 — 동기화 창에서 불러오기 하세요'); return; } } } }catch(e){}
-    const data=getExp(); await fetch(gasUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:data});
-    // no-cors는 서버가 오류를 내도 성공처럼 resolve된다. 다시 읽어 확인하기 전에는
-    // 동기화됨으로 기록하지 않는다 — 안 그러면 실패가 몇 주씩 숨는다.
+function scheduleAutoSync(){ if(!syncAvailable()) return; if(_autoSyncTimer) clearTimeout(_autoSyncTimer); _autoSyncTimer=setTimeout(silentCloudUpload, 3500); }
+async function silentCloudUpload(){ if(!syncAvailable()) return; try{ updateCloudStatus('syncing');
+    // 덮어쓰기 가드: 클라우드가 더 최신이면 올리지 않는다
+    try{ const pre=await cloudRead(); if(pre.ok&&pre.json){ const remoteT=_stampMs(pre.json._t); if(remoteT>localEditTime()+1000){ updateCloudStatus('error','클라우드에 더 최신 데이터가 있어요 — 동기화 창에서 불러오기 하세요'); return; } } }catch(e){}
+    const data=getExp();
+    const w=await cloudWrite(data);
+    if(!w.ok){ updateCloudStatus('error',w.errMsg||'저장 실패'); showAutoBackupToast('⚠️ 클라우드 저장 실패'); updateUnsaved(); return; }
+    if(w.verified){ // Supabase — 응답으로 저장 확정
+      localStorage.setItem('dash6_lastsync', new Date().toISOString()); updateCloudStatus('synced'); updateUnsaved(); return;
+    }
+    // Drive(no-cors)는 오류도 성공처럼 resolve된다 — 다시 읽어 확인 전에는 동기화됨으로 기록하지 않는다
     await new Promise(r=>setTimeout(r,1500));
     let ok=false;
-    try{
-      const v=await fetch(gasUrl+'?action=read');
-      if(v.ok){ const j=JSON.parse(await v.text()); ok=Math.abs(_stampMs(j._t)-_stampMs(JSON.parse(data)._t))<5000; }
-    }catch(e){}
+    try{ const v=await cloudRead(); if(v.ok&&v.json) ok=Math.abs(_stampMs(v.json._t)-_stampMs(JSON.parse(data)._t))<5000; }catch(e){}
     if(ok){ localStorage.setItem('dash6_lastsync', new Date().toISOString()); updateCloudStatus('synced'); }
-    else { updateCloudStatus('error','저장 확인 실패 — 동기화 창에서 다시 시도해 주세요'); showAutoBackupToast('⚠️ Drive 저장을 확인하지 못했어요'); }
+    else { updateCloudStatus('error','저장 확인 실패 — 동기화 창에서 다시 시도해 주세요'); showAutoBackupToast('⚠️ 저장을 확인하지 못했어요'); }
     updateUnsaved();
   }catch(e){ updateCloudStatus('error', e.message); } }
 function fmtSyncT(iso){ if(!iso) return ''; return new Date(iso).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}); }
-function updateUnsaved(){ const el=document.getElementById('sync-badge'); if(!el) return; if(!gasUrl){ el.style.display='none'; return; } const le=localEditTime(), ls=_stampMs(localStorage.getItem('dash6_lastsync')); if(le>ls+1500){ el.textContent='⚠️ 미저장'; el.style.color='#FF8A6B'; el.style.display=''; } else if(ls){ el.textContent='☁ '+fmtSyncT(localStorage.getItem('dash6_lastsync')); el.style.color='rgba(245,240,232,.5)'; el.style.display=''; } else { el.style.display='none'; } }
+function updateUnsaved(){ const el=document.getElementById('sync-badge'); if(!el) return; if(!syncAvailable()){ el.style.display='none'; return; } const le=localEditTime(), ls=_stampMs(localStorage.getItem('dash6_lastsync')); if(le>ls+1500){ el.textContent='⚠️ 미저장'; el.style.color='#FF8A6B'; el.style.display=''; } else if(ls){ el.textContent='☁ '+fmtSyncT(localStorage.getItem('dash6_lastsync')); el.style.color='rgba(245,240,232,.5)'; el.style.display=''; } else { el.style.display='none'; } }
 function restorePresync(){ const snap=localStorage.getItem('dash6_presync'); if(!snap){ showM('imp-msg','복구할 직전 상태가 없습니다','err'); return; } const ts=localStorage.getItem('dash6_presync_time'); if(!confirm('마지막 가져오기/동기화 직전 상태'+(ts?'('+new Date(ts).toLocaleString('ko-KR')+')':'')+'로 되돌립니다.\n진행할까요?')) return; if(applyImp(snap,{force:true,fromRestore:true})!==false) showM('imp-msg','↩ 직전 상태로 복구했습니다','ok'); }
 (function(){ const _si=localStorage.setItem.bind(localStorage); const WATCH=new Set([SK,'t1','t2','t3','t4','t5','tutor_scores']); localStorage.setItem=function(k,v){ _si(k,v); if(WATCH.has(k)) markDataChanged(); }; })();
 
@@ -1285,27 +1333,23 @@ function restorePresync(){ const snap=localStorage.getItem('dash6_presync'); if(
   render();
   setInterval(tick, 1000); tick();
   setTimeout(updateUnsaved, 400);
-  // 페이지 열 때 Drive에서 자동 불러오기
-  if(gasUrl){
-    setTimeout(async ()=>{
-      try{
-        const res = await fetch(gasUrl + '?action=read');
-        if(!res.ok) return;
-        const text = await res.text();
-        const json = JSON.parse(text);
-        if(json.error === 'no_file') return;
-        // Drive 데이터가 더 최신인 경우만 불러오기.
-        // 기준은 localEditTime() — 과외 데이터(t1~t5)만 고쳤을 때는 dash6._saved가
-        // 갱신되지 않아, 그것만 보면 방금 한 작업을 Drive 옛 데이터로 덮어쓰게 된다.
-        const driveTime = _stampMs(json._t);
-        const localTime = localEditTime();
-        if(driveTime > localTime + 1000){
-          applyImp(text,{force:true});
-          showAutoBackupToast('☁️ Drive 최신 데이터로 불러왔어요');
-        }
-      }catch(e){ console.log('auto load failed', e); }
-    }, 1500);
-  }
+  // 페이지 열 때 클라우드(Supabase 우선, 없으면 Drive)에서 자동 불러오기
+  setTimeout(async ()=>{
+    if(!syncAvailable()) return;
+    try{
+      const r = await cloudRead();
+      if(!r.ok || !r.json) return;
+      // 클라우드 데이터가 더 최신인 경우만 불러오기.
+      // 기준은 localEditTime() — 과외 데이터(t1~t5)만 고쳤을 때는 dash6._saved가
+      // 갱신되지 않아, 그것만 보면 방금 한 작업을 옛 데이터로 덮어쓰게 된다.
+      const cloudTime = _stampMs(r.json._t);
+      const localTime = localEditTime();
+      if(cloudTime > localTime + 1000){
+        applyImp(JSON.stringify(r.json),{force:true});
+        showAutoBackupToast('☁️ 클라우드 최신 데이터로 불러왔어요');
+      }
+    }catch(e){ console.log('auto load failed', e); }
+  }, 1500);
 })();
 
 /* localStorage 저장은 용량 초과(주로 약점 기록의 사진)로 실패할 수 있다.
@@ -2114,8 +2158,8 @@ function updateCloudStatus(state,extra){
   if(!dot||!txt)return;
   const now=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
   const map={
-    nourl:  ['','URL을 입력하세요'],
-    idle:   ['','연결됨 · 동기화 대기 중'],
+    nourl:  ['','설정 없음 — 설정 탭에서 Supabase 연동'],
+    idle:   ['','연결됨 ('+(sbSyncReady()?'Supabase':'Drive')+') · 동기화 대기 중'],
     syncing:['syncing','동기화 중...'],
     synced: ['synced','✓ 완료 '+( extra||now)],
     error:  ['error','✗ '+( extra||'오류')]
@@ -2125,31 +2169,26 @@ function updateCloudStatus(state,extra){
   txt.textContent=msg;
 }
 async function cloudUpload(){
-  if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
+  if(!syncAvailable()){alert('설정 탭에서 Supabase 연동을 하거나 Apps Script URL을 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    const data = getExp(); // ← getExp()로 교체 — 과외 데이터(_tutoring) 포함
-
-    // POST + no-cors: 응답을 읽을 수 없지만 저장은 됨
-    await fetch(gasUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {'Content-Type': 'text/plain'},
-      body: data
-    });
-
-    // 저장 확인: 잠시 후 GET으로 타임스탬프 비교
+    const data = getExp(); // 과외 데이터(_tutoring) 포함
+    const w = await cloudWrite(data);
+    if(!w.ok){ updateCloudStatus('error', w.errMsg||'저장 실패'); showM('exp-msg','✗ '+(w.errMsg||'저장 실패'),'err'); return; }
+    if(w.verified){ // Supabase
+      localStorage.setItem('dash6_lastsync', new Date().toISOString());
+      updateCloudStatus('synced'); updateUnsaved();
+      showM('exp-msg','☁️ 클라우드에 저장 완료!','ok');
+      return;
+    }
+    // Drive(no-cors) — 저장 확인: 잠시 후 읽어 타임스탬프 비교
     await new Promise(r => setTimeout(r, 1500));
-    const check = await fetch(gasUrl + '?action=read');
-    const checkText = await check.text();
-    const checkJson = JSON.parse(checkText);
-    const savedT = new Date(checkJson._t || 0);
-    const sentT  = new Date(JSON.parse(data)._t);
-    const diff   = Math.abs(savedT - sentT);
-    if(diff < 5000){
+    const v = await cloudRead();
+    const ok = v.ok && v.json && Math.abs(_stampMs(v.json._t)-_stampMs(JSON.parse(data)._t))<5000;
+    if(ok){
       localStorage.setItem('dash6_lastsync', new Date().toISOString());   // 안 하면 배지가 계속 ⚠️미저장
       updateCloudStatus('synced'); updateUnsaved();
-      showM('exp-msg','☁️ Drive에 저장 완료!','ok');
+      showM('exp-msg','☁️ 클라우드에 저장 완료!','ok');
     } else {
       updateCloudStatus('error','저장 확인 실패 — 재시도해주세요');
       showM('exp-msg','✗ 저장 확인 실패','err');
@@ -2160,21 +2199,19 @@ async function cloudUpload(){
   }
 }
 async function cloudDownload(){
-  if(!gasUrl){alert('Apps Script URL을 먼저 입력해주세요');return;}
+  if(!syncAvailable()){alert('설정 탭에서 Supabase 연동을 하거나 Apps Script URL을 입력해주세요');return;}
   updateCloudStatus('syncing');
   try{
-    const res = await fetch(gasUrl + '?action=read');
-    if(!res.ok) throw new Error('서버 오류 ' + res.status);
-    const text = await res.text();
-    const json = JSON.parse(text);
-    if(json.error === 'no_file'){
-      updateCloudStatus('error','Drive에 저장된 데이터가 없습니다');
-      showM('imp-msg','⚠️ 먼저 "Drive에 저장"을 해주세요','err');
+    const r = await cloudRead();
+    if(!r.ok) throw new Error(r.errMsg||'불러오기 실패');
+    if(r.none || !r.json){
+      updateCloudStatus('error','클라우드에 저장된 데이터가 없습니다');
+      showM('imp-msg','⚠️ 먼저 "클라우드에 저장"을 해주세요','err');
       return;
     }
-    applyImp(text);
+    applyImp(JSON.stringify(r.json));
     updateCloudStatus('synced');
-    showM('imp-msg','☁️ Drive에서 불러오기 완료!','ok');
+    showM('imp-msg','☁️ 클라우드에서 불러오기 완료!','ok');
   }catch(e){
     updateCloudStatus('error', e.message);
   }
@@ -2461,7 +2498,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='4.2';
+var APP_VER='4.3';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
@@ -2710,7 +2747,7 @@ function v3SimilarFromWrong(){
 }
 
 // v2 초기화 — 모든 선언이 끝난 스크립트 최하단에서 실행 (TDZ 회피)
-try{v2LoadCfg();v2Render();v2DashAlert();}catch(e){}
+try{v2LoadCfg();v2Render();v2DashAlert();updateCloudStatus(syncAvailable()?'idle':'nourl');}catch(e){}
 </script>
 
 
