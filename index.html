@@ -335,6 +335,18 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 /* Modal inside overlay */
 #tutor-overlay .t-mbg { display:none; position:absolute; inset:0; background:rgba(26,35,64,.45); z-index:50; align-items:center; justify-content:center; padding:1rem; }
 #tutor-overlay .t-mbg.open { display:flex; }
+/* ── 수업 종료 원플로 위저드 ── */
+#tutor-overlay .wz-modal { background:white; border-radius:14px; width:100%; max-width:520px; max-height:88vh; box-shadow:0 10px 40px rgba(0,0,0,.25); display:flex; flex-direction:column; overflow:hidden; }
+#tutor-overlay .wz-dots { display:flex; gap:6px; justify-content:center; padding:10px 0 4px; }
+#tutor-overlay .wz-dot { width:8px; height:8px; border-radius:50%; background:#ddd; transition:all .2s; }
+#tutor-overlay .wz-dot.on { background:#E8652A; width:22px; border-radius:5px; }
+#tutor-overlay .wz-vp { overflow:hidden; }
+#tutor-overlay .wz-track { display:flex; transition:transform .3s ease; }
+#tutor-overlay .wz-step { width:100%; flex-shrink:0; padding:1rem 1.3rem 1.2rem; overflow-y:auto; max-height:56vh; }
+#tutor-overlay .wz-item { display:flex; gap:7px; align-items:center; margin-bottom:7px; }
+#tutor-overlay .wz-item .no { width:20px; text-align:right; font-weight:800; font-size:.8rem; color:#888; flex-shrink:0; }
+#tutor-overlay .wz-foot { display:flex; gap:8px; padding:.9rem 1.3rem; border-top:1px solid #eee; }
+#tutor-overlay .wz-preview { border:1.5px solid #ddd; border-radius:10px; background:#fafafa; padding:.8rem; font-size:.8rem; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
 #tutor-overlay .t-modal { background:white; border-radius:14px; padding:1.3rem; width:100%; max-width:520px; max-height:85vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.25); }
 #tutor-overlay .t-mtitle { font-family:'Nanum Myeongjo',serif; font-size:1.02rem; font-weight:700; margin-bottom:.85rem; padding-bottom:.45rem; border-bottom:1.5px solid rgba(26,35,64,.12); }
 #tutor-overlay .t-mact { display:flex; gap:7px; margin-top:.85rem; flex-wrap:wrap; }
@@ -688,6 +700,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-ptitle">대시보드</div>
       <div class="t-psub">OVERVIEW — 모든 정보를 한눈에</div>
       <div id="t-dash-sbar"></div>
+      <button class="t-btn t-btn-p" id="wz-open-btn" style="width:100%;justify-content:center;padding:.95rem;font-size:.95rem;border-radius:12px;margin-bottom:1rem" onclick="wzOpen()">🏁 오늘 수업 종료</button>
       <div class="t-dgrid">
         <div class="t-dc" onclick="tShowTab('tab1')"><div class="t-dc-num">TAB 01</div><div class="t-dc-title">학생 기본 정보</div><div class="t-dc-desc">학생 리스트, 프로필, 수업료 계산기</div><div class="t-dc-badge" id="t-dc-students">0명</div></div>
         <div class="t-dc" onclick="tShowTab('tab2')"><div class="t-dc-num">TAB 02</div><div class="t-dc-title">자료 모음실</div><div class="t-dc-desc">기출, 모의고사, 추가 자료</div><div class="t-dc-badge" id="t-dc-folders">0 폴더</div></div>
@@ -703,6 +716,54 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-2col">
         <div class="t-card"><div class="t-ctitle"><span class="t-ic">💬</span>최근 안내 문자</div><div id="t-dash-rmsg"><div style="font-size:.76rem;color:#8A8278">문자를 기록하면 여기에 표시됩니다</div></div></div>
         <div class="t-card"><div class="t-ctitle"><span class="t-ic">🎯</span>최근 약점</div><div id="t-dash-rw"><div style="font-size:.76rem;color:#8A8278">약점을 기록하면 여기에 표시됩니다</div></div></div>
+      </div>
+
+      <!-- 수업 종료 원플로 위저드 -->
+      <div class="t-mbg" id="wz-modal-bg">
+        <div class="wz-modal">
+          <div style="display:flex;align-items:center;gap:10px;padding:1rem 1.3rem .7rem;border-bottom:1px solid #eee">
+            <b style="font-size:.95rem">수업 종료 — <span id="wz-num"></span>회차</b>
+            <input type="date" id="wz-date" style="margin-left:auto;width:auto;font-size:.78rem" onchange="if(wzStep===2)wzPreview()">
+            <button class="t-rmfbtn" onclick="wzClose()">✕</button>
+          </div>
+          <div class="wz-dots" id="wz-dots"></div>
+          <div class="wz-vp" id="wz-vp">
+            <div class="wz-track" id="wz-track">
+              <div class="wz-step">
+                <div class="t-ctitle">① 오늘 진도</div>
+                <div style="font-size:.72rem;color:#999;margin-bottom:.6rem">오늘 나간 내용을 번호대로 — 옆으로 스와이프하거나 [다음]</div>
+                <div id="wz-prog-rows"></div>
+                <button class="t-btn t-btn-g t-btn-sm" onclick="wzAddRow('prog')">＋ 항목 추가</button>
+              </div>
+              <div class="wz-step">
+                <div class="t-ctitle">② 숙제 범위</div>
+                <div style="font-size:.72rem;color:#999;margin-bottom:.6rem">다음 수업까지의 숙제 (없으면 비워두고 다음)</div>
+                <div id="wz-hw-rows"></div>
+                <button class="t-btn t-btn-g t-btn-sm" onclick="wzAddRow('hw')">＋ 항목 추가</button>
+              </div>
+              <div class="wz-step">
+                <div class="t-ctitle">③ 그날의 한마디</div>
+                <div style="font-size:.72rem;color:#999;margin-bottom:.6rem">문자는 이미 완성돼 있어요 — 한마디만 더하면 끝</div>
+                <textarea id="wz-closing" style="min-height:52px" placeholder="예: 오늘 윤서가 새 유형을 곧잘 따라왔습니다." oninput="wzPreview()"></textarea>
+                <div style="font-size:.72rem;font-weight:800;color:#888;margin:.6rem 0 .3rem">실시간 미리보기</div>
+                <div class="wz-preview" id="wz-preview"></div>
+              </div>
+              <div class="wz-step">
+                <div class="t-ctitle">④ 완료</div>
+                <div style="font-size:.78rem;margin:.3rem 0 .6rem" id="wz-done-badge"></div>
+                <div class="wz-preview" id="wz-final"></div>
+                <div style="display:flex;gap:8px;margin-top:.8rem">
+                  <button class="t-btn t-btn-p" style="flex:1;justify-content:center" onclick="wzCopy()">📋 문자 복사</button>
+                  <button class="t-btn t-btn-g" style="flex:1;justify-content:center" onclick="wzClose()">닫기</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wz-foot" id="wz-foot">
+            <button class="t-btn t-btn-g" id="wz-prev" style="flex:1;justify-content:center" onclick="wzGo(-1)">← 이전</button>
+            <button class="t-btn t-btn-p" id="wz-next" style="flex:1;justify-content:center" onclick="wzGo(1)">다음 →</button>
+          </div>
+        </div>
       </div>
     </div>
     </div>
@@ -1565,7 +1626,7 @@ function t3Save(){
   t3curMsg=lesson;t3OpenMsg();tShowToast('✅ '+lesson.num+'회차 수업이 저장되었습니다');tDashRefresh();
 }
 function t3OpenMsg(){document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
-function t3BuildMsg(l,closing){let m=`안녕하세요 어머님, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도: ${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위: ${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim()+'\n\n';m+='언제나 최선을 다하겠습니다. 감사합니다.';return m.trim();}
+function t3BuildMsg(l,closing){let m=`안녕하세요 어머님, 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도:\n${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위:\n${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim()+'\n\n';m+='언제나 최선을 다하겠습니다. 감사합니다.';return m.trim();}
 function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
 function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
 function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});safeSet(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
@@ -1617,6 +1678,64 @@ function t3Delete(i){if(!confirm(t3lessons[i].num+'회차 수업 기록을 삭�
 function t3GenMsg(i){t3curMsg=t3lessons[i];document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
 function t3OpenEditModal(i){t3editIdx=i;const l=t3lessons[i];document.getElementById('t3e-date').value=l.date||'';document.getElementById('t3e-num').value=l.num;document.getElementById('t3e-content').value=l.content||'';document.getElementById('t3e-hw').value=l.hw||'';const ex=document.getElementById('t3e-extra');ex.innerHTML='';if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{const d=document.createElement('div');d.className='t-exitem';d.innerHTML=`<input type="text" value="${tEscH(k)}" placeholder="항목명" class="t-exkey"><textarea style="min-height:48px" class="t-exval">${tEscH(v)}</textarea><button class="t-rmfbtn" onclick="this.parentElement.remove()">✕</button>`;ex.appendChild(d);});document.getElementById('t3-edit-modal').classList.add('open');}
 function t3CloseModal(){document.getElementById('t3-edit-modal').classList.remove('open');t3editIdx=null;}
+
+/* ══ 수업 종료 원플로 위저드 (대시보드) ══ */
+let wzStep=0,wzProg=[],wzHw=[],wzCommitted=false,wzFinalText='';
+function wzOpen(){
+  wzStep=0;wzCommitted=false;wzFinalText='';
+  wzProg=['지난 숙제 풀이',''];wzHw=[''];
+  document.getElementById('wz-date').value=tToday();
+  document.getElementById('wz-closing').value='';
+  document.getElementById('wz-num').textContent=(t3lessons.reduce((mx,l)=>Math.max(mx,l.num||0),0)||0)+1;
+  wzRenderRows();wzUpdate();document.getElementById('wz-modal-bg').classList.add('open');
+}
+function wzClose(){document.getElementById('wz-modal-bg').classList.remove('open');}
+function wzRenderRows(){
+  document.getElementById('wz-prog-rows').innerHTML=wzProg.map((v,i)=>`<div class="wz-item"><span class="no">${i+1}.</span><input type="text" value="${tEscH(v)}" oninput="wzProg[${i}]=this.value"></div>`).join('');
+  document.getElementById('wz-hw-rows').innerHTML=wzHw.map((v,i)=>`<div class="wz-item"><span class="no">${i+1}.</span><input type="text" value="${tEscH(v)}" oninput="wzHw[${i}]=this.value"></div>`).join('');
+}
+function wzAddRow(k){(k==='prog'?wzProg:wzHw).push('');wzRenderRows();}
+function wzNumbered(a){return a.filter(t=>t.trim()).map((t,i)=>(i+1)+'. '+t.trim()).join('\n');}
+function wzDraft(){return {num:parseInt(document.getElementById('wz-num').textContent)||1,date:document.getElementById('wz-date').value||tToday(),content:wzNumbered(wzProg),hw:wzNumbered(wzHw),extras:{}};}
+function wzPreview(){document.getElementById('wz-preview').textContent=t3BuildMsg(wzDraft(),document.getElementById('wz-closing').value);}
+function wzUpdate(){
+  document.getElementById('wz-track').style.transform='translateX(-'+(wzStep*100)+'%)';
+  document.getElementById('wz-dots').innerHTML=[0,1,2,3].map(i=>'<div class="wz-dot'+(i===wzStep?' on':'')+'"></div>').join('');
+  document.getElementById('wz-prev').style.visibility=wzStep===0?'hidden':'visible';
+  document.getElementById('wz-next').textContent=wzStep===2?'저장하고 문자 완성 →':'다음 →';
+  document.getElementById('wz-foot').style.display=wzStep===3?'none':'flex';
+  if(wzStep===2)wzPreview();
+}
+function wzGo(d){
+  const nx=wzStep+d;if(nx<0||nx>3)return;
+  if(d>0&&wzStep===0&&!wzNumbered(wzProg)){tShowToast('❗ 진도 항목을 하나 이상 입력하세요');return;}
+  if(nx===3&&!wzCommitted){
+    if(!document.getElementById('wz-date').value){tShowToast('❗ 날짜를 입력하세요');return;}
+    wzCommitted=true;
+    const lesson=wzDraft();
+    t3lessons.push(lesson);t3lessons.sort((a,b)=>new Date(a.date)-new Date(b.date));t3lessons.forEach((l,i)=>l.num=i+1);
+    // 날짜순 재정렬로 회차가 확정된 뒤에 문자를 만든다 (회차 어긋남 방지)
+    wzFinalText=t3BuildMsg(lesson,document.getElementById('wz-closing').value);
+    t3Save_();t3Render();t3SetNext();
+    t4msgs.unshift({date:lesson.date,text:wzFinalText,id:Date.now()});t4Save_();t4Render();
+    document.getElementById('wz-num').textContent=lesson.num;
+    document.getElementById('wz-done-badge').innerHTML='✅ 진도 '+lesson.num+'회차 저장 · 💬 안내 문자 보관됨';
+    document.getElementById('wz-final').textContent=wzFinalText;
+    tDashRefresh();tShowToast('✅ '+lesson.num+'회차 저장 · 문자 보관 완료');
+  }
+  wzStep=nx;wzUpdate();
+}
+function wzCopy(){
+  if(!wzFinalText)return;
+  navigator.clipboard.writeText(wzFinalText).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=wzFinalText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});
+}
+(function(){
+  const vp=document.getElementById('wz-vp');let wzSX=null;
+  vp.addEventListener('touchstart',function(e){wzSX=e.touches[0].clientX;},{passive:true});
+  vp.addEventListener('touchend',function(e){if(wzSX===null)return;const dx=e.changedTouches[0].clientX-wzSX;wzSX=null;if(Math.abs(dx)>50&&wzStep<3)wzGo(dx<0?1:-1);},{passive:true});
+  // 배경 클릭 닫기는 저장 완료(4단계)에서만 — 입력 중 실수로 날리는 것 방지
+  document.getElementById('wz-modal-bg').addEventListener('click',function(e){if(e.target===this&&wzStep===3)wzClose();});
+})();
 function t3SaveEdit(){if(t3editIdx===null)return;const l=t3lessons[t3editIdx];l.date=document.getElementById('t3e-date').value;l.num=parseInt(document.getElementById('t3e-num').value);l.content=document.getElementById('t3e-content').value.trim();l.hw=document.getElementById('t3e-hw').value.trim();l.extras=t3GetExtras(document.getElementById('t3e-extra'));t3lessons.sort((a,b)=>new Date(a.date)-new Date(b.date));t3lessons.forEach((x,i)=>x.num=i+1);t3Save_();t3Render();t3SetNext();t3CloseModal();tShowToast('✅ 수정되었습니다');}
 document.getElementById('t3-edit-modal').addEventListener('click',function(e){if(e.target===this)t3CloseModal();});
 
