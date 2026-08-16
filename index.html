@@ -2235,7 +2235,7 @@ function v2ModeChip(){
   const c=document.getElementById('v2-chip');if(c)c.textContent=t;
 }
 function v2CopyConnect(){
-  if(v2Demo()){tShowToast('데모 모드 — 학생 앱(student.html)에 "데모"라고 입력하면 같은 브라우저에서 체험 가능');}
+  if(v2Demo()){tShowToast('❗ 먼저 위 칸에 URL·anon key를 넣어 "Supabase 연결됨"이 된 뒤에 복사하세요');return;}
   const code=btoa(JSON.stringify({u:v2Cfg('url'),k:v2Cfg('key'),p:v2Pair()}));
   const done=()=>tShowToast('📲 연결 코드 복사됨 — 태블릿 student.html에 붙여넣기');
   if(navigator.clipboard)navigator.clipboard.writeText(code).then(done).catch(()=>prompt('아래 코드를 복사하세요',code));

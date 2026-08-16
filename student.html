@@ -55,7 +55,7 @@ input:focus{outline:none;border-color:var(--ink)}
 </style>
 </head>
 <body>
-<div class="appbar"><h1>윤서의 문제지함</h1><small id="mode-chip" class="num"></small></div>
+<div class="appbar"><h1>윤서의 문제지함</h1><small id="mode-chip" class="num" style="cursor:pointer;text-decoration:underline dotted" onclick="rePair()" title="눌러서 다시 연결"></small></div>
 
 <!-- 온보딩: 연결 -->
 <div class="screen" id="s-pair">
@@ -125,6 +125,9 @@ let sb=null;
 function sbc(){if(sb)return sb;if(!isDemo()&&window.supabase)sb=window.supabase.createClient(cfg('url'),cfg('key'));return sb}
 function pairCode(){return cfg('pair')||'YUN-4821'}
 
+function rePair(){
+  if(confirm('선생님과 다시 연결할까요? (새 연결 코드를 붙여넣게 됩니다)')){$('pair-input').value='';showScreen('pair');}
+}
 function pairConnect(){
   const raw=($('pair-input').value||'').trim();
   if(!raw){toast('코드를 붙여넣어 주세요');return}
