@@ -1084,7 +1084,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-card">
         <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
         <div class="t-fg full"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델: gemini-2.5-flash (무료 한도로 충분).</div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 키에서 쓸 수 있는 최신 flash를 자동 선택합니다 (무료 한도로 충분).</div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2347,6 +2347,28 @@ document.getElementById('v2-sub-modal').addEventListener('click',function(e){if(
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
 var v3prob=null,v3title='';
 function v3GemKey(){return v2Cfg('gem')}
+/* 사용 가능한 최신 flash 모델 자동 탐지 — 구글이 모델명을 바꿔도 404가 안 나게 */
+async function v3GemModel(key){
+  let m=localStorage.getItem('yt_gem_model');
+  if(m)return m;
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(key));
+  if(!r.ok)throw new Error('모델 목록 조회 실패 '+r.status+' — API 키를 확인하세요');
+  const j=await r.json();
+  const cand=(j.models||[])
+    .filter(function(x){return (x.supportedGenerationMethods||[]).includes('generateContent')})
+    .map(function(x){return x.name.replace(/^models\//,'')})
+    .filter(function(n){return /gemini/.test(n)&&/flash/.test(n)&&!/(lite|8b|image|tts|audio|live|embed|thinking|exp)/.test(n)});
+  cand.sort(function(a,b){
+    const v=function(s){return parseFloat((s.match(/gemini-(\d+(?:\.\d+)?)/)||[])[1]||0)};
+    const p=function(s){return /preview/.test(s)?1:0};
+    return (p(a)-p(b))||(v(b)-v(a))||(a.length-b.length);
+  });
+  m=cand[0];
+  if(!m)throw new Error('이 키로 쓸 수 있는 flash 모델이 없습니다 — aistudio에서 키를 다시 발급해보세요');
+  localStorage.setItem('yt_gem_model',m);
+  tShowToast('🤖 모델 자동 선택: '+m);
+  return m;
+}
 async function v3GemGen(topic,n,diff,fmt,ref){
   const key=v3GemKey();if(!key)throw new Error('설정 탭에 Gemini API 키를 먼저 넣어주세요');
   const fmtRule=fmt==='객관식'
@@ -2360,10 +2382,17 @@ async function v3GemGen(topic,n,diff,fmt,ref){
     +'- 각 문항의 정답을 처음부터 다시 계산해 스스로 검산하고, 정답이 유일하고 명확한 문항만 낸다.\n'
     +'- solution은 풀이 핵심 2~3줄.\n'
     +'JSON만 출력: {"title":"간결한 학습지 제목","problems":[{"q":"문제","choices":["보기1","보기2","보기3","보기4","보기5"] 또는 null,"answer":"정답","solution":"풀이"}]}';
-  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
+  const call=function(model){return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(key),{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})
-  });
+  })};
+  let model=await v3GemModel(key);
+  let r=await call(model);
+  if(r.status===404){ // 캐시된 모델이 내려간 경우 — 다시 탐지 후 1회 재시도
+    localStorage.removeItem('yt_gem_model');
+    model=await v3GemModel(key);
+    r=await call(model);
+  }
   if(!r.ok)throw new Error('Gemini 오류 '+r.status+(r.status===400||r.status===403?' — API 키 확인':r.status===429?' — 무료 한도 잠시 초과, 1분 뒤 재시도':''));
   const j=await r.json();
   const txt=(((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
