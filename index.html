@@ -2404,7 +2404,8 @@ async function v3GemGen(topic,n,diff,fmt,ref){
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})
   })};
-  // 후보 모델을 차례로 시도 — 404이면 다음 후보로 (성공한 모델은 캐시)
+  // 후보 모델을 차례로 시도 — 404·429·5xx면 다음 후보로, 503은 잠깐 기다렸다 재시도 (성공 모델은 캐시)
+  const sleep=function(ms){return new Promise(function(res){setTimeout(res,ms)})};
   let cand=[];const cached=localStorage.getItem('yt_gem_model');
   if(cached)cand.push(cached);
   let listed=false,r=null,used='';
@@ -2418,14 +2419,22 @@ async function v3GemGen(topic,n,diff,fmt,ref){
     }
     used=cand[i];
     r=await call(used);
-    if(r.status!==404){
+    if(r.status===503){await sleep(2500);r=await call(used);} // 과부하 — 같은 모델 한 번 더
+    if(r.ok){
       if(used!==cached){localStorage.setItem('yt_gem_model',used);tShowToast('🤖 모델: '+used);}
       break;
     }
+    if(r.status===400||r.status===401||r.status===403)break; // 키 문제 — 다른 모델 시도 무의미
+    // 404(모델 없음)·429(그 모델 한도)·5xx(서버 오류) → 다음 후보 모델로
   }
   if(!r)throw new Error('시도할 모델이 없습니다 — 설정의 [연결 테스트]를 눌러보세요');
-  if(r.status===404){localStorage.removeItem('yt_gem_model');throw new Error('404 — 시도한 모델 전부 거부됨: '+cand.slice(0,5).join(', '));}
-  if(!r.ok)throw new Error('Gemini 오류 '+r.status+(r.status===400||r.status===403?' — API 키 확인':r.status===429?' — 무료 한도 잠시 초과, 1분 뒤 재시도':''));
+  if(!r.ok){
+    if(r.status===404)localStorage.removeItem('yt_gem_model');
+    if(r.status===503)throw new Error('503 — 구글 무료 서버가 지금 붐빕니다. 1~2분 뒤 [⚡ 문제 생성]만 다시 눌러주세요 (입력값 유지됨)');
+    if(r.status===429)throw new Error('429 — 무료 한도 잠시 초과. 1분 뒤 다시 눌러주세요');
+    if(r.status===404)throw new Error('404 — 시도한 모델 전부 거부됨: '+cand.slice(0,5).join(', '));
+    throw new Error('Gemini 오류 '+r.status+(r.status===400||r.status===403?' — API 키 확인':''));
+  }
   const j=await r.json();
   const txt=(((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
   const out=JSON.parse(txt);
