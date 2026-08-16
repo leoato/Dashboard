@@ -52,6 +52,12 @@ input:focus{outline:none;border-color:var(--ink)}
 @media(max-width:700px){.split{flex-direction:column}.split .main,.split .side{width:100%}}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:20px;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:40}
 .toast.show{opacity:1}
+/* 참 잘했어요 도장 */
+.stamp{display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;border:3px double var(--accent);border-radius:50%;color:var(--accent);font-family:var(--serif);font-weight:700;font-size:.92rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);opacity:.92;line-height:1.35;text-align:center;flex-shrink:0}
+.stamp.sm{width:76px;height:76px;font-size:.82rem}
+@keyframes stampin{0%{transform:rotate(-35deg) scale(2.4);opacity:0}55%{transform:rotate(-9deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
+/* 복습 오답 해설 */
+.rev-wrong{border-left:3px solid var(--accent);background:rgba(212,85,42,.05);padding:8px 10px;border-radius:0 6px 6px 0;margin-top:6px;font-size:.8rem;line-height:1.55}
 </style>
 </head>
 <body>
@@ -72,13 +78,33 @@ input:focus{outline:none;border-color:var(--ink)}
 <!-- 문제지함 -->
 <div class="screen" id="s-home">
   <div class="body">
-    <div class="row">
-      <div class="grow"></div>
+    <div class="card" style="display:flex;align-items:center;gap:12px">
+      <div class="grow">
+        <h3 style="font-size:1.05rem">안녕, 윤서! 👋</h3>
+        <div class="muted" id="greet-line">불러오는 중…</div>
+      </div>
       <button class="btn sm" onclick="loadHome()">↺ 새로고침</button>
     </div>
-    <div class="card" style="padding:4px 14px"><div class="dashlist" id="sheet-list">
-      <div class="muted" style="padding:14px 4px">불러오는 중…</div>
-    </div></div>
+    <div class="sec-t" style="font-family:var(--serif);font-weight:700;font-size:.88rem;color:#4A4A4A;margin:2px 2px 0">✏️ 풀 차례</div>
+    <div class="card" style="padding:4px 14px"><div class="dashlist" id="todo-list"></div></div>
+    <div style="display:flex;align-items:baseline;gap:10px;margin:2px 2px 0">
+      <span style="font-family:var(--serif);font-weight:700;font-size:.88rem;color:#4A4A4A">📚 다 푼 문제지</span>
+      <span id="recent-chips" style="display:inline-flex;gap:5px"></span>
+    </div>
+    <div class="card" style="padding:4px 14px"><div class="dashlist" id="done-list"></div></div>
+  </div>
+</div>
+
+<!-- 복습 (선생님 확인 후 해설 공개) -->
+<div class="screen" id="s-review">
+  <div class="body">
+    <div class="row">
+      <button class="btn sm" onclick="showScreen('home')">← 목록</button>
+      <h3 style="font-family:var(--serif);font-size:1rem" id="rev-title"></h3>
+      <div class="grow"></div>
+      <span class="chip num" id="rev-score"></span>
+    </div>
+    <div class="card" style="padding:4px 14px"><div class="dashlist" id="rev-list"></div></div>
   </div>
 </div>
 
@@ -91,6 +117,10 @@ input:focus{outline:none;border-color:var(--ink)}
       <div class="grow"></div>
       <button class="btn sm" id="view-sheet-btn" style="display:none" onclick="viewSheet()">문제지 보기</button>
     </div>
+    <div class="card" style="padding:9px 14px"><div class="row">
+      <div style="flex:1;height:9px;border:1.2px solid var(--dash);border-radius:6px;overflow:hidden;background:var(--card)"><div id="prog-fill" style="height:100%;width:0%;background:var(--accent);transition:width .25s"></div></div>
+      <span class="num" id="prog-txt" style="font-size:.8rem;color:var(--sub)"></span>
+    </div></div>
     <div class="split">
       <div class="main">
         <div class="card" style="padding:4px 14px"><div id="prob-list"></div></div>
@@ -102,7 +132,7 @@ input:focus{outline:none;border-color:var(--ink)}
         <div id="photo-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
         <button class="btn pri big" id="grade-btn" onclick="gradeNow()">채점하기</button>
         <div id="grade-result" style="display:none">
-          <div class="card"><div class="row"><span class="num" style="font-size:1.7rem;font-weight:700" id="score-txt"></span><span class="muted">틀린 문제는 ✕</span></div></div>
+          <div class="card"><div class="row"><span class="num" style="font-size:1.7rem;font-weight:700" id="score-txt"></span><span class="muted grow">틀린 문제는 ✕</span><span id="stamp-wrap"></span></div></div>
           <button class="btn pri big" id="submit-btn" style="margin-top:10px" onclick="submitNow()">선생님께 제출</button>
           <div class="note" id="submit-note" style="margin-top:8px;display:none">풀이 종이를 최소 1장 촬영해야 제출할 수 있어요.</div>
         </div>
@@ -128,7 +158,7 @@ input:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='3.4';
+var APP_VER='3.5';
 (function(){ // 배포된 새 버전 감지 시 1회 자동 새로고침 — 태블릿 캐시 문제 방지
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -197,8 +227,8 @@ async function submitSheet(w,answers,marks,score,photoBlobs,photoDataUrls){
 }
 
 /* ═══ 화면 ═══ */
-let curSheet=null,photoBlobs=[],photoDataUrls=[];
-function showScreen(s){['pair','home','solve'].forEach(x=>$('s-'+x).classList.toggle('on',x===s))}
+let curSheet=null,photoBlobs=[],photoDataUrls=[],revealAll=false;
+function showScreen(s){['pair','home','solve','review'].forEach(x=>$('s-'+x).classList.toggle('on',x===s))}
 function boot(){
   $('mode-chip').textContent=(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
   if(!cfg('paired')){showScreen('pair');return}
@@ -207,16 +237,54 @@ function boot(){
 async function loadHome(){
   try{
     const rows=await listSheets();
-    $('sheet-list').innerHTML=rows.length?rows.map(w=>{
-      const open=w.status==='assigned';
-      const sub=(w.submissions||[])[0];
-      return `<div class="row" ${open?`onclick="openSolve('${w.id}')" style="cursor:pointer"`:'style="opacity:.55"'}>
-        <div class="grow"><b style="font-size:.95rem">${escH(w.title)}</b> ${open?'<span class="badge-new">NEW</span>':''}
-        <div class="muted num">${w.status==='assigned'?'선생님이 보냄':'제출 완료 · '+((sub&&sub.score)||'')}</div></div>
-        ${open?'<span class="chip">풀기 →</span>':'<span class="chip ok">완료</span>'}</div>`;
-    }).join(''):'<div class="muted" style="padding:14px 4px">아직 문제지가 없어요 — 선생님이 보내면 여기에 떠요 📬</div>';
     window._rows=rows;
-  }catch(e){$('sheet-list').innerHTML='<div class="muted" style="padding:14px 4px">불러오기 실패 — 인터넷 연결을 확인하고 새로고침 해주세요</div>';}
+    const todo=rows.filter(w=>w.status==='assigned');
+    const done=rows.filter(w=>w.status!=='assigned');
+    $('greet-line').textContent=todo.length?('오늘 풀 문제지 '+todo.length+'개가 기다리고 있어요 ✏️'):'지금 풀 문제지는 없어요 — 다 했다! 🎉';
+    $('todo-list').innerHTML=todo.length?todo.map(w=>
+      `<div class="row" onclick="openSolve('${w.id}')" style="cursor:pointer">
+        <div class="grow"><b style="font-size:.95rem">${escH(w.title)}</b> ${w.isNew!==false?'<span class="badge-new">NEW</span>':''}
+        <div class="muted num">선생님이 보냄 · ${(w.created_at||'').slice(5,10).replace('-','.')}</div></div>
+        <span class="chip">풀기 →</span></div>`).join('')
+      :'<div class="muted" style="padding:12px 4px">풀 차례인 문제지가 없어요</div>';
+    const doneShow=revealAll?done:done.slice(0,6);
+    $('done-list').innerHTML=done.length?doneShow.map(w=>{
+      const sub=(w.submissions||[])[0];
+      const canReview=w.status==='seen'&&w.problems&&w.problems.length&&sub;
+      const st=w.status==='submitted'?'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">선생님 확인 중</span>'
+        :canReview?'<span class="chip" style="border-color:var(--accent);color:var(--accent);background:transparent">해설 보기 →</span>'
+        :'<span class="chip ok">완료</span>';
+      return `<div class="row" ${canReview?`onclick="openReview('${w.id}')" style="cursor:pointer"`:''}>
+        <div class="grow"><b style="font-size:.92rem">${escH(w.title)}</b>
+        <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${sub&&sub.score?' · '+sub.score:''}</div></div>${st}</div>`;
+    }).join('')+(done.length>6&&!revealAll?`<div style="padding:10px 4px"><button class="btn sm" onclick="revealAll=true;loadHome()">더보기 (${done.length-6})</button></div>`:'')
+      :'<div class="muted" style="padding:12px 4px">아직 없어요 — 첫 문제지를 풀어보자!</div>';
+    $('recent-chips').innerHTML=done.filter(w=>(w.submissions||[])[0]&&w.submissions[0].score).slice(0,3).reverse()
+      .map(w=>`<span class="chip num" style="font-size:.66rem">${w.submissions[0].score}</span>`).join('');
+  }catch(e){$('greet-line').textContent='불러오기 실패 — 인터넷 확인 후 새로고침';$('todo-list').innerHTML='';$('done-list').innerHTML='';}
+}
+function openReview(id){
+  const w=(window._rows||[]).find(x=>x.id===id);if(!w)return;
+  const sub=(w.submissions||[])[0];const probs=w.problems||[];
+  if(!sub||!probs.length)return;
+  $('rev-title').textContent=w.title;
+  $('rev-score').textContent=sub.score||'';
+  const CIRC=['①','②','③','④','⑤'];
+  $('rev-list').innerHTML=probs.map((p,i)=>{
+    const m=(sub.marks||[])[i];const my=(sub.answers||[])[i];
+    const ok=m==='O';
+    return `<div style="padding:11px 4px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span class="mark ${ok?'o':'x'}" style="width:auto">${ok?'○':'✕'}</span>
+        <div class="grow">
+          <div style="font-size:.88rem;white-space:pre-line"><b>${String(i+1).padStart(2,'0')}.</b> ${escH(p.q)}</div>
+          ${p.choices?`<div class="muted" style="margin-top:3px;font-size:.76rem">${p.choices.map((c,j)=>CIRC[j]+' '+escH(c)).join('&nbsp;&nbsp;')}</div>`:''}
+          <div class="muted num" style="margin-top:4px">내 답: ${escH(my||'—')}${ok?'':' · 정답: '+escH(p.answer)}</div>
+          ${ok?'':`<div class="rev-wrong"><b>풀이</b> — ${escH(p.solution||'해설 없음')}</div>`}
+        </div>
+      </div></div>`;
+  }).join('');
+  showScreen('review');
 }
 function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function openSolve(id){
@@ -243,6 +311,7 @@ function openSolve(id){
     const q=p?escH(p.q):('문제 '+(i+1)+'번의 답');
     return `<div class="prob"><span class="no">${i+1}</span><span class="${p?'q':'grow muted'}" ${p?'style="white-space:pre-line;flex:1"':''}>${q}</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off"><span class="mark" id="mark-${i}"></span></div>`;
   }).join('');
+  updateProg();
   showScreen('solve');
 }
 function dataToBlob(d){
@@ -302,9 +371,19 @@ function norm(v){
 function pickChoice(i,v){
   $('ans-'+i).value=String(v);
   for(let j=1;j<=5;j++){const b=$('cho-'+i+'-'+j);if(b){b.style.background=j===v?'var(--ink)':'';b.style.color=j===v?'var(--paper)':'';}}
+  updateProg();
+}
+function updateProg(){
+  const n=(curSheet&&curSheet.answer_key||[]).length;if(!n)return;
+  let filled=0;
+  for(let i=0;i<n;i++){const el=$('ans-'+i);if(el&&norm(el.value)!=='')filled++;}
+  $('prog-fill').style.width=Math.round(filled/n*100)+'%';
+  $('prog-txt').textContent=filled+' / '+n;
 }
 function gradeNow(){
   const key=curSheet.answer_key||[];
+  const empty=key.map((k,i)=>norm($('ans-'+i).value)===''?(i+1):null).filter(x=>x!==null);
+  if(empty.length&&!confirm(empty.join(', ')+'번이 비어 있어요.\n그래도 채점할까요?'))return;
   let ok=0;
   const marks=key.map((k,i)=>{
     const good=norm($('ans-'+i).value)===norm(k);
@@ -315,9 +394,11 @@ function gradeNow(){
   curSheet._marks=marks;curSheet._score=ok+' / '+key.length;
   curSheet._answers=key.map((_,i)=>$('ans-'+i).value.trim());
   $('score-txt').textContent=curSheet._score;
+  const ratio=key.length?ok/key.length:0;
+  $('stamp-wrap').innerHTML=ratio===1?'<span class="stamp">참<br>잘했어요!</span>':(ratio>=0.8?'<span class="stamp sm">잘했어요</span>':'');
   $('grade-result').style.display='block';
   $('grade-btn').style.display='none';
-  toast('채점 완료!');
+  toast(ratio===1?'만점! 🎉':'채점 완료!');
 }
 async function submitNow(){
   if(photoBlobs.length===0){$('submit-note').style.display='block';return}
@@ -329,6 +410,7 @@ async function submitNow(){
   }catch(e){toast('제출 실패 — 인터넷 연결 확인 후 다시 눌러주세요');}
   $('submit-btn').disabled=false;$('submit-btn').textContent='선생님께 제출';
 }
+document.getElementById('prob-list').addEventListener('input',updateProg);
 boot();
 </script>
 </body>
