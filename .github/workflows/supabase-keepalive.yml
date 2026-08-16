@@ -1,0 +1,26 @@
+name: supabase-keepalive
+
+# Supabase 무료 플랜은 7일 무활동 시 일시정지 → 주 2회 자동 핑으로 방지
+# 시크릿(SUPABASE_URL, SUPABASE_ANON_KEY)이 없으면 조용히 통과 (설정 전에도 무해)
+on:
+  schedule:
+    - cron: '0 21 * * 1,4'   # UTC 월·목 21:00 = KST 화·금 06:00
+  workflow_dispatch: {}       # 수동 실행 버튼
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "시크릿 미설정 — 건너뜀 (supabase-설정법.md 5단계 참고)"
+            exit 0
+          fi
+          curl -sf "$SUPABASE_URL/rest/v1/worksheets?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" > /dev/null
+          echo "ping ok — 7일 타이머 리셋됨"
