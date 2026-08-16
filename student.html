@@ -128,7 +128,7 @@ input:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='3.3';
+var APP_VER='3.4';
 (function(){ // 배포된 새 버전 감지 시 1회 자동 새로고침 — 태블릿 캐시 문제 방지
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -227,9 +227,22 @@ function openSolve(id){
   $('grade-result').style.display='none';
   $('grade-btn').style.display='flex';
   $('view-sheet-btn').style.display=(curSheet.html_path||curSheet.html_data)?'inline-flex':'none';
-  const n=(curSheet.answer_key||[]).length||1;
-  $('prob-list').innerHTML=Array.from({length:n},(_,i)=>
-    `<div class="prob"><span class="no">${i+1}</span><span class="grow muted">문제 ${i+1}번의 답</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off"><span class="mark" id="mark-${i}"></span></div>`).join('');
+  const probs=curSheet.problems||[];
+  const CIRC=['①','②','③','④','⑤'];
+  const n=(curSheet.answer_key||[]).length||probs.length||1;
+  $('prob-list').innerHTML=Array.from({length:n},(_,i)=>{
+    const p=probs[i];
+    if(p&&p.choices){ // 객관식 — 실제 문제 + 보기 버튼 (타이핑 불필요)
+      return `<div class="prob" style="flex-direction:column;align-items:stretch;gap:8px">
+        <div style="display:flex;gap:12px;align-items:flex-start"><span class="no">${i+1}</span><span class="q" style="white-space:pre-line">${escH(p.q)}</span><span class="mark" id="mark-${i}"></span></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;padding-left:38px">
+          ${p.choices.map((c,j)=>`<button class="btn sm" id="cho-${i}-${j+1}" onclick="pickChoice(${i},${j+1})">${CIRC[j]} ${escH(c)}</button>`).join('')}
+        </div>
+        <input type="hidden" id="ans-${i}" value=""></div>`;
+    }
+    const q=p?escH(p.q):('문제 '+(i+1)+'번의 답');
+    return `<div class="prob"><span class="no">${i+1}</span><span class="${p?'q':'grow muted'}" ${p?'style="white-space:pre-line;flex:1"':''}>${q}</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off"><span class="mark" id="mark-${i}"></span></div>`;
+  }).join('');
   showScreen('solve');
 }
 function dataToBlob(d){
@@ -280,7 +293,16 @@ async function onPhotos(files){
   $('photo-chips').innerHTML=photoBlobs.map((_,i)=>`<span class="photo-chip">✍️ 종이 ${i+1}</span>`).join('');
   $('submit-note').style.display='none';
 }
-function norm(v){return String(v==null?'':v).trim().replace(/\s+/g,'')}
+function norm(v){
+  var s=String(v==null?'':v).trim().replace(/\s+/g,'');
+  var circ={'①':'1','②':'2','③':'3','④':'4','⑤':'5'};
+  s=s.replace(/[①②③④⑤]/g,function(c){return circ[c]});
+  return s;
+}
+function pickChoice(i,v){
+  $('ans-'+i).value=String(v);
+  for(let j=1;j<=5;j++){const b=$('cho-'+i+'-'+j);if(b){b.style.background=j===v?'var(--ink)':'';b.style.color=j===v?'var(--paper)':'';}}
+}
 function gradeNow(){
   const key=curSheet.answer_key||[];
   let ok=0;
