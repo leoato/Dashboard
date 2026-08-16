@@ -111,6 +111,18 @@ input:focus{outline:none;border-color:var(--ink)}
   </div>
 </div>
 
+<!-- 문제지 뷰어 (인앱 — 페이지 이동 없음) -->
+<div id="view-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,26,26,.5);z-index:50;padding:14px">
+  <div style="background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;height:100%;display:flex;flex-direction:column;padding:10px">
+    <div class="row" style="margin-bottom:8px">
+      <b style="font-family:var(--serif);font-size:.95rem" id="view-title">문제지</b>
+      <div class="grow"></div>
+      <button class="btn pri sm" onclick="document.getElementById('view-overlay').style.display='none'">닫기</button>
+    </div>
+    <iframe id="view-frame" style="flex:1;border:1.5px solid var(--dash);border-radius:8px;background:#fff;width:100%"></iframe>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -217,19 +229,25 @@ function dataToBlob(d){
   for(let j=0;j<bin.length;j++)u[j]=bin.charCodeAt(j);
   return new Blob([u],{type:mime});
 }
+function viewInApp(title,opt){ // opt: {srcdoc} 또는 {src}
+  $('view-title').textContent=title;
+  const f=$('view-frame');
+  if(opt.srcdoc!==undefined){f.removeAttribute('src');f.srcdoc=opt.srcdoc;}
+  else{f.removeAttribute('srcdoc');f.src=opt.src;}
+  $('view-overlay').style.display='block';
+}
 function viewSheet(){
   const d=curSheet.html_data;
   if(d){ // 데모 저장분
-    if(d.indexOf('data:')===0){window.open(URL.createObjectURL(dataToBlob(d)),'_blank');return}
-    const w=window.open('about:blank');w.document.write(d);w.document.close();return;
+    if(d.indexOf('data:')===0){viewInApp(curSheet.title,{src:URL.createObjectURL(dataToBlob(d))});return}
+    viewInApp(curSheet.title,{srcdoc:d});return;
   }
   if(curSheet.html_path&&sbc()){
     const {data}=sb.storage.from('worksheets').getPublicUrl(curSheet.html_path);
-    if(/\.pdf(\?|$)/i.test(curSheet.html_path)){window.open(data.publicUrl,'_blank');return} // PDF는 그대로 렌더됨
+    if(/\.pdf(\?|$)/i.test(curSheet.html_path)){viewInApp(curSheet.title,{src:data.publicUrl});return}
     // HTML은 스토리지가 소스로 서빙하므로 받아서 직접 렌더
-    const w=window.open('about:blank');
-    fetch(data.publicUrl).then(r=>r.text()).then(t=>{w.document.open();w.document.write(t);w.document.close();})
-      .catch(()=>{if(w)w.close();toast('문제지를 열 수 없어요 — 인터넷 확인');});
+    fetch(data.publicUrl).then(r=>r.text()).then(t=>viewInApp(curSheet.title,{srcdoc:t}))
+      .catch(()=>toast('문제지를 열 수 없어요 — 인터넷 확인'));
   }
 }
 function compress(file,maxW=1400,q=0.72){

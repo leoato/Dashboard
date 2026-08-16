@@ -889,6 +889,18 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         </div>
       </div>
 
+      <!-- v3: 학습지/정답지 뷰어 (인앱 — 새 탭 안 열음) -->
+      <div class="t-mbg" id="v3-view-modal">
+        <div class="t-modal" style="max-width:860px;width:100%;height:88vh;display:flex;flex-direction:column;padding:.8rem">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+            <b style="font-family:'Gowun Batang',serif;font-size:.9rem" id="v3-view-title">정답지</b>
+            <button class="t-btn t-btn-g t-btn-sm" style="margin-left:auto" onclick="v3ViewPrint()">🖨 인쇄</button>
+            <button class="t-btn t-btn-p t-btn-sm" onclick="document.getElementById('v3-view-modal').classList.remove('open')">닫기</button>
+          </div>
+          <iframe id="v3-view-frame" style="flex:1;border:1.5px solid #1A1A1A;border-radius:8px;background:#fff;width:100%"></iframe>
+        </div>
+      </div>
+
       <!-- v2: 제출 상세 모달 -->
       <div class="t-mbg" id="v2-sub-modal">
         <div class="t-modal">
@@ -2299,6 +2311,7 @@ async function v2Render(){
     return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #C9C2B4;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub(${i})"`:''}>
       <div style="flex:1;min-width:0"><b style="font-size:.8rem">${tEscH(w.title)}</b>
       <div style="font-size:.7rem;color:#6d675e;font-family:'DM Mono',monospace">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
+      ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet(${i})">정답지</button>`:''}
       <span class="t-lbadge" style="${w.status==='submitted'?'background:#D4552A;color:#fff':''}">${st}</span></div>`;
   }).join(''):'<div style="font-size:.76rem;color:#6d675e">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
 }
@@ -2490,11 +2503,24 @@ function v3RenderPreview(){
     +'<button class="t-rmfbtn" title="문항 빼기" onclick="v3prob.splice('+i+',1);v3RenderPreview()">✕</button>'
     +'</div></div>'}).join('');
 }
+function v3ViewHTML(title,html){
+  document.getElementById('v3-view-title').textContent=title;
+  document.getElementById('v3-view-frame').srcdoc=html;
+  document.getElementById('v3-view-modal').classList.add('open');
+}
+function v3ViewPrint(){
+  try{const f=document.getElementById('v3-view-frame');f.contentWindow.focus();f.contentWindow.print();}
+  catch(e){tShowToast('인쇄가 안 되면 컴퓨터 브라우저에서 열어 인쇄하세요');}
+}
 function v3OpenPrint(){
   if(!v3prob)return;
-  const w=window.open('about:blank');
-  w.document.write(v3BuildSheetHTML(document.getElementById('v3-title').value||v3title,v3prob,true));
-  w.document.close();
+  const t=document.getElementById('v3-title').value||v3title;
+  v3ViewHTML(t+' — 정답지',v3BuildSheetHTML(t,v3prob,true));
+}
+function v3AnswerSheet(i){
+  const w=v2rows[i];
+  if(!w||!w.problems||!w.problems.length){tShowToast('이 문제지는 문항 데이터가 없어요 — supabase-v3.sql 실행 후 생성한 것만 가능');return;}
+  v3ViewHTML(w.title+' — 정답지',v3BuildSheetHTML(w.title,w.problems,true));
 }
 async function v3SendGen(){
   if(!v3prob||!v3prob.length){tShowToast('먼저 문제를 생성하세요');return;}
