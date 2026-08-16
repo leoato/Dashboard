@@ -854,10 +854,38 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-mbg" id="v2-new-modal">
         <div class="t-modal">
           <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">새 문제지</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-new-modal').classList.remove('open')">✕</button></div>
+          <button class="t-btn t-btn-g" style="width:100%;justify-content:center;margin-bottom:.3rem" onclick="v3OpenGen('')">⚡ Gemini로 문제 만들기 (앱에서 바로)</button>
+          <div style="text-align:center;font-size:.7rem;color:#A39B8B;margin-bottom:.5rem">— 또는 파일 업로드 —</div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">제목</label><input type="text" id="v2-title" placeholder="예: 도형의 대칭이동 기본 연습"></div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">정답 (쉼표로 구분 — 자동 채점용)</label><input type="text" id="v2-answers" placeholder="예: 2, 5, 1, 3, 7, 5"></div>
           <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">학습지 파일 (선택 — <b>PDF 권장</b>. Claude 학습지 HTML은 브라우저에서 ⌘P → "PDF로 저장" 후 업로드)</label><input type="file" id="v2-file" accept=".pdf,.html,.htm"></div>
           <button class="t-btn t-btn-p" id="v2-send-btn" style="width:100%;justify-content:center" onclick="v2Send()">학생 태블릿으로 전송</button>
+        </div>
+      </div>
+
+      <!-- v3: Gemini 문제 생성 모달 -->
+      <div class="t-mbg" id="v3-gen-modal">
+        <div class="t-modal">
+          <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">⚡ Gemini 문제 생성</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v3-gen-modal').classList.remove('open')">✕</button></div>
+          <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">주제 / 유형</label><input type="text" id="v3-topic" placeholder="예: 원의 방정식 — 직선과의 위치 관계"></div>
+          <div class="t-fr">
+            <div class="t-fg"><label class="tl">문항 수</label><input type="number" id="v3-count" value="6" min="1" max="15"></div>
+            <div class="t-fg"><label class="tl">난이도</label><select id="v3-diff"><option>하</option><option selected>중</option><option>상</option></select></div>
+          </div>
+          <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">형식</label><select id="v3-fmt"><option selected>단답형</option><option>객관식</option></select></div>
+          <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">참고 문제 (선택 — 기출·오답을 붙여넣으면 같은 유형으로 변형)</label><textarea id="v3-ref" style="min-height:56px" placeholder="비워두면 주제만으로 출제"></textarea></div>
+          <button class="t-btn t-btn-p" id="v3-gen-btn" style="width:100%;justify-content:center" onclick="v3Gen()">⚡ 문제 생성</button>
+
+          <div id="v3-preview-wrap" style="display:none;margin-top:1rem">
+            <div style="font-size:.78rem;font-weight:700;font-family:'Gowun Batang',serif;margin-bottom:.4rem">검수 — 정답을 확인·수정하고 이상한 문항은 ✕로 빼세요</div>
+            <div class="t-fg full" style="margin-bottom:.5rem"><label class="tl">제목</label><input type="text" id="v3-title"></div>
+            <div id="v3-preview" style="max-height:280px;overflow-y:auto;border:1.5px solid #C9C2B4;border-radius:8px;padding:4px 10px;margin-bottom:.7rem"></div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <button class="t-btn t-btn-g t-btn-sm" onclick="v3OpenPrint()">🖨 정답지 열기 (선생님용)</button>
+              <button class="t-btn t-btn-g t-btn-sm" onclick="v3Gen()">↺ 다시 생성</button>
+              <button class="t-btn t-btn-p" id="v3-send-btn" style="flex:1;justify-content:center" onclick="v3SendGen()">학생 태블릿으로 전송</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -867,6 +895,10 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           <div style="display:flex;align-items:center;margin-bottom:.6rem"><b style="font-family:'Gowun Batang',serif" id="v2s-title"></b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-sub-modal').classList.remove('open')">✕</button></div>
           <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:.6rem"><span id="v2s-score" style="font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:700"></span><span style="font-size:.74rem;color:#6d675e">자동 채점 · 열면 확인함 처리</span></div>
           <div id="v2s-marks" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem"></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.8rem">
+            <button class="t-btn t-btn-g t-btn-sm" onclick="v3WrongToWeak()">🎯 오답 → 약점 노트</button>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="v3SimilarFromWrong()">⚡ 오답 유사문제 만들기</button>
+          </div>
           <div style="font-size:.78rem;font-weight:700;font-family:'Gowun Batang',serif;margin-bottom:.4rem">✍️ 손풀이 종이</div>
           <div id="v2s-photos" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
@@ -1047,6 +1079,12 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">페어링 코드</label><input type="text" id="v2-pair" placeholder="YUN-4821" onchange="v2SaveCfg()"></div>
         <button class="t-btn t-btn-p" onclick="v2CopyConnect()">📲 태블릿 연결 코드 복사</button>
         <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-설정법.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
+      </div>
+
+      <div class="t-card">
+        <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
+        <div class="t-fg full"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델: gemini-2.5-flash (무료 한도로 충분).</div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2194,7 +2232,7 @@ async function v2List(){
     .map(w=>({...w,submissions:s.submissions.filter(x=>x.worksheet_id===w.id)}))
     .sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
 }
-async function v2Create(title,answers,htmlText,htmlFile){
+async function v2Create(title,answers,htmlText,htmlFile,problems){
   if(v2Sb()){
     let html_path=null;
     if(htmlFile){
@@ -2203,11 +2241,18 @@ async function v2Create(title,answers,htmlText,htmlFile){
       const {error}=await v2sb.storage.from('worksheets').upload(html_path,htmlFile,{contentType:ct});
       if(error)throw error;
     }
-    const {error}=await v2sb.from('worksheets').insert({pair_code:v2Pair(),title,answer_key:answers,html_path});
-    if(error)throw error;return;
+    const row={pair_code:v2Pair(),title,answer_key:answers,html_path};
+    if(problems&&problems.length)row.problems=problems;
+    let r=await v2sb.from('worksheets').insert(row);
+    if(r.error&&row.problems){ // problems 컬럼 미설치 환경 대응 (supabase-v3.sql 실행 전)
+      delete row.problems;
+      r=await v2sb.from('worksheets').insert(row);
+      if(!r.error)tShowToast('⚠ 문항 데이터 저장 생략 — supabase-v3.sql 실행하면 오답 유사문제 기능이 켜집니다');
+    }
+    if(r.error)throw r.error;return;
   }
   const s=v2StoreGet();
-  s.worksheets.push({id:'ws'+Date.now(),pair_code:v2Pair(),title,answer_key:answers,html_data:htmlText||null,status:'assigned',created_at:new Date().toISOString()});
+  s.worksheets.push({id:'ws'+Date.now(),pair_code:v2Pair(),title,answer_key:answers,html_data:htmlText||null,problems:problems||null,status:'assigned',created_at:new Date().toISOString()});
   v2StoreSave(s);
 }
 async function v2Seen(id){
@@ -2223,11 +2268,11 @@ function v2PhotoUrl(p){
 
 /* v2 UI */
 function v2LoadCfg(){
-  ['url','key','pair'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)el.value=v2Cfg(k)||(k==='pair'?'YUN-4821':'')});
+  ['url','key','pair','gem'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)el.value=v2Cfg(k)||(k==='pair'?'YUN-4821':'')});
   v2ModeChip();
 }
 function v2SaveCfg(){
-  ['url','key','pair'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)v2Set(k,el.value)});
+  ['url','key','pair','gem'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)v2Set(k,el.value)});
   v2sb=null;v2ModeChip();tShowToast('✅ 연동 설정 저장');v2Render();
 }
 function v2ModeChip(){
@@ -2298,6 +2343,146 @@ async function v2DashAlert(){
 }
 document.getElementById('v2-new-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('v2-sub-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+/* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
+var v3prob=null,v3title='';
+function v3GemKey(){return v2Cfg('gem')}
+async function v3GemGen(topic,n,diff,fmt,ref){
+  const key=v3GemKey();if(!key)throw new Error('설정 탭에 Gemini API 키를 먼저 넣어주세요');
+  const fmtRule=fmt==='객관식'
+    ?'객관식: 각 문항에 choices 배열(내용만 5개, ①번호는 붙이지 말 것), answer는 "①"~"⑤" 중 하나. 정답 위치가 한쪽에 몰리지 않게 분산하라.'
+    :'단답형: choices는 null. answer는 숫자나 아주 간단한 식 — 문자열 비교로 채점되므로 표기를 최대한 단순하게 (예: "3", "-2", "√5").';
+  const prompt='너는 고1 수학 과외 선생님의 출제 보조다. 2022 개정 교육과정 공통수학1·2 범위 안에서만 출제한다.\n'
+    +'주제/유형: '+topic+'\n난이도: '+diff+' / 문항 수: '+n+' / 형식: '+fmt+'\n'
+    +(ref?('아래 참고 문제와 같은 유형·비슷한 난이도로 수치와 상황을 바꿔 변형 출제하라:\n'+ref+'\n'):'')
+    +'규칙:\n- 수식은 유니코드 일반 텍스트로만 (예: x², √5, 2/3, ≤, ≥, −). HTML 태그·LaTeX 금지.\n'
+    +'- '+fmtRule+'\n'
+    +'- 각 문항의 정답을 처음부터 다시 계산해 스스로 검산하고, 정답이 유일하고 명확한 문항만 낸다.\n'
+    +'- solution은 풀이 핵심 2~3줄.\n'
+    +'JSON만 출력: {"title":"간결한 학습지 제목","problems":[{"q":"문제","choices":["보기1","보기2","보기3","보기4","보기5"] 또는 null,"answer":"정답","solution":"풀이"}]}';
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key),{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})
+  });
+  if(!r.ok)throw new Error('Gemini 오류 '+r.status+(r.status===400||r.status===403?' — API 키 확인':r.status===429?' — 무료 한도 잠시 초과, 1분 뒤 재시도':''));
+  const j=await r.json();
+  const txt=(((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+  const out=JSON.parse(txt);
+  if(!out.problems||!out.problems.length)throw new Error('생성 결과가 비었습니다 — 다시 시도해주세요');
+  return out;
+}
+/* 학습지 HTML 빌더 — worksheet-maker 템플릿 기반. 템플릿 바꾸고 싶으면 이 함수만 수정 */
+function v3EscQ(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function v3BuildSheetHTML(title,problems,withAnswers){
+  const C=['①','②','③','④','⑤'];
+  const qs=problems.map(function(p,i){return '<div class="q"><div class="stem"><span class="num">'+String(i+1).padStart(2,'0')+'.</span>'+v3EscQ(p.q)+'</div>'
+    +(p.choices?'<div class="opts">'+p.choices.map(function(c,j){return '<span>'+C[j]+' '+v3EscQ(c)+'</span>'}).join('')+'</div>':'')
+    +'<div class="work"></div></div>'}).join('');
+  const ans=withAnswers?'<div class="ansgrid"><header><div class="side">정답 &amp; 해설</div><div class="ttl">'+v3EscQ(title)+'</div><div class="side">&nbsp;</div></header><div class="answers"><table><tr><th>번호</th><th>정답</th><th>풀이 핵심</th></tr>'
+    +problems.map(function(p,i){return '<tr><td>'+String(i+1).padStart(2,'0')+'</td><td class="k">'+v3EscQ(p.answer)+'</td><td style="text-align:left">'+v3EscQ(p.solution||'')+'</td></tr>'}).join('')
+    +'</table></div></div>':'';
+  return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>'+v3EscQ(title)+'</title><style>'
+    +'@page{size:A4;margin:16mm 15mm}*{box-sizing:border-box}'
+    +'body{font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;color:#1a1a1a;margin:0;font-size:11.5pt;line-height:1.55}'
+    +'.sheet{max-width:180mm;margin:0 auto;padding:12px}'
+    +'header{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #2f3b2f;padding-bottom:6px;margin-bottom:4px}'
+    +'header .ttl{font-size:15pt;font-weight:800;background:#e8eee2;border:1.5px solid #2f3b2f;padding:4px 18px;border-radius:4px}'
+    +'header .side{font-size:10pt;font-weight:700;color:#3a4a3a}'
+    +'.meta{display:flex;justify-content:space-between;font-size:9.5pt;color:#555;margin:2px 0 12px}'
+    +'.meta .name{border-bottom:1px solid #aaa;min-width:120px;display:inline-block}'
+    +'.grid{column-count:2;column-gap:14mm;column-rule:1px solid #ccc}'
+    +'@media(max-width:700px){.grid{column-count:1}}'
+    +'.q{break-inside:avoid;margin-bottom:16px}'
+    +'.q .num{font-weight:800;color:#3d5a2e;margin-right:5px}'
+    +'.stem{margin-bottom:7px;white-space:pre-line}'
+    +'.opts{display:flex;flex-wrap:wrap;gap:3px 16px;padding-left:2px}.opts span{white-space:nowrap}'
+    +'.work{height:22mm;border-bottom:1px dashed #d6d6d6;margin:5px 0 0}'
+    +'.ansgrid{break-before:page;margin-top:24px}'
+    +'.answers table{border-collapse:collapse;width:100%;font-size:10.5pt}'
+    +'.answers th,.answers td{border:1px solid #999;padding:6px 8px;text-align:center}'
+    +'.answers th{background:#e8eee2}.answers td.k{font-weight:800;color:#b23}'
+    +'</style></head><body><div class="sheet">'
+    +'<header><div class="side">공통수학 · 황윤서</div><div class="ttl">'+v3EscQ(title)+'</div><div class="side">'+tToday().replace(/-/g,'.')+'</div></header>'
+    +'<div class="meta"><span>이름 : <span class="name">&nbsp;</span></span><span>점수 : ______ / '+problems.length+'</span></div>'
+    +'<div class="grid">'+qs+'</div>'+ans+'</div></body></html>';
+}
+function v3OpenGen(pref){
+  if(!v3GemKey()){tShowToast('❗ 설정 탭에 Gemini API 키를 먼저 넣어주세요');tShowGroup('settings');return;}
+  document.getElementById('v2-new-modal').classList.remove('open');
+  document.getElementById('v3-ref').value=pref||'';
+  document.getElementById('v3-preview-wrap').style.display='none';
+  document.getElementById('v3-gen-modal').classList.add('open');
+}
+async function v3Gen(){
+  const topic=(document.getElementById('v3-topic').value||'').trim();
+  if(!topic){tShowToast('❗ 주제/유형을 입력하세요');return;}
+  const n=parseInt(document.getElementById('v3-count').value)||6;
+  const diff=document.getElementById('v3-diff').value,fmt=document.getElementById('v3-fmt').value;
+  const ref=(document.getElementById('v3-ref').value||'').trim();
+  const btn=document.getElementById('v3-gen-btn');btn.disabled=true;btn.textContent='생성 중… (10~20초)';
+  try{
+    const out=await v3GemGen(topic,n,diff,fmt,ref);
+    v3prob=out.problems;v3title=out.title||topic;
+    document.getElementById('v3-title').value=v3title;
+    v3RenderPreview();
+    document.getElementById('v3-preview-wrap').style.display='block';
+  }catch(e){tShowToast('❗ '+e.message);}
+  btn.disabled=false;btn.textContent='⚡ 문제 생성';
+}
+function v3RenderPreview(){
+  const C=['①','②','③','④','⑤'];
+  document.getElementById('v3-preview').innerHTML=(v3prob||[]).map(function(p,i){return ''
+    +'<div style="border-bottom:1.5px dashed #C9C2B4;padding:8px 2px">'
+    +'<div style="font-size:.8rem"><b>'+String(i+1).padStart(2,'0')+'.</b> '+tEscH(p.q)+'</div>'
+    +(p.choices?'<div style="font-size:.74rem;color:#6d675e;margin-top:2px">'+p.choices.map(function(c,j){return C[j]+' '+tEscH(c)}).join('&nbsp;&nbsp;')+'</div>':'')
+    +'<div style="display:flex;gap:8px;align-items:center;margin-top:5px">'
+    +'<label style="font-size:.7rem;color:#6d675e">정답</label>'
+    +'<input type="text" value="'+tEscH(p.answer)+'" oninput="v3prob['+i+'].answer=this.value" style="width:90px;padding:4px 8px;font-size:.8rem">'
+    +'<span style="font-size:.7rem;color:#6d675e;flex:1">'+tEscH(p.solution||'')+'</span>'
+    +'<button class="t-rmfbtn" title="문항 빼기" onclick="v3prob.splice('+i+',1);v3RenderPreview()">✕</button>'
+    +'</div></div>'}).join('');
+}
+function v3OpenPrint(){
+  if(!v3prob)return;
+  const w=window.open('about:blank');
+  w.document.write(v3BuildSheetHTML(document.getElementById('v3-title').value||v3title,v3prob,true));
+  w.document.close();
+}
+async function v3SendGen(){
+  if(!v3prob||!v3prob.length){tShowToast('먼저 문제를 생성하세요');return;}
+  const title=(document.getElementById('v3-title').value||'').trim()||v3title;
+  const answers=v3prob.map(function(p){return String(p.answer).trim()});
+  const html=v3BuildSheetHTML(title,v3prob,false); // 학생용 — 정답·해설 미포함
+  const file=new File([html],title.replace(/[^\w가-힣.\-]/g,'_')+'.html',{type:'text/html'});
+  const btn=document.getElementById('v3-send-btn');btn.disabled=true;btn.textContent='전송 중…';
+  try{
+    await v2Create(title,answers,html,file,v3prob);
+    document.getElementById('v3-gen-modal').classList.remove('open');
+    v2Render();tShowToast('✅ 생성·전송 완료 — 학생 태블릿 도착');
+  }catch(e){tShowToast('❗ 전송 실패: '+e.message);}
+  btn.disabled=false;btn.textContent='학생 태블릿으로 전송';
+}
+function v3WrongIdx(){const sub=((v2cur||{}).submissions||[])[0];return (sub&&sub.marks)?sub.marks.map(function(m,i){return m==='X'?i:null}).filter(function(x){return x!==null}):[];}
+function v3WrongToWeak(){
+  if(!v2cur)return;const wrong=v3WrongIdx();
+  if(!wrong.length){tShowToast('오답이 없습니다 — 만점! 🎉');return;}
+  const probs=v2cur.problems||[];
+  const memo=wrong.map(function(i){return probs[i]?((i+1)+'번: '+probs[i].q):((i+1)+'번')}).join('\n');
+  t5items.unshift({id:Date.now(),subject:'공통수학1',unit1:'',unit2:'',type:v2cur.title+' 오답',memo,photos:[],date:tToday()});
+  t5Save_();t5Render();tDashRefresh();
+  tShowToast('🎯 오답 '+wrong.length+'문항이 약점 노트에 기록되었습니다');
+}
+function v3SimilarFromWrong(){
+  if(!v2cur)return;const wrong=v3WrongIdx();const probs=v2cur.problems||[];
+  if(!wrong.length){tShowToast('오답이 없습니다 — 만점! 🎉');return;}
+  if(!probs.length){tShowToast('이 문제지는 문항 데이터가 없어요 — 앱에서 생성한 문제지만 가능합니다');return;}
+  const ref=wrong.map(function(i){return probs[i]}).filter(Boolean).map(function(p){return p.q+' (정답: '+p.answer+')'}).join('\n');
+  document.getElementById('v2-sub-modal').classList.remove('open');
+  document.getElementById('v3-topic').value=v2cur.title+' — 오답 유형 보완';
+  document.getElementById('v3-count').value=Math.min(15,Math.max(4,wrong.length*2));
+  v3OpenGen(ref);
+}
+
 // v2 초기화 — 모든 선언이 끝난 스크립트 최하단에서 실행 (TDZ 회피)
 try{v2LoadCfg();v2Render();v2DashAlert();}catch(e){}
 </script>
