@@ -211,9 +211,26 @@ function openSolve(id){
     `<div class="prob"><span class="no">${i+1}</span><span class="grow muted">문제 ${i+1}번의 답</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off"><span class="mark" id="mark-${i}"></span></div>`).join('');
   showScreen('solve');
 }
+function dataToBlob(d){
+  const i=d.indexOf(',');const mime=(d.slice(0,i).match(/data:([^;]+)/)||[])[1]||'application/octet-stream';
+  const bin=atob(d.slice(i+1));const u=new Uint8Array(bin.length);
+  for(let j=0;j<bin.length;j++)u[j]=bin.charCodeAt(j);
+  return new Blob([u],{type:mime});
+}
 function viewSheet(){
-  if(curSheet.html_data){const w=window.open('');w.document.write(curSheet.html_data);w.document.close();return}
-  if(curSheet.html_path&&sbc()){const {data}=sb.storage.from('worksheets').getPublicUrl(curSheet.html_path);window.open(data.publicUrl,'_blank')}
+  const d=curSheet.html_data;
+  if(d){ // 데모 저장분
+    if(d.indexOf('data:')===0){window.open(URL.createObjectURL(dataToBlob(d)),'_blank');return}
+    const w=window.open('about:blank');w.document.write(d);w.document.close();return;
+  }
+  if(curSheet.html_path&&sbc()){
+    const {data}=sb.storage.from('worksheets').getPublicUrl(curSheet.html_path);
+    if(/\.pdf(\?|$)/i.test(curSheet.html_path)){window.open(data.publicUrl,'_blank');return} // PDF는 그대로 렌더됨
+    // HTML은 스토리지가 소스로 서빙하므로 받아서 직접 렌더
+    const w=window.open('about:blank');
+    fetch(data.publicUrl).then(r=>r.text()).then(t=>{w.document.open();w.document.write(t);w.document.close();})
+      .catch(()=>{if(w)w.close();toast('문제지를 열 수 없어요 — 인터넷 확인');});
+  }
 }
 function compress(file,maxW=1400,q=0.72){
   return new Promise(res=>{
