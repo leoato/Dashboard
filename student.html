@@ -172,6 +172,15 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
       <div style="flex:1;width:100%">
         <div class="row"><span class="sec-t">답안지</span><div class="grow"></div><span class="muted num" id="sv-prog"></span></div>
         <div class="card anslist" style="margin-top:6px;padding:8px 12px" id="sv-ans"></div>
+        <div class="row" style="margin-top:6px;gap:6px;flex-wrap:wrap">
+          <span class="muted">기호:</span>
+          <button class="btn sm" onclick="insSym('√')">√</button>
+          <button class="btn sm" onclick="insSym('²')">x²</button>
+          <button class="btn sm" onclick="insSym('³')">x³</button>
+          <button class="btn sm" onclick="insSym('π')">π</button>
+          <button class="btn sm" onclick="insSym('/')">/</button>
+          <span class="muted" style="font-size:.7rem">· "2루트5"라고 적어도 2√5로 알아들어요</span>
+        </div>
         <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
           <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotos(this.files)">
           <button class="btn" onclick="document.getElementById('photo-input').click()">📷 풀이 사진 첨부</button>
@@ -290,7 +299,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='4.0';
+var APP_VER='4.1';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -548,8 +557,21 @@ function pickChoice(i,v){
 }
 function norm(v){
   var s=String(v==null?'':v).trim().replace(/\s+/g,'');
+  s=s.replace(/루트|root|sqrt/gi,'√')   // "2루트5" = "2√5"
+     .replace(/−/g,'-')                  // 특수 마이너스 = 하이픈
+     .replace(/\*/g,'')                  // 2*√5 = 2√5
+     .replace(/[Xx]/g,'x');              // 대소문자 통일
   var circ={'①':'1','②':'2','③':'3','④':'4','⑤':'5'};
   return s.replace(/[①②③④⑤]/g,c=>circ[c]);
+}
+let lastAnsInput=null;
+document.addEventListener('focusin',e=>{if(e.target.tagName==='INPUT'&&e.target.type==='text'&&e.target.id&&e.target.id.indexOf('ans-')===0)lastAnsInput=e.target});
+function insSym(ch){
+  if(!lastAnsInput||!document.body.contains(lastAnsInput)){toast('먼저 답 칸을 한 번 눌러주세요');return}
+  const el=lastAnsInput,st=el.selectionStart!=null?el.selectionStart:el.value.length,en=el.selectionEnd!=null?el.selectionEnd:st;
+  el.value=el.value.slice(0,st)+ch+el.value.slice(en);
+  el.focus();try{el.selectionStart=el.selectionEnd=st+ch.length}catch(e){}
+  updateProg();
 }
 function updateProg(){
   const n=(sv.sheet&&sv.sheet.answer_key||[]).length;if(!n){$('sv-prog').textContent='';return}

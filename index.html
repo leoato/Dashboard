@@ -1111,7 +1111,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label><input type="text" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()"></div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">🔌 연결 테스트</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.0 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.1 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2390,7 +2390,12 @@ async function v2DashAlert(){
 }
 async function v2OpenQuestions(){
   let qs=[];
-  try{qs=await v2ListQuestions()}catch(e){tShowToast('❗ 질문을 불러오지 못했어요');return}
+  try{qs=await v2ListQuestions()}
+  catch(e){
+    const msg=String(e&&e.message||'');
+    tShowToast(/does not exist|42P01|questions/i.test(msg)?'❗ questions 테이블이 없습니다 — supabase-v4.sql을 실행해주세요':'❗ 질문을 불러오지 못했어요 — 인터넷 확인',4500);
+    return;
+  }
   document.getElementById('v2-q-list').innerHTML=qs.length?qs.map(function(q){return `
     <div style="border-bottom:1.5px dashed #C9C2B4;padding:10px 2px">
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -2408,9 +2413,11 @@ async function v2QSeenClick(id){try{await v2QSeen(id);v2OpenQuestions();v2DashAl
 document.getElementById('v2-new-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('v2-sub-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+// 질문함 모달을 탭 패널 밖(오버레이 직속)으로 이동 — 어느 탭에서 열어도 보이게
+document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='4.0';
+var APP_VER='4.1';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
