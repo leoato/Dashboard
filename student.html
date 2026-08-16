@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>윤서의 문제지함</title>
+<title>윤서의 공부방</title>
 <link rel="icon" type="image/jpeg" href="icon.jpg">
 <link rel="apple-touch-icon" href="icon.jpg">
 <style>
@@ -14,57 +14,89 @@
 html,body{height:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);display:flex;flex-direction:column;
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.028 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
-.appbar{display:flex;align-items:baseline;gap:10px;padding:16px 22px 10px;border-bottom:1.5px solid var(--ink);margin:0 16px}
-.appbar h1{font-family:var(--serif);font-size:1.15rem}
-.appbar small{margin-left:auto;color:var(--sub);font-family:var(--mono);font-size:.72rem}
-.body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.card{border:1.5px solid var(--ink);border-radius:8px;padding:14px 15px;background:var(--card)}
-.card h3{font-family:var(--serif);font-size:.98rem;margin-bottom:5px}
-.muted{color:var(--sub);font-size:.8rem;line-height:1.55}
+.appbar{display:flex;align-items:center;gap:10px;padding:14px 20px 10px;border-bottom:1.5px solid var(--ink);margin:0 14px}
+.appbar h1{font-family:var(--serif);font-size:1.1rem}
+.appbar small{margin-left:auto;color:var(--sub);font-family:var(--mono);font-size:.7rem}
+.body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;max-width:1080px;margin:0 auto;width:100%}
+.card{border:1.5px solid var(--ink);border-radius:8px;padding:13px 14px;background:var(--card)}
+.card h3{font-family:var(--serif);font-size:.95rem;margin-bottom:5px}
+.muted{color:var(--sub);font-size:.78rem;line-height:1.55}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .note{border:1.5px dashed var(--faint);color:var(--sub);font-size:.78rem;padding:8px 11px;border-radius:8px;background:rgba(245,239,226,.5);line-height:1.5}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:10px 15px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 14px;font-size:.87rem;font-weight:700;cursor:pointer;font-family:var(--sans)}
 .btn.pri{background:var(--ink);color:var(--paper)}
 .btn.pri:active{background:var(--accent)}
-.btn.big{width:100%;padding:15px;font-size:1rem}
-.btn.sm{padding:6px 11px;font-size:.78rem;border-width:1.2px}
+.btn.big{width:auto;min-width:200px;padding:11px 26px;font-size:.92rem}
+.btn.sm{padding:5px 10px;font-size:.75rem;border-width:1.2px}
 .btn:disabled{border-color:var(--faint);color:var(--faint);background:transparent}
-input[type=text],textarea{width:100%;border:1.5px solid var(--faint);border-radius:6px;padding:10px 12px;font-size:.95rem;background:var(--card);font-family:var(--sans);color:var(--ink)}
-input:focus{outline:none;border-color:var(--ink)}
-.chip{display:inline-block;border:1.2px solid var(--ink);border-radius:20px;padding:3px 10px;font-size:.72rem;font-weight:700;background:var(--deep)}
+input[type=text],textarea{width:100%;border:1.5px solid var(--faint);border-radius:6px;padding:9px 11px;font-size:.9rem;background:var(--card);font-family:var(--sans);color:var(--ink)}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+.chip{display:inline-block;border:1.2px solid var(--ink);border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700;background:var(--deep)}
+.chip.acc{border-color:var(--accent);color:var(--accent);background:transparent}
 .chip.ok{border-color:var(--ok);color:var(--ok);background:transparent}
-.badge-new{background:var(--accent);color:#fff;border-radius:4px;font-size:.62rem;font-weight:900;padding:2px 6px;vertical-align:2px}
-.dashlist>*{border-bottom:1.5px dashed var(--dash);padding:12px 4px}
+.badge-new{background:var(--accent);color:#fff;border-radius:4px;font-size:.6rem;font-weight:900;padding:2px 5px;vertical-align:2px}
+.dashlist>*{border-bottom:1.5px dashed var(--dash);padding:10px 4px}
 .dashlist>*:last-child{border-bottom:none}
-.row{display:flex;align-items:center;gap:12px}
+.row{display:flex;align-items:center;gap:10px}
 .grow{flex:1;min-width:0}
 .screen{display:none;flex-direction:column;flex:1;min-height:0}
 .screen.on{display:flex}
-.prob{border-bottom:1.5px dashed var(--dash);padding:11px 4px;display:flex;gap:12px;align-items:center}
-.prob .no{font-family:var(--mono);font-weight:700;width:26px;font-size:1rem}
-.prob input{width:110px;text-align:center;font-family:var(--mono);font-size:1rem}
-.mark{font-size:1.1rem;font-weight:900;width:26px;text-align:center}
-.mark.o{color:var(--ok)}.mark.x{color:var(--accent)}
-.photo-chip{display:inline-flex;align-items:center;gap:6px;border:1.2px solid var(--ink);border-radius:6px;padding:6px 10px;font-size:.78rem;background:var(--deep)}
-.split{display:flex;gap:14px;align-items:flex-start}
-.split .main{flex:1.7;min-width:0}
-.split .side{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-@media(max-width:700px){.split{flex-direction:column}.split .main,.split .side{width:100%}}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:20px;font-size:.85rem;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:40}
+.sec-t{font-family:var(--serif);font-weight:700;font-size:.86rem;color:#4A4A4A;margin:2px 2px 0}
+.split{display:flex;gap:13px;align-items:flex-start}
+.split>*{min-width:0}
+.sel{background:var(--deep) !important}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:20px;font-size:.84rem;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:60}
 .toast.show{opacity:1}
-/* 참 잘했어요 도장 */
-.stamp{display:inline-flex;align-items:center;justify-content:center;width:88px;height:88px;border:3px double var(--accent);border-radius:50%;color:var(--accent);font-family:var(--serif);font-weight:700;font-size:.92rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);opacity:.92;line-height:1.35;text-align:center;flex-shrink:0}
-.stamp.sm{width:76px;height:76px;font-size:.82rem}
+/* 홈 4구역 */
+.home-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;max-width:860px;width:100%;margin:4vh auto 0}
+.home-cell{border:1.5px solid var(--ink);border-radius:10px;background:var(--card);padding:18px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center;min-height:132px}
+.home-cell:active{background:var(--deep)}
+.home-cell .t{font-family:var(--serif);font-size:1rem;font-weight:700}
+.home-mid{display:flex;flex-direction:column;gap:12px}
+.home-mid .home-cell{flex:1}
+/* PDF 뷰어 */
+.pdfbar{display:flex;align-items:center;gap:8px;border:1.5px solid var(--ink);border-bottom:none;border-radius:8px 8px 0 0;background:var(--deep);padding:7px 12px;font-size:.76rem}
+.pdfbar .zbtn{border:1.2px solid var(--ink);background:var(--card);border-radius:6px;width:28px;height:28px;font-weight:800;cursor:pointer;font-size:.95rem;line-height:1}
+.pdfwrap{border:1.5px solid var(--ink);border-radius:0 0 8px 8px;background:#8b877e;overflow:auto;height:62vh;padding:14px;-webkit-overflow-scrolling:touch}
+.pdfwrap canvas.pdfpage{display:block;margin:0 auto 12px;box-shadow:0 3px 14px rgba(0,0,0,.3);background:#fff}
+.pdfwrap iframe{display:block;margin:0 auto;background:#fff;border:none;box-shadow:0 3px 14px rgba(0,0,0,.3);transform-origin:top center}
+.anslist .arow{display:flex;gap:8px;align-items:center;padding:6px 2px}
+.anslist .arow .no{width:20px;text-align:right;font-family:var(--mono);font-weight:700;font-size:.8rem;color:var(--sub);flex-shrink:0}
+.anslist .arow input[type=text]{width:100px;text-align:center;font-family:var(--mono)}
+.anslist .mark{font-size:1rem;font-weight:900;width:22px;text-align:center}
+.cho{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 6px 28px}
+.cho .btn.sm.on{background:var(--ink);color:var(--paper)}
+.photo-chip{display:inline-flex;align-items:center;gap:6px;border:1.2px solid var(--ink);border-radius:6px;padding:5px 9px;font-size:.74rem;background:var(--deep)}
+.col3{flex:1;border:1.5px solid var(--ink);border-radius:8px;background:var(--card);padding:6px 10px;max-height:340px;overflow-y:auto}
+.col3 .hd{font-family:var(--serif);font-weight:700;font-size:.82rem;padding:6px 2px;border-bottom:1.5px solid var(--ink);margin-bottom:2px}
+.col3 .it{padding:9px 4px;border-bottom:1.5px dashed var(--dash);font-size:.84rem;border-radius:4px}
+.col3 .it.pick{cursor:pointer}
+.col3 .it:last-child{border-bottom:none}
+.col3 .it.sel{background:var(--deep)}
+.tog{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:.8rem;font-weight:700}
+.tog .tr{width:38px;height:20px;border:1.5px solid var(--ink);border-radius:12px;position:relative;background:var(--card);transition:background .15s}
+.tog .tr::after{content:"";position:absolute;top:1.5px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--ink);transition:left .15s}
+.tog.on .tr{background:var(--accent)}
+.tog.on .tr::after{left:19px;background:#fff}
+.sol{border-left:3px solid var(--accent);background:rgba(212,85,42,.05);padding:10px 12px;border-radius:0 6px 6px 0;font-size:.84rem;line-height:1.6;white-space:pre-line}
+.qbox{border:1.5px solid var(--dash);border-radius:8px;background:var(--deep);padding:14px;font-size:.92rem;line-height:1.7;white-space:pre-line;min-height:130px}
+/* 도장 오버레이 */
+.stamp-ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(26,26,26,.25);z-index:55}
+.stamp-ov.show{display:flex}
+.stamp{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:4px double var(--accent);border-radius:50%;color:var(--accent);font-family:var(--serif);font-weight:700;font-size:1.35rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);background:rgba(253,251,247,.92);line-height:1.35;text-align:center}
 @keyframes stampin{0%{transform:rotate(-35deg) scale(2.4);opacity:0}55%{transform:rotate(-9deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
-/* 복습 오답 해설 */
-.rev-wrong{border-left:3px solid var(--accent);background:rgba(212,85,42,.05);padding:8px 10px;border-radius:0 6px 6px 0;margin-top:6px;font-size:.8rem;line-height:1.55}
+@media(max-width:760px){.home-grid{grid-template-columns:1fr}.split{flex-direction:column}.split>*{width:100%}}
 </style>
 </head>
 <body>
-<div class="appbar"><h1>윤서의 문제지함</h1><small id="mode-chip" class="num" style="cursor:pointer;text-decoration:underline dotted" onclick="rePair()" title="눌러서 다시 연결"></small></div>
+<div class="appbar">
+  <button class="btn sm" id="back-btn" style="display:none" onclick="goHome()">← 홈</button>
+  <h1 id="bar-title">윤서의 공부방</h1>
+  <small id="mode-chip" class="num" style="cursor:pointer;text-decoration:underline dotted" onclick="rePair()" title="눌러서 다시 연결"></small>
+</div>
 
-<!-- 온보딩: 연결 -->
-<div class="screen" id="s-pair">
+<!-- 온보딩 -->
+<div class="screen" id="sc-pair">
   <div class="body" style="align-items:center;justify-content:center">
     <div class="card" style="max-width:440px;width:100%;text-align:center;padding:26px 22px">
       <h3>선생님과 연결하기</h3>
@@ -75,110 +107,225 @@ input:focus{outline:none;border-color:var(--ink)}
   </div>
 </div>
 
-<!-- 문제지함 -->
-<div class="screen" id="s-home">
+<!-- 홈 4구역 -->
+<div class="screen" id="sc-home">
   <div class="body">
-    <div class="card" style="display:flex;align-items:center;gap:12px">
-      <div class="grow">
-        <h3 style="font-size:1.05rem">안녕, 윤서! 👋</h3>
-        <div class="muted" id="greet-line">불러오는 중…</div>
+    <div class="home-grid">
+      <div class="home-cell" onclick="openNewList()">
+        <div style="font-size:1.6rem">✏️</div><div class="t">새로운 문제</div>
+        <div class="muted" id="home-new-cnt"> </div>
       </div>
-      <button class="btn sm" onclick="loadHome()">↺ 새로고침</button>
+      <div class="home-mid">
+        <div class="home-cell" onclick="openSent()">
+          <div style="font-size:1.4rem">📤</div><div class="t">쌤에게 보낸 문제</div>
+          <div class="muted" id="home-sent-cnt"> </div>
+        </div>
+        <div class="home-cell" onclick="showScreen('wrongsel','오답모음')">
+          <div style="font-size:1.4rem">📕</div><div class="t">오답모음</div>
+          <div class="muted" id="home-wrong-cnt"> </div>
+        </div>
+      </div>
+      <div class="home-cell" onclick="openAsk()">
+        <div style="font-size:1.6rem">🙋</div><div class="t">질문하기</div>
+        <div class="muted">막힌 문제를 쌤에게</div>
+      </div>
     </div>
-    <div class="sec-t" style="font-family:var(--serif);font-weight:700;font-size:.88rem;color:#4A4A4A;margin:2px 2px 0">✏️ 풀 차례</div>
-    <div class="card" style="padding:4px 14px"><div class="dashlist" id="todo-list"></div></div>
-    <div style="display:flex;align-items:baseline;gap:10px;margin:2px 2px 0">
-      <span style="font-family:var(--serif);font-weight:700;font-size:.88rem;color:#4A4A4A">📚 다 푼 문제지</span>
-      <span id="recent-chips" style="display:inline-flex;gap:5px"></span>
-    </div>
-    <div class="card" style="padding:4px 14px"><div class="dashlist" id="done-list"></div></div>
+    <div class="muted" id="home-err" style="text-align:center"></div>
   </div>
 </div>
 
-<!-- 복습 (선생님 확인 후 해설 공개) -->
-<div class="screen" id="s-review">
+<!-- ①-1 새로운 문제 -->
+<div class="screen" id="sc-newlist">
   <div class="body">
-    <div class="row">
-      <button class="btn sm" onclick="showScreen('home')">← 목록</button>
-      <h3 style="font-family:var(--serif);font-size:1rem" id="rev-title"></h3>
-      <div class="grow"></div>
-      <span class="chip num" id="rev-score"></span>
-    </div>
-    <div class="card" style="padding:4px 14px"><div class="dashlist" id="rev-list"></div></div>
-  </div>
-</div>
-
-<!-- 풀이 -->
-<div class="screen" id="s-solve">
-  <div class="body">
-    <div class="row">
-      <button class="btn sm" onclick="showScreen('home');loadHome()">← 목록</button>
-      <h3 style="font-family:var(--serif);font-size:1rem" id="solve-title"></h3>
-      <div class="grow"></div>
-      <button class="btn sm" id="view-sheet-btn" style="display:none" onclick="viewSheet()">문제지 보기</button>
-    </div>
-    <div class="card" style="padding:9px 14px"><div class="row">
-      <div style="flex:1;height:9px;border:1.2px solid var(--dash);border-radius:6px;overflow:hidden;background:var(--card)"><div id="prog-fill" style="height:100%;width:0%;background:var(--accent);transition:width .25s"></div></div>
-      <span class="num" id="prog-txt" style="font-size:.8rem;color:var(--sub)"></span>
-    </div></div>
     <div class="split">
-      <div class="main">
-        <div class="card" style="padding:4px 14px"><div id="prob-list"></div></div>
+      <div style="flex:1">
+        <div class="row"><span class="sec-t">문제지 목록 <span class="muted" style="font-weight:400">(아래가 최신)</span></span><div class="grow"></div><button class="btn sm" onclick="openNewList()">↺</button></div>
+        <div class="card" style="padding:4px 12px;margin-top:6px"><div class="dashlist" id="new-list"></div></div>
       </div>
-      <div class="side">
-        <div class="note">풀이는 <b>종이에</b>, 여기엔 <b>답만</b> 적어요. 다 풀면 풀이 종이를 찍고 채점!</div>
-        <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotos(this.files)">
-        <button class="btn" onclick="document.getElementById('photo-input').click()">📷 풀이 종이 촬영</button>
-        <div id="photo-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-        <button class="btn pri big" id="grade-btn" onclick="gradeNow()">채점하기</button>
-        <div id="grade-result" style="display:none">
-          <div class="card"><div class="row"><span class="num" style="font-size:1.7rem;font-weight:700" id="score-txt"></span><span class="muted grow">틀린 문제는 ✕</span><span id="stamp-wrap"></span></div></div>
-          <button class="btn pri big" id="submit-btn" style="margin-top:10px" onclick="submitNow()">선생님께 제출</button>
-          <div class="note" id="submit-note" style="margin-top:8px;display:none">풀이 종이를 최소 1장 촬영해야 제출할 수 있어요.</div>
+      <div style="flex:1.2" id="preview-wrap" hidden>
+        <div class="sec-t">문제 미리보기창</div>
+        <div style="margin-top:6px">
+          <div class="pdfbar">📄 <span id="pv-fname" class="num"></span></div>
+          <div class="pdfwrap" id="pv-view" style="height:300px;padding:10px"></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="btn pri big" onclick="startSolve()">문제 풀기</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 문제지 뷰어 (인앱 — 페이지 이동 없음) -->
-<div id="view-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,26,26,.5);z-index:50;padding:14px">
-  <div style="background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;height:100%;display:flex;flex-direction:column;padding:10px">
-    <div class="row" style="margin-bottom:8px">
-      <b style="font-family:var(--serif);font-size:.95rem" id="view-title">문제지</b>
-      <div class="grow"></div>
-      <button class="btn pri sm" onclick="document.getElementById('view-overlay').style.display='none'">닫기</button>
+<!-- ①-2 문제 화면 -->
+<div class="screen" id="sc-solve">
+  <div class="body">
+    <div class="split">
+      <div style="flex:1.6;width:100%">
+        <div class="pdfbar">📄 <span id="sv-fname" class="num"></span>
+          <div class="grow"></div>
+          <button class="zbtn" onclick="svZoom(-1)">−</button>
+          <span class="num" id="sv-zoomlbl" style="min-width:42px;text-align:center">100%</span>
+          <button class="zbtn" onclick="svZoom(1)">＋</button>
+        </div>
+        <div class="pdfwrap" id="sv-view"></div>
+      </div>
+      <div style="flex:1;width:100%">
+        <div class="row"><span class="sec-t">답안지</span><div class="grow"></div><span class="muted num" id="sv-prog"></span></div>
+        <div class="card anslist" style="margin-top:6px;padding:8px 12px" id="sv-ans"></div>
+        <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
+          <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotos(this.files)">
+          <button class="btn" onclick="document.getElementById('photo-input').click()">📷 풀이 사진 첨부</button>
+          <span id="sv-photos" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px">
+          <button class="btn pri big" id="submit-btn" onclick="submitSolve()">제출</button>
+        </div>
+        <div class="note" id="submit-note" style="margin-top:8px;display:none">풀이 사진을 1장 이상 첨부해야 제출할 수 있어요.</div>
+      </div>
     </div>
-    <iframe id="view-frame" style="flex:1;border:1.5px solid var(--dash);border-radius:8px;background:#fff;width:100%"></iframe>
   </div>
 </div>
 
+<!-- ② 쌤에게 보낸 문제 -->
+<div class="screen" id="sc-sent">
+  <div class="body">
+    <div class="sec-t">보낸 순서대로 <span class="muted" style="font-weight:400">(아래가 최신)</span></div>
+    <div class="card" style="padding:4px 12px"><div class="dashlist" id="sent-list"></div></div>
+    <div class="muted">[다시 풀기]를 누르면 그 문제지를 처음부터 다시 풀어 다시 제출합니다.</div>
+  </div>
+</div>
+
+<!-- ③ 오답모음 선택 -->
+<div class="screen" id="sc-wrongsel">
+  <div class="body" style="justify-content:center">
+    <div class="split" style="max-width:620px;margin:0 auto;width:100%">
+      <div class="home-cell" style="flex:1;min-height:160px" onclick="openWrong1()">
+        <div style="font-size:1.5rem">🗂</div><div class="t">한 번에<br>모아보기</div>
+      </div>
+      <div class="home-cell" style="flex:1;min-height:160px" onclick="openWrong2()">
+        <div style="font-size:1.5rem">📚</div><div class="t">단원별로<br>모아보기</div>
+      </div>
+    </div>
+    <div class="note" style="max-width:620px;margin:12px auto 0">오답은 선생님이 제출물을 확인한 문제지부터 이 방에 모여요.</div>
+  </div>
+</div>
+
+<!-- ③-1 한 번에 -->
+<div class="screen" id="sc-wrong1">
+  <div class="body">
+    <div class="sec-t">틀린 문제가 있었던 문제지 목록</div>
+    <div class="card" style="padding:4px 12px"><div class="dashlist" id="wrong1-list"></div></div>
+  </div>
+</div>
+
+<!-- ③-2 단원별 -->
+<div class="screen" id="sc-wrong2">
+  <div class="body">
+    <div class="split">
+      <div class="col3"><div class="hd">대단원 분류</div><div id="u1"></div></div>
+      <div class="col3"><div class="hd">중단원 분류</div><div id="u2"><div class="muted" style="padding:8px 2px">대단원을 고르세요</div></div></div>
+      <div class="col3"><div class="hd">소단원 분류</div><div id="u3"><div class="muted" style="padding:8px 2px">중단원을 고르세요</div></div></div>
+    </div>
+    <div style="display:flex;justify-content:center"><button class="btn pri big" id="u-go" disabled onclick="openWrongView(window._unitWrong,'단원별 오답')">이 단원 오답 보기</button></div>
+  </div>
+</div>
+
+<!-- 틀렸던 문제 뷰 -->
+<div class="screen" id="sc-wrongview">
+  <div class="body">
+    <div class="row">
+      <span class="sec-t" id="wv-title"></span>
+      <div class="grow"></div>
+      <label class="tog" id="wv-tog" onclick="wvToggle()"><span>해설</span><span class="tr"></span></label>
+    </div>
+    <div class="split">
+      <div style="flex:1.5;width:100%">
+        <div class="qbox" id="wv-q"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn" onclick="wvNav(-1)">← 이전 문제</button>
+          <span class="chip num" id="wv-pos" style="margin:0 auto"></span>
+          <button class="btn" onclick="wvNav(1)">다음 문제 →</button>
+        </div>
+      </div>
+      <div style="flex:1;width:100%">
+        <div class="muted num" id="wv-meta" style="margin-bottom:6px"></div>
+        <div class="muted num" id="wv-my" style="margin-bottom:6px"></div>
+        <div class="sol" id="wv-sol" style="display:none"></div>
+        <div class="muted" id="wv-sol-hint">해설 토글을 켜면 정답과 풀이가 보여요</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 질문하기 -->
+<div class="screen" id="sc-ask">
+  <div class="body">
+    <div class="split">
+      <div style="flex:1">
+        <div class="sec-t">모든 문제지 리스트</div>
+        <div class="card" style="padding:4px 10px;margin-top:6px;max-height:300px;overflow-y:auto"><div class="dashlist" id="ask-sheets"></div></div>
+        <div class="sec-t" style="margin-top:12px">교재 사진</div>
+        <input type="file" id="ask-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onAskPhotos(this.files)">
+        <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:8px">
+          <button class="btn" onclick="document.getElementById('ask-photo-input').click()">📷 사진 첨부</button>
+          <span id="ask-photos" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
+        </div>
+      </div>
+      <div style="flex:1.4">
+        <div class="sec-t">문제 상세 선택 <span class="muted" style="font-weight:400">(정확히 어떤 문제인지)</span></div>
+        <div class="card" style="padding:4px 10px;margin-top:6px;min-height:110px;max-height:220px;overflow-y:auto"><div class="dashlist" id="ask-probs"><div class="muted" style="padding:8px 2px">왼쪽에서 문제지를 고르거나, 교재 사진만 첨부해도 돼요</div></div></div>
+        <div class="sec-t" style="margin-top:12px">어느 부분에서 막혔는지</div>
+        <textarea id="ask-note" rows="3" style="margin-top:6px" placeholder="예: 판별식까지는 했는데 그 다음에 뭘 해야 할지 모르겠어요"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="btn pri big" id="ask-send-btn" onclick="sendAsk()">질문 보내기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stamp-ov" id="stamp-ov"><span class="stamp" id="stamp-txt"></span></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='3.5';
-(function(){ // 배포된 새 버전 감지 시 1회 자동 새로고침 — 태블릿 캐시 문제 방지
+var APP_VER='4.0';
+(function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
     if(m&&m[1]!==APP_VER&&sessionStorage.getItem('vreload')!==m[1]){sessionStorage.setItem('vreload',m[1]);location.reload();}
   }).catch(function(){});
 })();
 
+/* ═══ 공통수학2 목차 (Dashboard/공통수학2-목차.md) ═══ */
+const CURRICULUM={
+ 'Ⅰ. 도형의 방정식':{
+  '평면좌표':['두 점 사이의 거리','선분의 내분점','삼각형의 무게중심'],
+  '직선의 방정식':['직선의 방정식','두 직선의 교점을 지나는 직선의 방정식','두 직선의 위치 관계','점과 직선 사이의 거리'],
+  '원의 방정식':['원의 방정식','원과 직선의 위치 관계','원의 접선의 방정식','두 원의 교점을 지나는 직선과 원의 방정식'],
+  '도형의 이동':['점의 평행이동','도형의 평행이동','점의 대칭이동','도형의 대칭이동']},
+ 'Ⅱ. 집합과 명제':{
+  '집합의 뜻과 포함 관계':['집합의 뜻과 표현','집합의 원소의 개수','집합 사이의 포함 관계'],
+  '집합의 연산':['합집합과 교집합','여집합과 차집합','집합의 연산 법칙','유한집합의 원소의 개수'],
+  '명제':['명제와 조건','명제 p→q의 참·거짓',"'모든'이나 '어떤'을 포함한 명제",'명제의 역과 대우','충분조건과 필요조건','명제의 증명','절대부등식']},
+ 'Ⅲ. 함수':{
+  '함수':['함수','여러 가지 함수','합성함수','역함수','절댓값 기호를 포함한 함수의 그래프'],
+  '유리함수':['유리식의 뜻과 성질','유리식의 사칙연산','특수한 형태의 유리식의 계산','비례식','유리함수의 뜻','유리함수 y=k/x의 그래프','유리함수 y=k/(x−p)+q의 그래프','유리함수 y=(ax+b)/(cx+d)의 그래프'],
+  '무리함수':['무리식의 계산','무리함수의 뜻','무리함수 y=√ax의 그래프','무리함수 y=√(a(x−p))+q의 그래프']}
+};
+
 /* ═══ 설정 · 연결 ═══ */
 const $=id=>document.getElementById(id);
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function toast(m,d){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d||2400)}
+function escH(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function cfg(k){return localStorage.getItem('yt_'+k)||''}
 function setCfg(k,v){localStorage.setItem('yt_'+k,v)}
 function isDemo(){return !(cfg('url')&&cfg('key'))}
 let sb=null;
 function sbc(){if(sb)return sb;if(!isDemo()&&window.supabase)sb=window.supabase.createClient(cfg('url'),cfg('key'));return sb}
 function pairCode(){return cfg('pair')||'YUN-4821'}
-
-function rePair(){
-  if(confirm('선생님과 다시 연결할까요? (새 연결 코드를 붙여넣게 됩니다)')){$('pair-input').value='';showScreen('pair');}
-}
+function rePair(){if(confirm('선생님과 다시 연결할까요? (새 연결 코드를 붙여넣게 됩니다)')){$('pair-input').value='';showScreen('pair','선생님과 연결')}}
 function pairConnect(){
   const raw=($('pair-input').value||'').trim();
   if(!raw){toast('코드를 붙여넣어 주세요');return}
@@ -191,11 +338,11 @@ function pairConnect(){
   }catch(e){toast('코드를 읽을 수 없어요 — 전체를 복사했는지 확인')}
 }
 
-/* ═══ 데이터 (실서버 ↔ 데모 겸용) ═══ */
+/* ═══ 데이터 (실서버 ↔ 데모) ═══ */
 const V2K='v2demo';
-function demoStore(){try{return JSON.parse(localStorage.getItem(V2K))||{worksheets:[],submissions:[]}}catch(e){return{worksheets:[],submissions:[]}}}
+function demoStore(){try{const s=JSON.parse(localStorage.getItem(V2K))||{};s.worksheets=s.worksheets||[];s.submissions=s.submissions||[];s.questions=s.questions||[];return s}catch(e){return{worksheets:[],submissions:[],questions:[]}}}
 function demoSave(s){localStorage.setItem(V2K,JSON.stringify(s))}
-
+function latestSub(w){const subs=(w.submissions||[]).slice().sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));return subs[0]||null}
 async function listSheets(){
   if(sbc()){
     const {data,error}=await sb.from('worksheets').select('*, submissions(*)').eq('pair_code',pairCode()).order('created_at',{ascending:false});
@@ -210,7 +357,7 @@ async function submitSheet(w,answers,marks,score,photoBlobs,photoDataUrls){
   if(sbc()){
     const paths=[];
     for(let i=0;i<photoBlobs.length;i++){
-      const p=`${pairCode()}/${w.id}_p${i+1}_${Date.now()}.jpg`;
+      const p=pairCode()+'/'+w.id+'_p'+(i+1)+'_'+Date.now()+'.jpg';
       const {error}=await sb.storage.from('handwriting').upload(p,photoBlobs[i],{contentType:'image/jpeg'});
       if(error)throw error;paths.push(p);
     }
@@ -225,192 +372,360 @@ async function submitSheet(w,answers,marks,score,photoBlobs,photoDataUrls){
   const ww=s.worksheets.find(x=>x.id===w.id);if(ww)ww.status='submitted';
   demoSave(s);
 }
+async function sendQuestion(wSheet,probIdx,note,photoBlobs,photoDataUrls){
+  if(sbc()){
+    const paths=[];
+    for(let i=0;i<photoBlobs.length;i++){
+      const p=pairCode()+'/q_'+Date.now()+'_p'+(i+1)+'.jpg';
+      const {error}=await sb.storage.from('handwriting').upload(p,photoBlobs[i],{contentType:'image/jpeg'});
+      if(error)throw error;paths.push(p);
+    }
+    const {error}=await sb.from('questions').insert({pair_code:pairCode(),worksheet_id:wSheet?wSheet.id:null,worksheet_title:wSheet?wSheet.title:null,problem_index:probIdx,note,photo_paths:paths});
+    if(error)throw error;return;
+  }
+  const s=demoStore();
+  s.questions.push({id:'q'+Date.now(),pair_code:pairCode(),worksheet_id:wSheet?wSheet.id:null,worksheet_title:wSheet?wSheet.title:null,problem_index:probIdx,note,photo_paths:photoDataUrls,status:'open',created_at:new Date().toISOString()});
+  demoSave(s);
+}
 
-/* ═══ 화면 ═══ */
-let curSheet=null,photoBlobs=[],photoDataUrls=[],revealAll=false;
-function showScreen(s){['pair','home','solve','review'].forEach(x=>$('s-'+x).classList.toggle('on',x===s))}
+/* ═══ 화면 전환 ═══ */
+const TITLES={home:'윤서의 공부방',newlist:'새로운 문제',solve:'문제 화면',sent:'쌤에게 보낸 문제',wrongsel:'오답모음',wrong1:'오답 — 한 번에 모아보기',wrong2:'오답 — 단원별로 모아보기',wrongview:'틀렸던 문제',ask:'질문하기',pair:'선생님과 연결'}
+function showScreen(sc,title){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $('sc-'+sc).classList.add('on');
+  $('bar-title').textContent=title||TITLES[sc]||'';
+  $('back-btn').style.display=(sc==='home'||sc==='pair')?'none':'inline-flex';
+}
+function goHome(){renderHome();showScreen('home')}
 function boot(){
   $('mode-chip').textContent=(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
   if(!cfg('paired')){showScreen('pair');return}
-  showScreen('home');loadHome();
+  showScreen('home');renderHome();
 }
-async function loadHome(){
+
+/* ═══ 홈 ═══ */
+let rows=[];
+function wrongProbs(){
+  const out=[];
+  rows.filter(w=>w.status==='seen'&&w.problems&&w.problems.length).forEach(w=>{
+    const sub=latestSub(w);if(!sub||!sub.marks)return;
+    sub.marks.forEach((m,i)=>{
+      if(m==='X'&&w.problems[i])out.push({...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i});
+    });
+  });
+  return out;
+}
+async function renderHome(){
   try{
-    const rows=await listSheets();
-    window._rows=rows;
-    const todo=rows.filter(w=>w.status==='assigned');
-    const done=rows.filter(w=>w.status!=='assigned');
-    $('greet-line').textContent=todo.length?('오늘 풀 문제지 '+todo.length+'개가 기다리고 있어요 ✏️'):'지금 풀 문제지는 없어요 — 다 했다! 🎉';
-    $('todo-list').innerHTML=todo.length?todo.map(w=>
-      `<div class="row" onclick="openSolve('${w.id}')" style="cursor:pointer">
-        <div class="grow"><b style="font-size:.95rem">${escH(w.title)}</b> ${w.isNew!==false?'<span class="badge-new">NEW</span>':''}
-        <div class="muted num">선생님이 보냄 · ${(w.created_at||'').slice(5,10).replace('-','.')}</div></div>
-        <span class="chip">풀기 →</span></div>`).join('')
-      :'<div class="muted" style="padding:12px 4px">풀 차례인 문제지가 없어요</div>';
-    const doneShow=revealAll?done:done.slice(0,6);
-    $('done-list').innerHTML=done.length?doneShow.map(w=>{
-      const sub=(w.submissions||[])[0];
-      const canReview=w.status==='seen'&&w.problems&&w.problems.length&&sub;
-      const st=w.status==='submitted'?'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">선생님 확인 중</span>'
-        :canReview?'<span class="chip" style="border-color:var(--accent);color:var(--accent);background:transparent">해설 보기 →</span>'
-        :'<span class="chip ok">완료</span>';
-      return `<div class="row" ${canReview?`onclick="openReview('${w.id}')" style="cursor:pointer"`:''}>
-        <div class="grow"><b style="font-size:.92rem">${escH(w.title)}</b>
-        <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${sub&&sub.score?' · '+sub.score:''}</div></div>${st}</div>`;
-    }).join('')+(done.length>6&&!revealAll?`<div style="padding:10px 4px"><button class="btn sm" onclick="revealAll=true;loadHome()">더보기 (${done.length-6})</button></div>`:'')
-      :'<div class="muted" style="padding:12px 4px">아직 없어요 — 첫 문제지를 풀어보자!</div>';
-    $('recent-chips').innerHTML=done.filter(w=>(w.submissions||[])[0]&&w.submissions[0].score).slice(0,3).reverse()
-      .map(w=>`<span class="chip num" style="font-size:.66rem">${w.submissions[0].score}</span>`).join('');
-  }catch(e){$('greet-line').textContent='불러오기 실패 — 인터넷 확인 후 새로고침';$('todo-list').innerHTML='';$('done-list').innerHTML='';}
+    rows=await listSheets();$('home-err').textContent='';
+    $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned').length+'개';
+    $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
+    $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
+  }catch(e){$('home-err').textContent='불러오기 실패 — 인터넷 확인 후 홈에서 새로고침';}
 }
-function openReview(id){
-  const w=(window._rows||[]).find(x=>x.id===id);if(!w)return;
-  const sub=(w.submissions||[])[0];const probs=w.problems||[];
-  if(!sub||!probs.length)return;
-  $('rev-title').textContent=w.title;
-  $('rev-score').textContent=sub.score||'';
-  const CIRC=['①','②','③','④','⑤'];
-  $('rev-list').innerHTML=probs.map((p,i)=>{
-    const m=(sub.marks||[])[i];const my=(sub.answers||[])[i];
-    const ok=m==='O';
-    return `<div style="padding:11px 4px">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <span class="mark ${ok?'o':'x'}" style="width:auto">${ok?'○':'✕'}</span>
-        <div class="grow">
-          <div style="font-size:.88rem;white-space:pre-line"><b>${String(i+1).padStart(2,'0')}.</b> ${escH(p.q)}</div>
-          ${p.choices?`<div class="muted" style="margin-top:3px;font-size:.76rem">${p.choices.map((c,j)=>CIRC[j]+' '+escH(c)).join('&nbsp;&nbsp;')}</div>`:''}
-          <div class="muted num" style="margin-top:4px">내 답: ${escH(my||'—')}${ok?'':' · 정답: '+escH(p.answer)}</div>
-          ${ok?'':`<div class="rev-wrong"><b>풀이</b> — ${escH(p.solution||'해설 없음')}</div>`}
-        </div>
-      </div></div>`;
-  }).join('');
-  showScreen('review');
+
+/* ═══ PDF/HTML 뷰어 ═══ */
+let pdfjsReady=null;
+function loadPdfjs(){
+  if(pdfjsReady)return pdfjsReady;
+  pdfjsReady=new Promise((res,rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';res(window.pdfjsLib)};
+    s.onerror=()=>rej(new Error('PDF 뷰어 로드 실패'));
+    document.head.appendChild(s);
+  });
+  return pdfjsReady;
 }
-function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
-function openSolve(id){
-  curSheet=(window._rows||[]).find(w=>w.id===id);if(!curSheet)return;
-  photoBlobs=[];photoDataUrls=[];
-  $('solve-title').textContent=curSheet.title;
-  $('photo-chips').innerHTML='';
-  $('grade-result').style.display='none';
-  $('grade-btn').style.display='flex';
-  $('view-sheet-btn').style.display=(curSheet.html_path||curSheet.html_data)?'inline-flex':'none';
-  const probs=curSheet.problems||[];
-  const CIRC=['①','②','③','④','⑤'];
-  const n=(curSheet.answer_key||[]).length||probs.length||1;
-  $('prob-list').innerHTML=Array.from({length:n},(_,i)=>{
+function dataToU8(d){const i=d.indexOf(',');const bin=atob(d.slice(i+1));const u=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)u[j]=bin.charCodeAt(j);return u}
+function sheetFile(w){ // {kind:'pdf'|'html'|null, src|html}
+  if(w.html_data){
+    if(w.html_data.indexOf('data:application/pdf')===0)return{kind:'pdf',data:dataToU8(w.html_data)};
+    if(w.html_data.indexOf('data:')===0)return null;
+    return{kind:'html',html:w.html_data};
+  }
+  if(w.html_path&&sbc()){
+    const {data}=sb.storage.from('worksheets').getPublicUrl(w.html_path);
+    return /\.pdf(\?|$)/i.test(w.html_path)?{kind:'pdf',url:data.publicUrl}:{kind:'html',url:data.publicUrl};
+  }
+  return null;
+}
+async function renderSheetInto(el,w,scale){
+  const f=sheetFile(w);
+  el.innerHTML='';
+  if(!f){el.innerHTML='<div style="color:#fff;font-size:.85rem;text-align:center;padding:30px 10px">문제지 파일이 없어요 — 종이로 받은 문제지예요 ✏️</div>';return}
+  if(f.kind==='pdf'){
+    try{
+      const lib=await loadPdfjs();
+      const doc=await lib.getDocument(f.url?{url:f.url}:{data:f.data}).promise;
+      el.innerHTML='';
+      for(let p=1;p<=doc.numPages;p++){
+        const page=await doc.getPage(p);
+        const vp=page.getViewport({scale});
+        const c=document.createElement('canvas');
+        const dpr=Math.min(2,window.devicePixelRatio||1);
+        c.width=vp.width*dpr;c.height=vp.height*dpr;
+        c.style.width=vp.width+'px';c.style.height=vp.height+'px';
+        c.className='pdfpage';
+        el.appendChild(c);
+        const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+        await page.render({canvasContext:ctx,viewport:vp}).promise;
+      }
+    }catch(e){el.innerHTML='<div style="color:#fff;font-size:.85rem;text-align:center;padding:30px 10px">PDF를 열 수 없어요 — 인터넷 확인 후 다시</div>';}
+    return;
+  }
+  // HTML 학습지 → iframe
+  let html=f.html;
+  if(!html&&f.url){try{html=await (await fetch(f.url)).text()}catch(e){el.innerHTML='<div style="color:#fff;text-align:center;padding:30px">문제지를 불러올 수 없어요</div>';return}}
+  const ifr=document.createElement('iframe');
+  ifr.style.width='760px';ifr.style.height='400px';
+  ifr.style.transform='scale('+scale+')';
+  ifr.srcdoc=html;
+  ifr.onload=()=>{try{ifr.style.height=(ifr.contentDocument.documentElement.scrollHeight+20)+'px'}catch(e){}};
+  el.appendChild(ifr);
+}
+function fitScale(el){return Math.max(.4,Math.min(1.4,(el.clientWidth-36)/620))}
+
+/* ═══ ①-1 새로운 문제 ═══ */
+let pvSheet=null;
+function openNewList(){
+  const items=rows.filter(w=>w.status==='assigned').slice().reverse(); // 아래가 최신
+  $('new-list').innerHTML=items.length?items.map((w,i)=>{
+    const latest=i===items.length-1;
+    return `<div class="row" onclick="pickNew('${w.id}',this)" style="cursor:pointer">
+      <div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b>${latest?' <span class="badge-new">최신</span>':''}
+      <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${w.answer_key?' · '+w.answer_key.length+'문제':''}</div></div>
+      <span class="chip">미리보기 →</span></div>`;
+  }).join(''):'<div class="muted" style="padding:12px 4px">새 문제지가 없어요 — 다 풀었다! 🎉</div>';
+  $('preview-wrap').hidden=true;
+  showScreen('newlist');
+}
+function pickNew(id,el){
+  pvSheet=rows.find(w=>w.id===id);if(!pvSheet)return;
+  document.querySelectorAll('#new-list > div').forEach(r=>r.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  $('pv-fname').textContent=(pvSheet.html_path||'').split('/').pop()||pvSheet.title;
+  $('preview-wrap').hidden=false;
+  renderSheetInto($('pv-view'),pvSheet,.42);
+}
+
+/* ═══ ①-2 문제 화면 ═══ */
+let sv={sheet:null,photos:[],photoUrls:[],zoom:1};
+function startSolve(reSheet){
+  sv={sheet:reSheet||pvSheet,photos:[],photoUrls:[],zoom:0};
+  if(!sv.sheet)return;
+  const w=sv.sheet;
+  $('sv-fname').textContent=(w.html_path||'').split('/').pop()||w.title;
+  $('sv-photos').innerHTML='';$('submit-note').style.display='none';
+  const probs=w.problems||[];
+  const n=(w.answer_key||[]).length||probs.length||1;
+  const C=['①','②','③','④','⑤'];
+  $('sv-ans').innerHTML=Array.from({length:n},(_,i)=>{
     const p=probs[i];
-    if(p&&p.choices){ // 객관식 — 실제 문제 + 보기 버튼 (타이핑 불필요)
-      return `<div class="prob" style="flex-direction:column;align-items:stretch;gap:8px">
-        <div style="display:flex;gap:12px;align-items:flex-start"><span class="no">${i+1}</span><span class="q" style="white-space:pre-line">${escH(p.q)}</span><span class="mark" id="mark-${i}"></span></div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;padding-left:38px">
-          ${p.choices.map((c,j)=>`<button class="btn sm" id="cho-${i}-${j+1}" onclick="pickChoice(${i},${j+1})">${CIRC[j]} ${escH(c)}</button>`).join('')}
-        </div>
+    if(p&&p.choices){
+      return `<div class="arow" style="align-items:flex-start"><span class="no">${i+1}.</span>
+        <div class="grow"><div class="cho">${p.choices.map((c,j)=>`<button class="btn sm" id="cho-${i}-${j+1}" onclick="pickChoice(${i},${j+1})">${C[j]}</button>`).join('')}</div></div>
         <input type="hidden" id="ans-${i}" value=""></div>`;
     }
-    const q=p?escH(p.q):('문제 '+(i+1)+'번의 답');
-    return `<div class="prob"><span class="no">${i+1}</span><span class="${p?'q':'grow muted'}" ${p?'style="white-space:pre-line;flex:1"':''}>${q}</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off"><span class="mark" id="mark-${i}"></span></div>`;
+    return `<div class="arow"><span class="no">${i+1}.</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off" oninput="updateProg()"></div>`;
   }).join('');
+  showScreen('solve',w.title);
   updateProg();
-  showScreen('solve');
+  sv.zoom=0; // 0 = 컨테이너에 맞춤(첫 렌더에서 계산)
+  svRender();
 }
-function dataToBlob(d){
-  const i=d.indexOf(',');const mime=(d.slice(0,i).match(/data:([^;]+)/)||[])[1]||'application/octet-stream';
-  const bin=atob(d.slice(i+1));const u=new Uint8Array(bin.length);
-  for(let j=0;j<bin.length;j++)u[j]=bin.charCodeAt(j);
-  return new Blob([u],{type:mime});
+function svRender(){
+  const el=$('sv-view');
+  if(!sv.zoom)sv.zoom=fitScale(el);
+  $('sv-zoomlbl').textContent=Math.round(sv.zoom*100)+'%';
+  renderSheetInto(el,sv.sheet,sv.zoom);
 }
-function viewInApp(title,opt){ // opt: {srcdoc} 또는 {src}
-  $('view-title').textContent=title;
-  const f=$('view-frame');
-  if(opt.srcdoc!==undefined){f.removeAttribute('src');f.srcdoc=opt.srcdoc;}
-  else{f.removeAttribute('srcdoc');f.src=opt.src;}
-  $('view-overlay').style.display='block';
+function svZoom(d){sv.zoom=Math.min(2.2,Math.max(.4,+(sv.zoom+d*.15).toFixed(2)));svRender()}
+function pickChoice(i,v){
+  $('ans-'+i).value=String(v);
+  for(let j=1;j<=5;j++){const b=$('cho-'+i+'-'+j);if(b)b.classList.toggle('on',j===v)}
+  updateProg();
 }
-function viewSheet(){
-  const d=curSheet.html_data;
-  if(d){ // 데모 저장분
-    if(d.indexOf('data:')===0){viewInApp(curSheet.title,{src:URL.createObjectURL(dataToBlob(d))});return}
-    viewInApp(curSheet.title,{srcdoc:d});return;
-  }
-  if(curSheet.html_path&&sbc()){
-    const {data}=sb.storage.from('worksheets').getPublicUrl(curSheet.html_path);
-    if(/\.pdf(\?|$)/i.test(curSheet.html_path)){viewInApp(curSheet.title,{src:data.publicUrl});return}
-    // HTML은 스토리지가 소스로 서빙하므로 받아서 직접 렌더
-    fetch(data.publicUrl).then(r=>r.text()).then(t=>viewInApp(curSheet.title,{srcdoc:t}))
-      .catch(()=>toast('문제지를 열 수 없어요 — 인터넷 확인'));
-  }
+function norm(v){
+  var s=String(v==null?'':v).trim().replace(/\s+/g,'');
+  var circ={'①':'1','②':'2','③':'3','④':'4','⑤':'5'};
+  return s.replace(/[①②③④⑤]/g,c=>circ[c]);
 }
-function compress(file,maxW=1400,q=0.72){
+function updateProg(){
+  const n=(sv.sheet&&sv.sheet.answer_key||[]).length;if(!n){$('sv-prog').textContent='';return}
+  let f=0;for(let i=0;i<n;i++){const el=$('ans-'+i);if(el&&norm(el.value)!=='')f++}
+  $('sv-prog').textContent='답함 '+f+' / '+n;
+}
+function compress(file,maxW,q){
   return new Promise(res=>{
     const img=new Image();
     img.onload=()=>{
-      const sc=Math.min(1,maxW/img.width);
+      const sc=Math.min(1,(maxW||1400)/img.width);
       const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      c.toBlob(b=>res({blob:b,dataUrl:c.toDataURL('image/jpeg',0.5)}),'image/jpeg',q);
+      c.toBlob(b=>res({blob:b,dataUrl:c.toDataURL('image/jpeg',0.5)}),'image/jpeg',q||0.72);
     };
     img.src=URL.createObjectURL(file);
   });
 }
 async function onPhotos(files){
-  for(const f of files){
-    const {blob,dataUrl}=await compress(f);
-    photoBlobs.push(blob);photoDataUrls.push(dataUrl);
-  }
+  for(const f of files){const r=await compress(f);sv.photos.push(r.blob);sv.photoUrls.push(r.dataUrl)}
   $('photo-input').value='';
-  $('photo-chips').innerHTML=photoBlobs.map((_,i)=>`<span class="photo-chip">✍️ 종이 ${i+1}</span>`).join('');
+  $('sv-photos').innerHTML=sv.photos.map((_,i)=>`<span class="photo-chip">✍️ 사진 ${i+1}</span>`).join('');
   $('submit-note').style.display='none';
 }
-function norm(v){
-  var s=String(v==null?'':v).trim().replace(/\s+/g,'');
-  var circ={'①':'1','②':'2','③':'3','④':'4','⑤':'5'};
-  s=s.replace(/[①②③④⑤]/g,function(c){return circ[c]});
-  return s;
-}
-function pickChoice(i,v){
-  $('ans-'+i).value=String(v);
-  for(let j=1;j<=5;j++){const b=$('cho-'+i+'-'+j);if(b){b.style.background=j===v?'var(--ink)':'';b.style.color=j===v?'var(--paper)':'';}}
-  updateProg();
-}
-function updateProg(){
-  const n=(curSheet&&curSheet.answer_key||[]).length;if(!n)return;
-  let filled=0;
-  for(let i=0;i<n;i++){const el=$('ans-'+i);if(el&&norm(el.value)!=='')filled++;}
-  $('prog-fill').style.width=Math.round(filled/n*100)+'%';
-  $('prog-txt').textContent=filled+' / '+n;
-}
-function gradeNow(){
-  const key=curSheet.answer_key||[];
-  const empty=key.map((k,i)=>norm($('ans-'+i).value)===''?(i+1):null).filter(x=>x!==null);
-  if(empty.length&&!confirm(empty.join(', ')+'번이 비어 있어요.\n그래도 채점할까요?'))return;
+async function submitSolve(){
+  const w=sv.sheet,key=w.answer_key||[];
+  if(sv.photos.length===0){$('submit-note').style.display='block';return}
+  const empty=key.map((k,i)=>norm(($('ans-'+i)||{}).value)===''?(i+1):null).filter(x=>x!==null);
+  if(empty.length&&!confirm(empty.join(', ')+'번이 비어 있어요.\n그래도 제출할까요?'))return;
   let ok=0;
-  const marks=key.map((k,i)=>{
-    const good=norm($('ans-'+i).value)===norm(k);
-    if(good)ok++;
-    const m=$('mark-'+i);m.textContent=good?'○':'✕';m.className='mark '+(good?'o':'x');
-    return good?'O':'X';
-  });
-  curSheet._marks=marks;curSheet._score=ok+' / '+key.length;
-  curSheet._answers=key.map((_,i)=>$('ans-'+i).value.trim());
-  $('score-txt').textContent=curSheet._score;
-  const ratio=key.length?ok/key.length:0;
-  $('stamp-wrap').innerHTML=ratio===1?'<span class="stamp">참<br>잘했어요!</span>':(ratio>=0.8?'<span class="stamp sm">잘했어요</span>':'');
-  $('grade-result').style.display='block';
-  $('grade-btn').style.display='none';
-  toast(ratio===1?'만점! 🎉':'채점 완료!');
-}
-async function submitNow(){
-  if(photoBlobs.length===0){$('submit-note').style.display='block';return}
-  $('submit-btn').disabled=true;$('submit-btn').textContent='제출 중…';
+  const marks=key.map((k,i)=>{const good=norm(($('ans-'+i)||{}).value)===norm(k);if(good)ok++;return good?'O':'X'});
+  const answers=key.map((_,i)=>(($('ans-'+i)||{}).value||'').trim());
+  const score=ok+' / '+key.length;
+  const btn=$('submit-btn');btn.disabled=true;btn.textContent='제출 중…';
   try{
-    await submitSheet(curSheet,curSheet._answers,curSheet._marks,curSheet._score,photoBlobs,photoDataUrls);
-    toast('선생님께 제출되었습니다 ✓');
-    showScreen('home');loadHome();
-  }catch(e){toast('제출 실패 — 인터넷 연결 확인 후 다시 눌러주세요');}
-  $('submit-btn').disabled=false;$('submit-btn').textContent='선생님께 제출';
+    await submitSheet(w,answers,marks,score,sv.photos,sv.photoUrls);
+    const ratio=key.length?ok/key.length:0;
+    await renderHome();
+    openSent();
+    toast('쌤에게 제출했어요 ✓ '+score);
+    if(ratio>=0.8){
+      $('stamp-txt').textContent=ratio===1?'참 잘했어요!':'잘했어요';
+      $('stamp-ov').classList.add('show');
+      setTimeout(()=>$('stamp-ov').classList.remove('show'),1600);
+    }
+  }catch(e){toast('제출 실패 — 인터넷 확인 후 다시 눌러주세요')}
+  btn.disabled=false;btn.textContent='제출';
 }
-document.getElementById('prob-list').addEventListener('input',updateProg);
+
+/* ═══ ② 쌤에게 보낸 문제 ═══ */
+function openSent(){
+  const items=rows.filter(w=>w.status!=='assigned').slice().reverse(); // 아래가 최신
+  $('sent-list').innerHTML=items.length?items.map((w,i)=>{
+    const latest=i===items.length-1;
+    const sub=latestSub(w);
+    return `<div class="row"><div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b>${latest?' <span class="badge-new">최신</span>':''}
+      <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${sub&&sub.score?' · '+sub.score:''}${w.status==='submitted'?' · 선생님 확인 중':''}</div></div>
+      <button class="btn sm" onclick="reSolve('${w.id}')">↺ 다시 풀기</button></div>`;
+  }).join(''):'<div class="muted" style="padding:12px 4px">아직 보낸 문제가 없어요</div>';
+  showScreen('sent');
+}
+function reSolve(id){const w=rows.find(x=>x.id===id);if(w)startSolve(w)}
+
+/* ═══ ③ 오답모음 ═══ */
+let wv={list:[],idx:0,solOn:false};
+function openWrong1(){
+  const sheets=rows.filter(w=>w.status==='seen'&&w.problems&&w.problems.length&&latestSub(w)&&(latestSub(w).marks||[]).includes('X'));
+  $('wrong1-list').innerHTML=sheets.length?sheets.map(w=>{
+    const n=(latestSub(w).marks||[]).filter(m=>m==='X').length;
+    return `<div class="row" onclick="wrong1Open('${w.id}')" style="cursor:pointer">
+      <div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b><div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')} · 틀린 문제 ${n}개</div></div>
+      <span class="chip acc">보기 →</span></div>`;
+  }).join(''):'<div class="muted" style="padding:12px 4px">모인 오답이 없어요 — 선생님이 확인한 문제지부터 들어와요</div>';
+  showScreen('wrong1');
+}
+function wrong1Open(id){
+  const w=rows.find(x=>x.id===id);if(!w)return;
+  const sub=latestSub(w);
+  const list=(sub.marks||[]).map((m,i)=>m==='X'&&w.problems[i]?{...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i}:null).filter(Boolean);
+  openWrongView(list,w.title);
+}
+function openWrongView(list,title){
+  if(!list||!list.length){toast('이 조건의 오답이 없어요');return}
+  wv={list,idx:0,solOn:false};
+  $('wv-title').textContent=title;
+  $('wv-tog').classList.remove('on');
+  wvRender();
+  showScreen('wrongview','틀렸던 문제');
+}
+function wvRender(){
+  const p=wv.list[wv.idx];
+  $('wv-pos').textContent=(wv.idx+1)+' / '+wv.list.length;
+  const C=['①','②','③','④','⑤'];
+  $('wv-q').textContent=(p.idx+1)+'. '+p.q+(p.choices?'\n\n'+p.choices.map((c,j)=>C[j]+' '+c).join('   '):'');
+  $('wv-meta').textContent=(p.sheet||'')+(p.unit?'  ·  '+(p.unit[1]||'')+' > '+(p.unit[2]||''):'');
+  $('wv-my').textContent='내 답: '+(p.my||'—');
+  $('wv-sol').textContent='정답: '+p.answer+'\n풀이 — '+(p.solution||p.sol||'해설 없음');
+  $('wv-sol').style.display=wv.solOn?'block':'none';
+  $('wv-sol-hint').style.display=wv.solOn?'none':'block';
+}
+function wvNav(d){wv.idx=Math.min(wv.list.length-1,Math.max(0,wv.idx+d));wvRender()}
+function wvToggle(){wv.solOn=!wv.solOn;$('wv-tog').classList.toggle('on',wv.solOn);wvRender()}
+
+/* ③-2 단원별 — 공통수학2 목차 기반 */
+let u={u1:null,u2:null,u3:null};
+function uItem(level,name,count){
+  return count
+    ?`<div class="it pick" onclick="pickU(${level},'${escH(name)}',this)">${escH(name)} <span class="num" style="color:var(--accent);font-weight:700">(${count})</span></div>`
+    :`<div class="it" style="color:var(--faint)">${escH(name)} <span class="num">(0)</span></div>`;
+}
+function openWrong2(){
+  u={u1:null,u2:null,u3:null};
+  const all=wrongProbs();
+  $('u1').innerHTML=Object.keys(CURRICULUM).map(k=>uItem(1,k,all.filter(p=>(p.unit||[])[0]===k).length)).join('');
+  $('u2').innerHTML='<div class="muted" style="padding:8px 2px">대단원을 고르세요</div>';
+  $('u3').innerHTML='<div class="muted" style="padding:8px 2px">중단원을 고르세요</div>';
+  $('u-go').disabled=true;$('u-go').textContent='이 단원 오답 보기';
+  showScreen('wrong2');
+}
+function pickU(level,val,el){
+  el.parentElement.querySelectorAll('.it').forEach(i=>i.classList.remove('sel'));el.classList.add('sel');
+  const all=wrongProbs();
+  if(level===1){
+    u={u1:val,u2:null,u3:null};
+    $('u2').innerHTML=Object.keys(CURRICULUM[val]).map(k=>uItem(2,k,all.filter(p=>(p.unit||[])[0]===val&&(p.unit||[])[1]===k).length)).join('');
+    $('u3').innerHTML='<div class="muted" style="padding:8px 2px">중단원을 고르세요</div>';
+  }else if(level===2){
+    u.u2=val;u.u3=null;
+    $('u3').innerHTML=CURRICULUM[u.u1][val].map(k=>uItem(3,k,all.filter(p=>(p.unit||[])[1]===val&&(p.unit||[])[2]===k).length)).join('');
+  }else{u.u3=val;}
+  const f=all.filter(p=>{const un=p.unit||[];return (!u.u1||un[0]===u.u1)&&(!u.u2||un[1]===u.u2)&&(!u.u3||un[2]===u.u3)});
+  window._unitWrong=f;
+  $('u-go').disabled=!f.length;
+  $('u-go').textContent='이 단원 오답 보기'+(f.length?' ('+f.length+'문제)':'');
+}
+
+/* ═══ ④ 질문하기 ═══ */
+let ask={sheet:null,prob:null,photos:[],photoUrls:[]};
+function openAsk(){
+  ask={sheet:null,prob:null,photos:[],photoUrls:[]};
+  $('ask-sheets').innerHTML=rows.length?rows.map(w=>`<div onclick="askPickSheet('${w.id}',this)" style="cursor:pointer;font-size:.85rem">${escH(w.title)}<div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}</div></div>`).join('')
+    :'<div class="muted" style="padding:8px 2px">문제지가 없어요 — 교재 사진으로 질문해요</div>';
+  $('ask-probs').innerHTML='<div class="muted" style="padding:8px 2px">왼쪽에서 문제지를 고르거나, 교재 사진만 첨부해도 돼요</div>';
+  $('ask-note').value='';$('ask-photos').innerHTML='';
+  showScreen('ask');
+}
+function askPickSheet(id,el){
+  ask.sheet=rows.find(w=>w.id===id);ask.prob=null;
+  document.querySelectorAll('#ask-sheets > div').forEach(r=>r.classList.remove('sel'));el.classList.add('sel');
+  const probs=(ask.sheet.problems||[]);
+  $('ask-probs').innerHTML=probs.length
+    ?probs.map((p,i)=>`<div onclick="askPickProb(${i},this)" style="cursor:pointer;font-size:.82rem"><b class="num">${i+1}.</b> ${escH(p.q)}</div>`).join('')
+    :Array.from({length:(ask.sheet.answer_key||[]).length||0},(_,i)=>`<div onclick="askPickProb(${i},this)" style="cursor:pointer;font-size:.84rem"><b class="num">${i+1}번</b> 문제</div>`).join('')||'<div class="muted" style="padding:8px 2px">이 문제지는 문항 정보가 없어요 — 사진과 설명으로 질문해요</div>';
+}
+function askPickProb(i,el){
+  ask.prob=i;
+  document.querySelectorAll('#ask-probs > div').forEach(r=>r.classList.remove('sel'));el.classList.add('sel');
+}
+async function onAskPhotos(files){
+  for(const f of files){const r=await compress(f,1200,0.7);ask.photos.push(r.blob);ask.photoUrls.push(r.dataUrl)}
+  $('ask-photo-input').value='';
+  $('ask-photos').innerHTML=ask.photos.map((_,i)=>`<span class="photo-chip">📖 교재 ${i+1}</span>`).join('');
+}
+async function sendAsk(){
+  const note=$('ask-note').value.trim();
+  if(!note){toast('어느 부분에서 막혔는지 한 줄만 적어줘요');return}
+  if(ask.prob===null&&ask.photos.length===0){toast('문제를 고르거나 교재 사진을 첨부해 주세요');return}
+  const btn=$('ask-send-btn');btn.disabled=true;btn.textContent='보내는 중…';
+  try{
+    await sendQuestion(ask.sheet,ask.prob,note,ask.photos,ask.photoUrls);
+    toast('질문이 쌤에게 전송됐어요 ✓');
+    goHome();
+  }catch(e){toast('전송 실패 — 인터넷 확인 후 다시')}
+  btn.disabled=false;btn.textContent='질문 보내기';
+}
+
 boot();
 </script>
 </body>
