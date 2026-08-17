@@ -1138,7 +1138,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v5.7 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v5.8 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1275,6 +1275,11 @@ function sbSyncReady(){ const c=sbSyncCfg(); return !!(c.u&&c.k&&window.supabase
 function sbSyncClient(){ if(_syncClient) return _syncClient; const c=sbSyncCfg(); if(c.u&&c.k&&window.supabase) _syncClient=window.supabase.createClient(c.u,c.k); return _syncClient; }
 function syncAvailable(){ return sbSyncReady()||!!gasUrl; }
 // 읽기: {ok, json?, none?, errMsg?} — json에는 _t(타임스탬프) 보장
+/* 데이터 분량 — 빈 기기가 클라우드를 덮어쓰는 사고 방지용 */
+function _recCount(j){ try{ const t=(j&&j._tutoring)||j||{}; let n=0;
+  ['t1','t3','t4','t5','tutor_scores'].forEach(function(k){ const a=t[k]||(j&&j[k]); if(Array.isArray(a)) n+=a.length; });
+  return n; }catch(e){ return 0; } }
+function _volumeWarn(localN, cloudN){ return '이 기기 기록 '+localN+'건 · 클라우드 기록 '+cloudN+'건'; }
 async function cloudRead(){
   if(sbSyncReady()){
     try{
@@ -1321,8 +1326,17 @@ function markDataChanged(){ if(_syncSuppress) return; try{ localStorage.setItem(
 function scheduleAutoSync(){ if(!syncAvailable()) return; if(_autoSyncTimer) clearTimeout(_autoSyncTimer); _autoSyncTimer=setTimeout(silentCloudUpload, 3500); }
 async function silentCloudUpload(){ if(!syncAvailable()) return; try{ updateCloudStatus('syncing');
     // 덮어쓰기 가드: 클라우드가 더 최신이면 올리지 않는다
-    try{ const pre=await cloudRead(); if(pre.ok&&pre.json){ const remoteT=_stampMs(pre.json._t); if(remoteT>localEditTime()+1000){ updateCloudStatus('error','클라우드에 더 최신 데이터가 있어요 — 동기화 창에서 불러오기 하세요'); return; } } }catch(e){}
+    let _pre=null;
+    try{ _pre=await cloudRead(); if(_pre.ok&&_pre.json){ const remoteT=_stampMs(_pre.json._t); if(remoteT>localEditTime()+1000){ updateCloudStatus('error','클라우드에 더 최신 데이터가 있어요 — 동기화 창에서 불러오기 하세요'); return; } } }catch(e){}
     const data=getExp();
+    if(_pre&&_pre.ok&&_pre.json){
+      const localN=_recCount(JSON.parse(data)), cloudN=_recCount(_pre.json);
+      if(cloudN>=5 && localN < cloudN*0.5){
+        updateCloudStatus('error','안전 정지 — '+_volumeWarn(localN,cloudN)+'. 동기화 창에서 확인하세요');
+        showAutoBackupToast('⚠️ 이 기기 기록이 적어 자동 저장을 멈췄어요');
+        return;
+      }
+    }
     const w=await cloudWrite(data);
     if(!w.ok){ updateCloudStatus('error',w.errMsg||'저장 실패'); showAutoBackupToast('⚠️ 클라우드 저장 실패'); updateUnsaved(); return; }
     if(w.verified){ // Supabase — 응답으로 저장 확정
@@ -1372,6 +1386,12 @@ function restorePresync(){ const snap=localStorage.getItem('dash6_presync'); if(
       const cloudTime = _stampMs(r.json._t);
       const localTime = localEditTime();
       if(cloudTime > localTime + 1000){
+        const cloudN=_recCount(r.json), localN=_recCount(JSON.parse(getExp()));
+        if(localN>=5 && cloudN < localN*0.5){
+          updateCloudStatus('error','안전 정지 — '+_volumeWarn(localN,cloudN)+'. 자동 불러오기를 멈췄어요');
+          showAutoBackupToast('⚠️ 클라우드 기록이 적어 자동 불러오기를 멈췄어요');
+          return;
+        }
         applyImp(JSON.stringify(r.json),{force:true});
         showAutoBackupToast('☁️ 클라우드 최신 데이터로 불러왔어요');
       }
@@ -2200,6 +2220,17 @@ async function cloudUpload(){
   updateCloudStatus('syncing');
   try{
     const data = getExp(); // 과외 데이터(_tutoring) 포함
+    try{
+      const pre = await cloudRead();
+      if(pre.ok && pre.json){
+        const localN=_recCount(JSON.parse(data)), cloudN=_recCount(pre.json);
+        if(cloudN>=5 && localN < cloudN*0.5){
+          if(!confirm('⚠️ 덮어쓰기 경고\n\n'+_volumeWarn(localN,cloudN)+'\n\n지금 저장하면 클라우드의 많은 기록이 이 기기의 적은 기록으로 바뀝니다.\n정말 진행할까요?')){
+            updateCloudStatus('idle'); showM('exp-msg','저장을 취소했습니다','err'); return;
+          }
+        }
+      }
+    }catch(e){}
     const w = await cloudWrite(data);
     if(!w.ok){ updateCloudStatus('error', w.errMsg||'저장 실패'); showM('exp-msg','✗ '+(w.errMsg||'저장 실패'),'err'); return; }
     if(w.verified){ // Supabase
@@ -2235,6 +2266,12 @@ async function cloudDownload(){
       updateCloudStatus('error','클라우드에 저장된 데이터가 없습니다');
       showM('imp-msg','⚠️ 먼저 "클라우드에 저장"을 해주세요','err');
       return;
+    }
+    const cloudN=_recCount(r.json), localN=_recCount(JSON.parse(getExp()));
+    if(localN>=5 && cloudN < localN*0.5){
+      if(!confirm('⚠️ 덮어쓰기 경고\n\n'+_volumeWarn(localN,cloudN)+'\n\n불러오면 이 기기의 기록이 클라우드의 적은 기록으로 바뀝니다.\n정말 진행할까요?')){
+        updateCloudStatus('idle'); showM('imp-msg','불러오기를 취소했습니다','err'); return;
+      }
     }
     applyImp(JSON.stringify(r.json));
     updateCloudStatus('synced');
@@ -2566,7 +2603,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='5.7';
+var APP_VER='5.8';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
