@@ -124,7 +124,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
   <div class="body">
     <div style="max-width:640px;width:100%;margin:3vh auto 0">
       <div class="muted num" id="home-date" style="font-weight:600"></div>
-      <div style="font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px">윤서의 <span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 3px">오늘 계획</span></div>
+      <div id="home-headline" style="font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px"><span id="home-who"></span><span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 3px">오늘 계획</span></div>
       <div id="home-todo" style="margin-bottom:18px"></div>
       <div class="home-grid">
         <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
@@ -304,7 +304,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='5.2';
+var APP_VER='5.3';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -339,6 +339,15 @@ function isDemo(){return !(cfg('url')&&cfg('key'))}
 let sb=null;
 function sbc(){if(sb)return sb;if(!isDemo()&&window.supabase)sb=window.supabase.createClient(cfg('url'),cfg('key'));return sb}
 function pairCode(){return cfg('pair')||'YUN-4821'}
+function studentCall(){return cfg('name')||''}
+async function refreshStudentName(){
+  if(!sbc())return;
+  try{
+    const {data}=await sb.from('app_state').select('data').eq('pair_code',pairCode()+':public').maybeSingle();
+    const n=data&&data.data&&(data.data.student_call||data.data.student_name);
+    if(n&&n!==cfg('name'))setCfg('name',n);
+  }catch(e){}
+}
 function rePair(){if(confirm('선생님과 다시 연결할까요? (새 연결 코드를 붙여넣게 됩니다)')){$('pair-input').value='';showScreen('pair','선생님과 연결')}}
 function pairConnect(){
   const raw=($('pair-input').value||'').trim();
@@ -348,6 +357,7 @@ function pairConnect(){
     const o=JSON.parse(atob(raw));
     if(!o.p)throw 0;
     setCfg('url',o.u||'');setCfg('key',o.k||'');setCfg('pair',o.p);setCfg('paired','1');
+    if(o.n)setCfg('name',o.n);
     sb=null;boot();toast('연결되었습니다 ✓');
   }catch(e){toast('코드를 읽을 수 없어요 — 전체를 복사했는지 확인')}
 }
@@ -423,6 +433,7 @@ function boot(){
   $('mode-chip').textContent=(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
   if(!cfg('paired')){showScreen('pair');return}
   showScreen('home');renderHome();
+  refreshStudentName().then(()=>{const w=studentCall();const el=$('home-who');if(el)el.textContent=w?w+'의 ':'';});
 }
 
 /* ═══ 홈 ═══ */
@@ -440,6 +451,8 @@ function wrongProbs(){
 async function renderHome(){
   try{
     rows=await listSheets();$('home-err').textContent='';
+    const who=studentCall();
+    $('home-who').textContent=who?who+'의 ':'';
     const W=['일','월','화','수','목','금','토'];const nd=new Date();
     $('home-date').textContent=(nd.getMonth()+1)+'월 '+nd.getDate()+'일 '+W[nd.getDay()]+'요일';
     const todo=rows.filter(w=>w.status==='assigned').length;
