@@ -1225,8 +1225,9 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div style="display:flex;gap:7px;flex-wrap:wrap">
           <button class="t-btn t-btn-g" onclick="v2ConnTest()">연결 확인</button>
           <button class="t-btn t-btn-p" onclick="v2CopyConnect()">태블릿 연결 코드 복사</button>
+          <button class="t-btn t-btn-g" onclick="v2CopyConnect(true)">내 기기 미리보기 코드</button>
         </div>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-setup-guide.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem"><b>내 기기 미리보기</b>: 선생님 아이패드의 오늘학생에 붙여넣으면 윤서와 똑같은 화면을 보되, 풀어봐도 제출·질문이 나가지 않습니다.<br>URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-setup-guide.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
       </div>
 
       <div class="t-card">
@@ -1244,7 +1245,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.2 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.3 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2565,11 +2566,13 @@ async function v2ConnTest(){
   if(box)box.innerHTML=html;
   v2ModeChip();
 }
-function v2CopyConnect(){
+function v2CopyConnect(viewer){
   if(v2Demo()){tShowToast('❗ 먼저 위 칸에 URL·anon key를 넣어 "Supabase 연결됨"이 된 뒤에 복사하세요');return;}
   v2PushPublic();
-  const code=btoa(unescape(encodeURIComponent(JSON.stringify({u:v2Cfg('url'),k:v2Cfg('key'),p:v2Pair(),n:tStudentCall()}))));
-  const done=()=>tShowToast('연결 코드 복사됨 — 태블릿 student.html에 붙여넣기');
+  const payload={u:v2Cfg('url'),k:v2Cfg('key'),p:v2Pair(),n:tStudentCall()};
+  if(viewer)payload.v=1;
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const done=()=>tShowToast(viewer?'미리보기 코드 복사됨 — 내 기기의 오늘학생에 붙여넣기 (제출·질문 안 나감)':'연결 코드 복사됨 — 태블릿 student.html에 붙여넣기',4200);
   if(navigator.clipboard)navigator.clipboard.writeText(code).then(done).catch(()=>prompt('아래 코드를 복사하세요',code));
   else prompt('아래 코드를 복사하세요',code);
 }
@@ -3034,7 +3037,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.2';
+var APP_VER='6.3';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{

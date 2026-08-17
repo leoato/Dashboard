@@ -21,6 +21,7 @@ html,body{height:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);display:flex;flex-direction:column;
 background-image:linear-gradient(#F0F1F3 1px,transparent 1px),linear-gradient(90deg,#F0F1F3 1px,transparent 1px);background-size:22px 22px}
 .appbar{display:flex;align-items:center;gap:10px;padding:14px 20px 10px;border-bottom:1.5px solid var(--ink);margin:0 14px}
+body.viewer .appbar h1::after{content:'미리보기';margin-left:8px;font-size:.58rem;font-weight:800;background:var(--ink);color:var(--hl);padding:2px 7px;border-radius:5px;vertical-align:3px}
 .appbar h1{font-family:var(--serif);font-size:1.1rem}
 .appbar small{margin-left:auto;color:var(--sub);font-family:var(--mono);font-size:.7rem}
 .body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;max-width:1080px;margin:0 auto;width:100%}
@@ -308,7 +309,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.0';
+var APP_VER='6.1';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -344,6 +345,7 @@ let sb=null;
 function sbc(){if(sb)return sb;if(!isDemo()&&window.supabase)sb=window.supabase.createClient(cfg('url'),cfg('key'));return sb}
 function pairCode(){return cfg('pair')||'YUN-4821'}
 function studentCall(){return cfg('name')||''}
+function isViewer(){return cfg('viewer')==='1'}
 async function refreshStudentName(){
   if(!sbc())return;
   try{
@@ -362,6 +364,7 @@ function pairConnect(){
     if(!o.p)throw 0;
     setCfg('url',o.u||'');setCfg('key',o.k||'');setCfg('pair',o.p);setCfg('paired','1');
     if(o.n)setCfg('name',o.n);
+    setCfg('viewer', o.v?'1':'');
     sb=null;boot();toast('연결되었습니다 ✓');
   }catch(e){toast('코드를 읽을 수 없어요 — 전체를 복사했는지 확인')}
 }
@@ -434,7 +437,8 @@ function showScreen(sc,title){
 }
 function goHome(){renderHome();showScreen('home')}
 function boot(){
-  $('mode-chip').textContent=(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
+  $('mode-chip').textContent=(isViewer()?'미리보기(선생님) · ':'')+(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
+  document.body.classList.toggle('viewer', isViewer());
   if(!cfg('paired')){showScreen('pair');return}
   showScreen('home');renderHome();
   refreshStudentName().then(()=>{const w=studentCall();const el=$('home-who');if(el)el.textContent=w?w+'의 ':'';});
@@ -611,9 +615,9 @@ function startSolve(reSheet){
     if(p&&p.choices){
       return `<div class="arow" style="align-items:flex-start"><span class="no">${i+1}.</span>
         <div class="grow"><div class="cho">${p.choices.map((c,j)=>`<button class="btn sm" id="cho-${i}-${j+1}" onclick="pickChoice(${i},${j+1})">${C[j]}</button>`).join('')}</div></div>
-        <input type="hidden" id="ans-${i}" value=""></div>`;
+        <input type="hidden" id="ans-${i}" value=""><span class="mark" id="mark-${i}"></span></div>`;
     }
-    return `<div class="arow"><span class="no">${i+1}.</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off" oninput="updateProg()"></div>`;
+    return `<div class="arow"><span class="no">${i+1}.</span><input type="text" id="ans-${i}" placeholder="답" autocomplete="off" oninput="updateProg()"><span class="mark" id="mark-${i}"></span></div>`;
   }).join('');
   showScreen('solve',w.title);
   updateProg();
@@ -675,11 +679,19 @@ async function onPhotos(files){
 }
 async function submitSolve(){
   const w=sv.sheet,key=w.answer_key||[];
+  if(isViewer()){   // 선생님 미리보기 — 채점만, 학생 기록은 건드리지 않음
+    let ok=0; const marks=key.map(function(k,i){const g=norm(($('ans-'+i)||{}).value)===norm(k); if(g)ok++; return g?'O':'X';});
+    marks.forEach(function(m,i){ const el=$('mark-'+i); if(el){ el.textContent=m==='O'?'○':'✕'; el.className='mark '+(m==='O'?'o':'x'); } });
+    toast('미리보기 채점 '+ok+' / '+key.length+' — 제출되지 않았습니다',3200);
+    return;
+  }
   if(sv.photos.length===0){$('submit-note').style.display='block';return}
   const empty=key.map((k,i)=>norm(($('ans-'+i)||{}).value)===''?(i+1):null).filter(x=>x!==null);
   if(empty.length&&!confirm(empty.join(', ')+'번이 비어 있어요.\n그래도 제출할까요?'))return;
   let ok=0;
-  const marks=key.map((k,i)=>{const good=norm(($('ans-'+i)||{}).value)===norm(k);if(good)ok++;return good?'O':'X'});
+  const marks=key.map((k,i)=>{const good=norm(($('ans-'+i)||{}).value)===norm(k);if(good)ok++;
+    const el=$('mark-'+i); if(el){ el.textContent=good?'○':'✕'; el.className='mark '+(good?'o':'x'); }
+    return good?'O':'X'});
   const answers=key.map((_,i)=>(($('ans-'+i)||{}).value||'').trim());
   const score=ok+' / '+key.length;
   const btn=$('submit-btn');btn.disabled=true;btn.textContent='제출 중…';
@@ -829,6 +841,7 @@ async function onAskPhotos(files){
   $('ask-photos').innerHTML=ask.photos.map((_,i)=>`<span class="photo-chip">교재 ${i+1}</span>`).join('');
 }
 async function sendAsk(){
+  if(isViewer()){ toast('미리보기 모드에서는 질문을 보낼 수 없어요'); return; }
   const note=$('ask-note').value.trim();
   if(!note){toast('어느 부분에서 막혔는지 한 줄만 적어줘요');return}
   if(ask.prob===null&&ask.photos.length===0){toast('문제를 고르거나 교재 사진을 첨부해 주세요');return}
