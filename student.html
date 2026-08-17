@@ -212,10 +212,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
   <div class="body" style="justify-content:center">
     <div class="split" style="max-width:620px;margin:0 auto;width:100%">
       <div class="home-cell" style="flex:1;min-height:160px" onclick="openWrong1()">
-        <div style="font-size:1.5rem"><div class="t">한 번에<br>모아보기</div>
+        <div class="t">한 번에<br>모아보기</div>
       </div>
       <div class="home-cell" style="flex:1;min-height:160px" onclick="openWrong2()">
-        <div style="font-size:1.5rem"><div class="t">단원별로<br>모아보기</div>
+        <div class="t">단원별로<br>모아보기</div>
       </div>
     </div>
     <div class="note" style="max-width:620px;margin:12px auto 0">오답은 선생님이 제출물을 확인한 문제지부터 이 방에 모여요.</div>
@@ -304,7 +304,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='5.3';
+var APP_VER='5.5';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
