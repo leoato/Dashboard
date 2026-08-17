@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>오늘선생</title>
-<link rel="icon" type="image/jpeg" href="icon.jpg">
-<link rel="apple-touch-icon" href="icon.jpg">
+<link rel="icon" type="image/png" href="icon-teacher.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-teacher.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script>
 // Apply saved theme before first paint to avoid flash
@@ -286,10 +286,10 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-hd-r { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 #tutor-overlay .t-hd-clock { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.63rem; color:rgba(245,240,232,.55); white-space:nowrap; }
 #tutor-overlay .t-hd .tbtn { font-family:'Noto Sans KR',sans-serif; font-size:.58rem; padding:2px 7px; border:1px solid rgba(245,240,232,.28); background:transparent; color:rgba(245,240,232,.6); border-radius:5px; cursor:pointer; transition:all .15s; }
-#tutor-overlay .t-hd .tbtn:hover { border-color:#000000; color:#000000; background:transparent; }
+#tutor-overlay .t-hd .tbtn:hover { border-color:#ffffff; color:#ffffff; background:transparent; }
 #tutor-overlay .t-hd .tbtn.on { background:#222222; border-color:#222222; color:#fff; }
 #tutor-overlay .t-hd .hbtn { font-family:'Noto Sans KR',sans-serif; font-size:.66rem; font-weight:700; padding:3px 10px; border:1.5px solid rgba(245,240,232,.35); background:transparent; color:#FFFFFF; border-radius:6px; cursor:pointer; transition:all .15s; white-space:nowrap; }
-#tutor-overlay .t-hd .hbtn:hover { background:rgba(245,240,232,.12); border-color:#000000; color:#000000; }
+#tutor-overlay .t-hd .hbtn:hover { background:rgba(255,255,255,.14); border-color:#ffffff; color:#ffffff; }
 #tutor-overlay .t-hd-note { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:rgba(245,240,232,.5); white-space:nowrap; cursor:pointer; }
 #tutor-overlay .t-logo { font-family:'Nanum Myeongjo',serif; font-weight:800; font-size:1.05rem; color:#FFFFFF; display:flex; align-items:center; gap:8px; }
 #tutor-overlay .t-logo-dot { width:7px; height:7px; background:#222222; border-radius:50%; }
@@ -372,8 +372,8 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-dc-badge { position:absolute; top:.85rem; right:.85rem; background:#F4F5F2; border-radius:20px; padding:.1rem .5rem; font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#4A4A4A; }
 #tutor-overlay .t-lgrid { display:flex; flex-wrap:wrap; gap:6px; }
 #tutor-overlay .t-lbox { width:48px; height:48px; border-radius:8px; background:#F4F5F2; border:1.5px solid rgba(26,35,64,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Pretendard Variable',Pretendard,sans-serif; cursor:pointer; transition:all .15s; }
-#tutor-overlay .t-lbox.done { background:#222222; border-color:#222222; }
-#tutor-overlay .t-lbox.done .t-lnum { color:#000000; } #tutor-overlay .t-lbox.done .t-ldate { color:rgba(245,240,232,.4); }
+#tutor-overlay .t-lbox.done { background:#fff; border:1.5px solid #222222; box-shadow:1.5px 1.5px 0 #222222; }
+#tutor-overlay .t-lbox.done .t-lnum { color:#222222; } #tutor-overlay .t-lbox.done .t-ldate { color:#777777; }
 #tutor-overlay .t-lnum { font-size:.82rem; font-weight:700; color:#222222; line-height:1; }
 #tutor-overlay .t-ldate { font-size:.42rem; color:#777777; margin-top:2px; }
 #tutor-overlay .t-2col { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem; }
@@ -387,7 +387,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-scard { background:white; border-radius:12px; padding:.95rem 1.1rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1.5px solid rgba(26,35,64,.12); margin-bottom:.8rem; cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:.85rem; position:relative; overflow:hidden; }
 #tutor-overlay .t-scard::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:#222222; opacity:0; transition:opacity .15s; }
 #tutor-overlay .t-scard:hover { transform:translateY(-2px); } #tutor-overlay .t-scard:hover::before { opacity:1; }
-#tutor-overlay .t-scavatar { width:40px; height:40px; border-radius:50%; background:#222222; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#000000; flex-shrink:0; }
+#tutor-overlay .t-scavatar { width:40px; height:40px; border-radius:50%; background:#222222; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#ffffff; flex-shrink:0; }
 #tutor-overlay .t-scname { font-family:'Nanum Myeongjo',serif; font-size:.94rem; font-weight:700; color:#222222; }
 #tutor-overlay .t-scmeta { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:#777777; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #tutor-overlay .t-addbtn { border:2px dashed rgba(26,35,64,.12); border-radius:12px; padding:.95rem; text-align:center; cursor:pointer; color:#777777; font-size:.81rem; transition:all .18s; background:transparent; width:100%; font-family:'Noto Sans KR',sans-serif; }
@@ -435,7 +435,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-rmfbtn { background:none; border:none; color:#777777; cursor:pointer; font-size:.9rem; padding:.42rem; flex-shrink:0; }
 #tutor-overlay .t-rmfbtn:hover { color:#C0392B; }
 #tutor-overlay .t-lrec { border:1.5px solid rgba(26,35,64,.12); border-radius:10px; padding:.9rem 1.05rem; margin-bottom:.7rem; background:white; }
-#tutor-overlay .t-lbadge { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; background:#222222; color:#000000; padding:.16rem .58rem; border-radius:4px; white-space:nowrap; }
+#tutor-overlay .t-lbadge { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; background:#222222; color:#ffffff; padding:.16rem .58rem; border-radius:4px; white-space:nowrap; }
 #tutor-overlay .t-ldlbl { font-size:.71rem; color:#777777; }
 #tutor-overlay .t-lf { margin-bottom:.3rem; }
 #tutor-overlay .t-lfl { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#777777; text-transform:uppercase; }
@@ -509,7 +509,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-dil { font-size:.56rem; color:#777777; margin-top:1px; font-family:'Pretendard Variable',Pretendard,sans-serif; }
 #tutor-overlay .t-trow { display:flex; gap:6px; align-items:flex-end; }
 #tutor-overlay .t-trow input { flex:1; font-family:'Pretendard Variable',Pretendard,sans-serif; letter-spacing:1px; }
-#tutor-overlay .t-step { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.63rem; background:#222222; color:#000000; padding:.1rem .42rem; border-radius:4px; }
+#tutor-overlay .t-step { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.63rem; background:#222222; color:#ffffff; padding:.1rem .42rem; border-radius:4px; }
 #tutor-overlay .t-spinner { display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:tSpin .7s linear infinite; }
 @keyframes tSpin{to{transform:rotate(360deg);}}
 /* 데이터 이전 카드 */
@@ -1129,7 +1129,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#B9BCC2">앱 버전 v5.1 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#B9BCC2">앱 버전 v5.2 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2521,7 +2521,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='5.1';
+var APP_VER='5.2';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
