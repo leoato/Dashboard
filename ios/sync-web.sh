@@ -6,8 +6,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 sync_one() {   # $1=앱폴더(teacher|student)  $2=진입 HTML  $3=구글폰트 포함 여부(yes|no)
   local dest="$ROOT/ios/$1/www"
-  mkdir -p "$dest"
-  rm -rf "$dest/vendor"
+  # www를 통째로 비우고 다시 만든다 — 스크린샷용 시드 같은 임시 파일이
+  # 제출 빌드에 섞여 들어가는 사고를 원천 차단한다.
+  rm -rf "$dest"
   mkdir -p "$dest/vendor/fonts"
   cp "$ROOT/vendor/pretendard.css" "$ROOT/vendor/supabase.js" "$ROOT/vendor/pdf.min.js" "$ROOT/vendor/pdf.worker.min.js" "$dest/vendor/"
   cp "$ROOT"/vendor/fonts/PretendardVariable.*.woff2 "$dest/vendor/fonts/"
