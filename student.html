@@ -125,7 +125,11 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
     <div style="max-width:640px;width:100%;margin:3vh auto 0">
       <div class="muted num" id="home-date" style="font-weight:600"></div>
       <div id="home-headline" style="font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px"><span id="home-who"></span><span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 3px">오늘 계획</span></div>
-      <div id="home-todo" style="margin-bottom:18px"></div>
+      <div id="home-todo" style="margin-bottom:14px"></div>
+      <button id="mini-btn" onclick="openMini()" style="display:none;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:14px 16px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left">
+        <div style="font-size:1.02rem;font-weight:800" id="mini-btn-t">오늘의 미모</div>
+        <div class="muted" id="mini-btn-s" style="color:#3f5c2a"></div>
+      </button>
       <div class="home-grid">
         <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
         <div class="home-cell" onclick="openSent()"><div class="t">보낸 문제</div><div class="muted" id="home-sent-cnt"> </div></div>
@@ -304,7 +308,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='5.5';
+var APP_VER='6.0';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -455,13 +459,14 @@ async function renderHome(){
     $('home-who').textContent=who?who+'의 ':'';
     const W=['일','월','화','수','목','금','토'];const nd=new Date();
     $('home-date').textContent=(nd.getMonth()+1)+'월 '+nd.getDate()+'일 '+W[nd.getDay()]+'요일';
-    const todo=rows.filter(w=>w.status==='assigned').length;
-    const doneToday=rows.filter(w=>w.status!=='assigned'&&(latestSub(w)||{}).created_at&&String((latestSub(w)||{}).created_at).slice(0,10)===nd.toISOString().slice(0,10)).length;
+    const todo=rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').length;
+    const doneToday=rows.filter(w=>w.status!=='assigned'&&(latestSub(w)||{}).created_at&&String((latestSub(w)||{}).created_at).slice(0,10)===todayStr()).length;
     $('home-todo').innerHTML=
       (doneToday?`<div class="home-todo-line done"><span class="bx">✓</span><span>문제지 ${doneToday}개 제출 완료</span></div>`:'')
       +(todo?`<div class="home-todo-line"><span class="bx"></span><span>새 문제지 ${todo}개 풀기</span></div>`
              :`<div class="home-todo-line done"><span class="bx">✓</span><span>오늘 몫은 끝! 오답 복습 어때요</span></div>`);
-    $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned').length+'개';
+    $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').length+'개';
+    renderMiniBtn();
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
   }catch(e){$('home-err').textContent='불러오기 실패 — 인터넷 확인 후 홈에서 새로고침';}
@@ -536,8 +541,41 @@ function fitScale(el){return Math.max(.4,Math.min(1.4,(el.clientWidth-36)/620))}
 
 /* ═══ ①-1 새로운 문제 ═══ */
 let pvSheet=null;
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function miniToday(){
+  const t=todayStr();
+  const mini=rows.filter(w=>w.kind==='mini').sort((a,b)=>String(a.serve_date||'').localeCompare(String(b.serve_date||'')));
+  const due=mini.filter(w=>w.status==='assigned'&&String(w.serve_date||'')<=t);
+  const doneToday=mini.find(w=>String(w.serve_date||'')===t&&w.status!=='assigned');
+  const next=mini.find(w=>w.status==='assigned'&&String(w.serve_date||'')>t);
+  return {due:due[0]||null, backlog:due.length, doneToday:doneToday||null, next:next||null};
+}
+function renderMiniBtn(){
+  const b=$('mini-btn'); if(!b)return;
+  const m=miniToday();
+  if(m.due){
+    b.style.display='block'; b.style.background='var(--hl)';
+    $('mini-btn-t').textContent='오늘의 미모 · 10문제';
+    $('mini-btn-s').textContent=m.backlog>1?('밀린 미모 '+m.backlog+'개 — 오래된 것부터'):'진도 나간 범위 복습이에요';
+  }else if(m.doneToday){
+    const sub=latestSub(m.doneToday);
+    b.style.display='block'; b.style.background='var(--card)';
+    $('mini-btn-t').textContent='오늘 미모 완료';
+    $('mini-btn-s').textContent=(sub&&sub.score)?('점수 '+sub.score+' — 내일 또 만나요'):'제출했어요';
+  }else if(m.next){
+    b.style.display='block'; b.style.background='var(--card)';
+    $('mini-btn-t').textContent='미모 준비됨';
+    $('mini-btn-s').textContent=m.next.serve_date+'부터 열려요';
+  }else{ b.style.display='none'; }
+}
+function openMini(){
+  const m=miniToday();
+  if(m.due){ startSolve(m.due); return; }
+  if(m.doneToday){ toast('오늘 미모는 이미 제출했어요'); return; }
+  toast('아직 준비된 미모가 없어요');
+}
 function openNewList(){
-  const items=rows.filter(w=>w.status==='assigned').slice().reverse(); // 아래가 최신
+  const items=rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').slice().reverse(); // 아래가 최신
   $('new-list').innerHTML=items.length?items.map((w,i)=>{
     const latest=i===items.length-1;
     return `<div class="row" onclick="pickNew('${w.id}',this)" style="cursor:pointer">

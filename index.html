@@ -971,6 +971,20 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         </div>
       </div>
 
+      <div class="t-card">
+        <div class="t-ctitle">미니 모의고사 <span style="margin-left:auto;font-size:.68rem;color:#777777">매일 10문제 · 진도 나간 범위 복습</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-bottom:.5rem">출제 범위 (지난 문제지·약점에서 자동 추천됨)</div>
+        <div id="mini-units" class="yex-units" style="margin-bottom:.6rem"></div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">며칠치</label><select id="mini-days"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.7rem">
+          <button class="t-btn t-btn-p" id="mini-go" onclick="miniCreate()">미모 만들기</button>
+          <button class="t-btn t-btn-g" onclick="miniRefresh()">↺ 새로고침</button>
+        </div>
+        <div id="mini-list"></div>
+      </div>
+
       <!-- v3: Gemini 문제 생성 모달 -->
       <div class="t-mbg" id="v3-gen-modal">
         <div class="t-modal">
@@ -1223,8 +1237,14 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
             <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-gem',this)" title="보기/가리기">보기</button>
           </div>
         </div>
+        <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">예비 Gemini API 키 (선택 — 주 키가 한도에 걸리면 자동 전환)</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="password" id="v2-gem2" placeholder="다른 계정의 키를 넣어두면 끊기지 않습니다" onchange="v2SaveCfg()" autocomplete="new-password" style="flex:1">
+            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-gem2',this)" title="보기/가리기">보기</button>
+          </div>
+        </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.1 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.2 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1698,7 +1718,7 @@ function tShowGroup(g){
   tCurrentTab=TGROUPS[g][0];
   if(g==='today') tDashRefresh();
   if(g==='today'){ try{v2DashAlert()}catch(e){} try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){} }
-  if(g==='sheets') try{v2Render()}catch(e){}
+  if(g==='sheets') try{v2Render();miniRenderUnits();miniRefresh();}catch(e){}
   if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} }
   if(g==='student') t7Render();
   const area=document.querySelector('#tutor-overlay .t-area');if(area)area.scrollTop=0;
@@ -2466,7 +2486,7 @@ async function v2List(){
     .map(w=>({...w,submissions:s.submissions.filter(x=>x.worksheet_id===w.id)}))
     .sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||''));
 }
-async function v2Create(title,answers,htmlText,htmlFile,problems){
+async function v2Create(title,answers,htmlText,htmlFile,problems,extra){
   if(v2Sb()){
     let html_path=null;
     if(htmlFile){
@@ -2477,6 +2497,7 @@ async function v2Create(title,answers,htmlText,htmlFile,problems){
     }
     const row={pair_code:v2Pair(),title,answer_key:answers,html_path};
     if(problems&&problems.length)row.problems=problems;
+    if(extra)Object.assign(row,extra);
     let r=await v2sb.from('worksheets').insert(row);
     if(r.error&&row.problems){ // problems 컬럼 미설치 환경 대응 (supabase-v3.sql 실행 전)
       delete row.problems;
@@ -2486,7 +2507,7 @@ async function v2Create(title,answers,htmlText,htmlFile,problems){
     if(r.error)throw r.error;return;
   }
   const s=v2StoreGet();
-  s.worksheets.push({id:'ws'+Date.now(),pair_code:v2Pair(),title,answer_key:answers,html_data:htmlText||null,problems:problems||null,status:'assigned',created_at:new Date().toISOString()});
+  s.worksheets.push(Object.assign({id:'ws'+Date.now()+Math.floor(Math.random()*999),pair_code:v2Pair(),title,answer_key:answers,html_data:htmlText||null,problems:problems||null,status:'assigned',created_at:new Date().toISOString()},extra||{}));
   v2StoreSave(s);
 }
 async function v2Seen(id){
@@ -2502,11 +2523,11 @@ function v2PhotoUrl(p){
 
 /* v2 UI */
 function v2LoadCfg(){
-  ['url','key','pair','gem'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)el.value=v2Cfg(k)||(k==='pair'?'YUN-4821':'')});
+  ['url','key','pair','gem','gem2'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)el.value=v2Cfg(k)||(k==='pair'?'YUN-4821':'')});
   v2ModeChip();
 }
 function v2SaveCfg(){
-  ['url','key','pair','gem'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)v2Set(k,el.value)});
+  ['url','key','pair','gem','gem2'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)v2Set(k,el.value)});
   v2sb=null;v2ModeChip();tShowToast('✅ 연동 설정 저장');v2Render();v2PushPublic();
   if(!v2Demo()){ updateUnsaved(); silentCloudUpload(); }
 }
@@ -2591,7 +2612,7 @@ async function v2Send(){
   btn.disabled=false;btn.textContent='학생 태블릿으로 전송';
 }
 async function v2OpenSub(i){
-  v2cur=v2rows[i];const sub=(v2cur.submissions||[])[0];if(!sub)return;
+  v2cur=(v2rows.filter(function(w){return w.kind!=='mini'}))[i]||v2rows[i];const sub=(v2cur.submissions||[])[0];if(!sub)return;
   document.getElementById('v2s-title').textContent=v2cur.title;
   document.getElementById('v2s-score').textContent=sub.score||'';
   document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>`<span style="border:1.2px solid ${m==='X'?'#222222':'#222222'};color:${m==='X'?'#222222':'#222222'};border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700">${j+1}번 ${m==='O'?'○':'✕'}</span>`).join('');
@@ -2739,21 +2760,7 @@ async function aiCompact(){
 }
 /* 공통 Gemini 호출 (모델 자동 선택·503 폴백) */
 async function gemText(prompt){
-  const key=v3GemKey(); if(!key)throw new Error('설정 탭에 Gemini API 키를 먼저 넣어주세요');
-  const body={contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.6}};
-  let cand=[];const cached=localStorage.getItem('yt_gem_model'); if(cached)cand.push(cached);
-  let listed=false,r=null;
-  for(let i=0;i<5;i++){
-    if(i>=cand.length){ if(listed)break; listed=true; (await v3GemModels(key)).forEach(function(m){ if(cand.indexOf(m)<0)cand.push(m); }); if(i>=cand.length)break; }
-    const url='https://generativelanguage.googleapis.com/v1beta/models/'+cand[i]+':generateContent?key='+encodeURIComponent(key);
-    r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.status===503){ await new Promise(function(z){setTimeout(z,2500)}); r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
-    if(r.ok){ localStorage.setItem('yt_gem_model',cand[i]); break; }
-    if(r.status===400||r.status===403)break;
-  }
-  if(!r||!r.ok)throw new Error(r?('Gemini 오류 '+r.status+(r.status===503?' — 잠시 뒤 다시 시도':'')):'사용 가능한 모델 없음');
-  const j=await r.json();
-  return (((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+  return await gemRequest({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.6}});
 }
 /* UI */
 function aiToggle(open){
@@ -2795,6 +2802,87 @@ async function aiSend(preset){
 function aiClear(){
   if(!confirm('대화와 기억을 모두 지울까요? (앱 데이터는 그대로입니다)'))return;
   localStorage.removeItem(AI_MSGS); localStorage.removeItem(AI_SUM); aiRender();
+}
+
+
+/* ══ 미니 모의고사(미모) — 진도 나간 범위에서 매일 10문제 ══ */
+function miniCoveredUnits(){
+  /* 진도 나간 중단원 추정: 지난 문제지의 단원 태그 + 약점 기록 */
+  const set={};
+  (typeof v2rows!=='undefined'&&v2rows?v2rows:[]).forEach(function(w){
+    (w.problems||[]).forEach(function(p){ if(p.unit&&p.unit[1])set[p.unit[1]]=1; });
+  });
+  safeParse(localStorage.getItem('t5'),[]).forEach(function(w){ if(w.unit1)set[w.unit1]=1; if(w.unit2)set[w.unit2]=1; });
+  return Object.keys(set);
+}
+function miniRenderUnits(){
+  const el=document.getElementById('mini-units'); if(!el)return;
+  const covered=miniCoveredUnits();
+  el.innerHTML=yexUnitList().map(function(u){
+    const on=covered.indexOf(u.mid)>=0;
+    return '<label title="'+tEscH(u.big)+'"><input type="checkbox" value="'+tEscH(u.mid)+'"'+(on?' checked':'')+'>'+tEscH(u.mid)+'</label>';
+  }).join('');
+}
+function _ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function miniDates(n){
+  const out=[]; const d=new Date(); d.setHours(0,0,0,0);
+  for(let i=0;i<n;i++){ const x=new Date(d); x.setDate(d.getDate()+i); out.push(_ymd(x)); }   // 로컬 날짜 (UTC 변환 금지)
+  return out;
+}
+async function miniGenOne(units, dayLabel){
+  const subs=[];
+  Object.values(CURRICULUM).forEach(function(mids){ Object.entries(mids).forEach(function(e){ if(units.indexOf(e[0])>=0) subs.push(e[0]+'('+e[1].join(', ')+')'); }); });
+  const prompt='너는 고1 수학 과외의 복습 문제 출제자다. 2022 개정 공통수학2 범위 안에서만 출제한다.\n'
+    +'목적: 이미 배운 내용을 매일 10문제로 점검하는 미니 모의고사. 새 개념은 넣지 말 것.\n'
+    +'출제 범위(이미 진도 나간 단원): '+subs.join(' / ')+'\n'
+    +'조건: 10문항, 난이도는 하 3 · 중 6 · 상 1 비율, 전부 단답형(choices는 null).\n'
+    +'answer는 채점이 문자열 비교이므로 아주 단순하게 (예: "3", "-2", "5/2", "2√5").\n'
+    +'수식은 유니코드 평문만 (x², √5, ≤, −). HTML·LaTeX 금지. 한 단원에 몰리지 않게 고루 섞어라.\n'
+    +'각 문항의 정답을 다시 계산해 검산하고, 정답이 유일한 문항만 낸다. solution은 1~2줄.\n'
+    +'JSON만: {"problems":[{"q":"문제","choices":null,"answer":"정답","solution":"풀이","unit":"중단원명"}]}';
+  const txt=await gemRequest({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.7}});
+  const out=JSON.parse(txt);
+  if(!out.problems||!out.problems.length)throw new Error('생성 결과가 비었습니다');
+  out.problems.forEach(function(p){
+    let big='',mid=p.unit||'',sub='';
+    Object.entries(CURRICULUM).forEach(function(e){ if(e[1][mid])big=e[0]; });
+    p.unit=[big||'Ⅰ. 도형의 방정식', mid||units[0]||'', sub];
+  });
+  return out.problems.slice(0,10);
+}
+async function miniCreate(){
+  const units=[].slice.call(document.querySelectorAll('#mini-units input:checked')).map(function(i){return i.value});
+  if(!units.length){tShowToast('❗ 출제 범위(진도 나간 중단원)를 하나 이상 고르세요');return;}
+  const days=parseInt(document.getElementById('mini-days').value)||5;
+  const btn=document.getElementById('mini-go'); btn.disabled=true;
+  const dates=miniDates(days); let made=0;
+  for(let i=0;i<dates.length;i++){
+    btn.textContent='만드는 중… '+(i+1)+'/'+days;
+    try{
+      const probs=await miniGenOne(units, dates[i]);
+      const title='미모 '+dates[i].slice(5).replace('-','/')+' · 10문제';
+      await v2Create(title, probs.map(function(p){return String(p.answer).trim()}), v3BuildSheetHTML(title,probs,false),
+        new File([v3BuildSheetHTML(title,probs,false)],'mini_'+dates[i]+'.html',{type:'text/html'}), probs, {kind:'mini', serve_date:dates[i]});
+      made++;
+    }catch(e){ tShowToast('❗ '+dates[i]+' 실패: '+e.message,4000); break; }
+  }
+  btn.disabled=false; btn.textContent='미모 만들기';
+  if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); v2Render(); miniRefresh(); }
+}
+async function miniRefresh(){
+  const box=document.getElementById('mini-list'); if(!box)return;
+  let rows=[]; try{ rows=await v2List(); }catch(e){ box.innerHTML='<div style="font-size:.76rem;color:#777777">불러올 수 없습니다</div>'; return; }
+  const today=_ymd(new Date());
+  const mini=rows.filter(function(w){return w.kind==='mini'}).sort(function(a,b){return String(a.serve_date||'').localeCompare(String(b.serve_date||''))});
+  const left=mini.filter(function(w){return w.status==='assigned'&&String(w.serve_date||'')>=today});
+  box.innerHTML=mini.length?('<div style="font-size:.74rem;color:#4A4A4A;margin-bottom:.4rem">준비된 미모 <b>'+left.length+'일치</b> (오늘 이후) · 전체 '+mini.length+'개</div>'
+    +mini.slice(-7).map(function(w){
+      const sub=(w.submissions||[])[0];
+      const st=w.status==='assigned'?(String(w.serve_date||'')<=today?'오늘 풀 차례':'대기'):(sub&&sub.score?sub.score:'제출됨');
+      return '<div style="display:flex;gap:8px;align-items:center;border-bottom:1.5px dashed #D8DADF;padding:6px 2px;font-size:.76rem">'
+        +'<span style="font-variant-numeric:tabular-nums;color:#777777">'+(w.serve_date||'')+'</span>'
+        +'<span style="flex:1">'+tEscH(w.title)+'</span><span class="t-lbadge">'+st+'</span></div>';
+    }).join('')):'<div style="font-size:.76rem;color:#777777">아직 만든 미모가 없습니다</div>';
 }
 
 /* ══ 수업 로드맵 (AI 조교) — 계산은 코드가, 배분은 AI가 ══ */
@@ -2899,21 +2987,7 @@ async function rmCall(userMsg){
   const parts=[sys,'--- 사실 ---',rmStateBlock(f,goal)];
   rmThread.slice(-6).forEach(function(t){ parts.push((t.role==='user'?'[선생님]':'[조교]')+' '+t.text); });
   if(userMsg)parts.push('[선생님] '+userMsg);
-  const body={contents:[{parts:[{text:parts.join('\n')}]}],generationConfig:{responseMimeType:'application/json',temperature:0.5}};
-  let cand=[];const cached=localStorage.getItem('yt_gem_model'); if(cached)cand.push(cached);
-  let listed=false,r=null,used='';
-  for(let i=0;i<5;i++){
-    if(i>=cand.length){ if(listed)break; listed=true; (await v3GemModels(key)).forEach(function(m){ if(cand.indexOf(m)<0)cand.push(m); }); if(i>=cand.length)break; }
-    used=cand[i];
-    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+used+':generateContent?key='+encodeURIComponent(key),
-      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(r.status===503){ await new Promise(function(z){setTimeout(z,2500)}); r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+used+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
-    if(r.ok){ localStorage.setItem('yt_gem_model',used); break; }
-    if(r.status===400||r.status===403)break;
-  }
-  if(!r||!r.ok)throw new Error(r?('Gemini 오류 '+r.status+(r.status===503?' — 잠시 뒤 다시':'')):'모델 없음');
-  const j=await r.json();
-  const txt=(((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+  const txt=await gemRequest({contents:[{parts:[{text:parts.join('\n')}]}],generationConfig:{responseMimeType:'application/json',temperature:0.5}});
   const out=JSON.parse(txt);
   if(userMsg)rmThread.push({role:'user',text:userMsg});
   rmThread.push({role:'ai',text:(out.diagnosis||'')+' / '+(out.sessions||[]).length+'회차 계획'});
@@ -2960,7 +3034,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.1';
+var APP_VER='6.2';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
@@ -2991,6 +3065,36 @@ function v3UnitCascade(level){
 })();
 var v3prob=null,v3title='';
 function v3GemKey(){return v2Cfg('gem')}
+function v3GemKeys(){ const a=v2Cfg('gem'), b=v2Cfg('gem2'); return [a,b].filter(Boolean); }
+/* 공용 Gemini 호출 — 키(주·예비) × 모델 자동 폴백 + 503 재시도 */
+async function gemRequest(body){
+  const keys=v3GemKeys(); if(!keys.length)throw new Error('설정 탭에 Gemini API 키를 먼저 넣어주세요');
+  let lastErr='';
+  for(let ki=0;ki<keys.length;ki++){
+    const key=keys[ki];
+    let cand=[]; const cached=localStorage.getItem('yt_gem_model'); if(cached)cand.push(cached);
+    let listed=false;
+    for(let i=0;i<5;i++){
+      if(i>=cand.length){
+        if(listed)break; listed=true;
+        try{ (await v3GemModels(key)).forEach(function(m){ if(cand.indexOf(m)<0)cand.push(m); }); }catch(e){ lastErr=e.message; break; }
+        if(i>=cand.length)break;
+      }
+      const url='https://generativelanguage.googleapis.com/v1beta/models/'+cand[i]+':generateContent?key='+encodeURIComponent(key);
+      let r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(r.status===503){ await new Promise(function(z){setTimeout(z,2500)}); r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+      if(r.ok){
+        localStorage.setItem('yt_gem_model',cand[i]);
+        if(ki>0)tShowToast('예비 키로 처리했습니다');
+        const j=await r.json();
+        return (((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+      }
+      lastErr='Gemini 오류 '+r.status;
+      if(r.status===429||r.status===403||r.status===400)break;   // 이 키로는 더 시도하지 않고 다음 키로
+    }
+  }
+  throw new Error(lastErr+(keys.length>1?' (주·예비 키 모두 실패)':'')+' — 잠시 뒤 다시 시도해주세요');
+}
 /* 사용 가능한 flash 모델 후보 목록 (좋은 순 정렬) — 구글이 모델명을 바꿔도 404가 안 나게 */
 async function v3GemModels(key){
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(key));
@@ -3033,43 +3137,7 @@ async function v3GemGen(topic,n,diff,fmt,ref,unit){
     +'- 각 문항의 정답을 처음부터 다시 계산해 스스로 검산하고, 정답이 유일하고 명확한 문항만 낸다.\n'
     +'- solution은 풀이 핵심 2~3줄.\n'
     +'JSON만 출력: {"title":"간결한 학습지 제목","problems":[{"q":"문제","choices":["보기1","보기2","보기3","보기4","보기5"] 또는 null,"answer":"정답","solution":"풀이"}]}';
-  const call=function(model){return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(key),{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})
-  })};
-  // 후보 모델을 차례로 시도 — 404·429·5xx면 다음 후보로, 503은 잠깐 기다렸다 재시도 (성공 모델은 캐시)
-  const sleep=function(ms){return new Promise(function(res){setTimeout(res,ms)})};
-  let cand=[];const cached=localStorage.getItem('yt_gem_model');
-  if(cached)cand.push(cached);
-  let listed=false,r=null,used='';
-  for(let i=0;i<6;i++){
-    if(i>=cand.length){
-      if(listed)break;
-      listed=true;
-      const more=await v3GemModels(key);
-      more.forEach(function(m){if(cand.indexOf(m)<0)cand.push(m)});
-      if(i>=cand.length)break;
-    }
-    used=cand[i];
-    r=await call(used);
-    if(r.status===503){await sleep(2500);r=await call(used);} // 과부하 — 같은 모델 한 번 더
-    if(r.ok){
-      if(used!==cached){localStorage.setItem('yt_gem_model',used);tShowToast('모델: '+used);}
-      break;
-    }
-    if(r.status===400||r.status===401||r.status===403)break; // 키 문제 — 다른 모델 시도 무의미
-    // 404(모델 없음)·429(그 모델 한도)·5xx(서버 오류) → 다음 후보 모델로
-  }
-  if(!r)throw new Error('시도할 모델이 없습니다 — 설정의 [연결 테스트]를 눌러보세요');
-  if(!r.ok){
-    if(r.status===404)localStorage.removeItem('yt_gem_model');
-    if(r.status===503)throw new Error('503 — 구글 무료 서버가 지금 붐빕니다. 1~2분 뒤 [문제 생성]만 다시 눌러주세요 (입력값 유지됨)');
-    if(r.status===429)throw new Error('429 — 무료 한도 잠시 초과. 1분 뒤 다시 눌러주세요');
-    if(r.status===404)throw new Error('404 — 시도한 모델 전부 거부됨: '+cand.slice(0,5).join(', '));
-    throw new Error('Gemini 오류 '+r.status+(r.status===400||r.status===403?' — API 키 확인':''));
-  }
-  const j=await r.json();
-  const txt=(((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+  const txt=await gemRequest({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}});
   const out=JSON.parse(txt);
   if(!out.problems||!out.problems.length)throw new Error('생성 결과가 비었습니다 — 다시 시도해주세요');
   return out;
