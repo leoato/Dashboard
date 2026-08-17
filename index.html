@@ -560,7 +560,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-modal, #tutor-overlay .wz-modal { background:#FFFFFF; border:1.5px solid #222222; box-shadow:3px 3px 0 #222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:8px; }
 #tutor-overlay .t-tab-btn { font-family:inherit; font-size:.8rem; font-weight:600; }
-#tutor-overlay .t-tab-btn.active { color:#222222; background:linear-gradient(transparent 60%, #B9F18D 60%); border-bottom-color:#222222; font-weight:800; }
+#tutor-overlay .t-tab-btn.active { color:#fff; background:rgba(185,241,141,.12); border-bottom:3px solid #B9F18D; font-weight:800; }
 #tutor-overlay .t-lbadge { border-radius:5px; }
 #tutor-overlay .t-tc { background-image:none; }
 /* 그룹(패널 여러 개) 세로 스택 — 스크롤 주체를 t-area로 이동 */
@@ -575,7 +575,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 <!-- ══ 과외 관리 노트 ══ -->
 <div id="tutor-overlay">
   <header class="t-hd">
-    <div class="t-logo"><span class="t-logo-dot"></span>오늘<span style="background:linear-gradient(transparent 55%, #B9F18D 55%);padding:0 2px;color:#222">선생</span></div>
+    <div class="t-logo"><span class="t-logo-dot"></span>오늘<span style="background:#B9F18D;color:#222;padding:1px 5px;border-radius:4px;margin-left:2px">선생</span></div>
     <div class="t-hd-r">
       <span class="t-hd-clock" id="clock"></span>
       <div class="theme-switcher">
@@ -1129,7 +1129,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#B9BCC2">앱 버전 v5.0 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#B9BCC2">앱 버전 v5.1 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2521,7 +2521,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='5.0';
+var APP_VER='5.1';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
