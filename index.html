@@ -565,6 +565,28 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-modal, #tutor-overlay .wz-modal { background:#FFFFFF; border:1.5px solid #222222; box-shadow:3px 3px 0 #222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:8px; }
 #tutor-overlay .t-tab-btn { font-family:inherit; font-size:.8rem; font-weight:600; }
+
+/* AI 조교 채팅 */
+#tutor-overlay #ai-fab{position:fixed;right:18px;bottom:18px;z-index:60;background:#222222;color:#B9F18D;border:1.5px solid #222222;border-radius:99px;padding:.7rem 1.15rem;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;box-shadow:3px 3px 0 rgba(34,34,34,.25)}
+#tutor-overlay #ai-fab:active{transform:translate(2px,2px);box-shadow:none}
+#tutor-overlay #ai-panel{position:fixed;right:16px;bottom:74px;width:380px;max-width:calc(100vw - 32px);height:min(560px,70vh);background:#FFFFFF;border:1.5px solid #222222;border-radius:12px;box-shadow:3px 3px 0 #222222;z-index:61;display:none;flex-direction:column;overflow:hidden}
+#tutor-overlay #ai-panel.on{display:flex}
+#tutor-overlay .ai-hd{display:flex;align-items:center;gap:8px;padding:.6rem .8rem;border-bottom:1.5px solid #222222;font-size:.9rem}
+#tutor-overlay .ai-hd b{font-weight:800}
+#tutor-overlay .ai-hd span{flex:1;font-size:.66rem;color:#777777}
+#tutor-overlay #ai-msgs{flex:1;overflow-y:auto;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;background:#FFFFFF;background-image:linear-gradient(#F4F5F7 1px,transparent 1px),linear-gradient(90deg,#F4F5F7 1px,transparent 1px);background-size:22px 22px}
+#tutor-overlay .ai-b{max-width:86%;padding:.55rem .75rem;border-radius:10px;font-size:.8rem;line-height:1.65;border:1.5px solid #222222;background:#fff;white-space:pre-wrap;word-break:break-word}
+#tutor-overlay .ai-b.u{align-self:flex-end;background:#B9F18D}
+#tutor-overlay .ai-b.a{align-self:flex-start}
+#tutor-overlay .ai-b.ai-typing{color:#777777;border-style:dashed}
+#tutor-overlay .ai-sum{align-self:center;font-size:.66rem;color:#777777;background:#F4F5F2;border-radius:99px;padding:.2rem .7rem}
+#tutor-overlay .ai-empty{color:#777777;font-size:.78rem;text-align:center;margin:auto;line-height:1.7;padding:0 1rem}
+#tutor-overlay .ai-chips{display:flex;gap:5px;padding:.5rem .6rem 0;flex-wrap:wrap}
+#tutor-overlay .ai-chips button{border:1.2px solid #222222;background:#fff;border-radius:99px;padding:.25rem .6rem;font-size:.68rem;font-family:inherit;cursor:pointer;font-weight:600}
+#tutor-overlay .ai-chips button:active{background:#B9F18D}
+#tutor-overlay .ai-in{display:flex;gap:6px;align-items:flex-end;padding:.6rem;border-top:1px solid #D8DADF}
+#tutor-overlay .ai-in textarea{flex:1;resize:none;max-height:90px;font-size:.82rem;padding:.5rem .6rem}
+@media(max-width:600px){#tutor-overlay #ai-panel{right:8px;left:8px;width:auto;bottom:68px;height:min(70vh,520px)}}
 #tutor-overlay .yex-units{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px;max-height:132px;overflow-y:auto;border:1px solid #D8DADF;border-radius:6px;padding:6px 8px;background:#fff}
 #tutor-overlay .yex-units label{display:flex;align-items:center;gap:5px;font-size:.66rem;cursor:pointer;padding:2px 0}
 #tutor-overlay .yex-units input{width:12px;height:12px}
@@ -783,6 +805,29 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-card"><div class="t-ctitle">최근 안내 문자</div><div id="t-dash-rmsg"><div style="font-size:.76rem;color:#777777">문자를 기록하면 여기에 표시됩니다</div></div></div>
         <div class="t-card"><div class="t-ctitle">최근 약점</div><div id="t-dash-rw"><div style="font-size:.76rem;color:#777777">약점을 기록하면 여기에 표시됩니다</div></div></div>
       </div>
+
+      
+<!-- AI 조교 채팅 -->
+<button id="ai-fab" onclick="aiToggle()" title="AI 조교">조교</button>
+<div id="ai-panel">
+  <div class="ai-hd">
+    <b>AI 조교</b>
+    <span id="ai-ctx"></span>
+    <button class="t-btn t-btn-g t-btn-sm" onclick="aiClear()">기억 지우기</button>
+    <button class="t-rmfbtn" onclick="aiToggle(false)">✕</button>
+  </div>
+  <div id="ai-msgs"></div>
+  <div class="ai-chips">
+    <button onclick="aiSend('이번 주 수업 뭐부터 하는 게 좋을까?')">이번 주 뭐 할까</button>
+    <button onclick="aiSend('지금 오답을 보면 어디가 제일 위험해?')">오답 진단</button>
+    <button onclick="aiSend('시험까지 남은 수업으로 범위를 다 나갈 수 있을까?')">진도 점검</button>
+    <button onclick="aiSend('오늘 학부모 문자에 넣을 한마디를 자연스럽게 다듬어줘: ')">문자 다듬기</button>
+  </div>
+  <div class="ai-in">
+    <textarea id="ai-input" rows="1" placeholder="수업에 대해 물어보세요" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend();}"></textarea>
+    <button class="t-btn t-btn-p t-btn-sm" onclick="aiSend()">보내기</button>
+  </div>
+</div>
 
       <!-- v4: 질문 수신함 모달 -->
       <div class="t-mbg" id="v2-q-modal">
@@ -1179,7 +1224,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.0 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.1 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -2644,6 +2689,114 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 
+
+/* ══ AI 조교 채팅 (3층 메모리: 상태 블록 + 롤링 요약 + 최근 8턴) ══ */
+const AI_MSGS='ai_msgs', AI_SUM='ai_summary';
+function aiLoad(){ return safeParse(localStorage.getItem(AI_MSGS),[]); }
+function aiSave(m){ try{ localStorage.setItem(AI_MSGS,JSON.stringify(m.slice(-60))); }catch(e){} }
+function aiSummary(){ return localStorage.getItem(AI_SUM)||''; }
+
+/* L1 — 앱 데이터에서 만든 현재 상태 (매 호출 고정 크기) */
+function aiStateBlock(){
+  const t1=safeParse(localStorage.getItem('t1'),[]);
+  const t3=safeParse(localStorage.getItem('t3'),[]);
+  const t5=safeParse(localStorage.getItem('t5'),[]);
+  const L=[];
+  L.push('[학생] '+(tStudentName()||'미등록')+' · '+tStudentSubject()+' · 총 '+t3.length+'회 수업');
+  if(t1[0]&&t1[0].day)L.push('[수업] '+t1[0].day+' '+(t1[0].time||'')+' (회당 '+((t1[0].hrs)||2)+'시간)');
+  const ex=rmExams().filter(function(e){return new Date(e.dt)>=new Date()})[0];
+  if(ex){
+    const dates=rmSessionDates(ex.dt);
+    const cut=new Date(ex.dt); cut.setDate(cut.getDate()-14);
+    L.push('[다음 시험] '+ex.ttl+' '+ex.dt+' — 남은 수업 '+dates.length+'회, 새 진도 가능 '+dates.filter(function(d){return d<cut}).length+'회');
+    if(ex.units&&ex.units.length)L.push('[시험 범위] '+ex.units.join(', '));
+  }
+  if(t3.length){
+    L.push('[최근 진도]');
+    t3.slice(-3).forEach(function(l){ L.push('  · '+l.num+'회('+l.date+') '+String(l.content||'').replace(/\n/g,' / ')); });
+  }
+  if(t5.length){ L.push('[약점] '+t5.slice(0,5).map(function(w){return [w.unit2||w.unit1,w.type].filter(Boolean).join('-')}).join(', ')); }
+  if(typeof v2rows!=='undefined'&&v2rows&&v2rows.length){
+    const wrong={};
+    v2rows.forEach(function(w){ const sub=(w.submissions||[])[0]; if(!sub||!w.problems)return;
+      (sub.marks||[]).forEach(function(m,i){ if(m==='X'&&w.problems[i]&&w.problems[i].unit){ const u=w.problems[i].unit[2]||w.problems[i].unit[1]; wrong[u]=(wrong[u]||0)+1; } }); });
+    const top=Object.entries(wrong).sort(function(a,b){return b[1]-a[1]}).slice(0,4);
+    if(top.length)L.push('[문제지 오답] '+top.map(function(e){return e[0]+' '+e[1]+'건'}).join(', '));
+  }
+  return L.join('\n');
+}
+/* L2 — 오래된 대화를 요약으로 압축 */
+async function aiCompact(){
+  const msgs=aiLoad();
+  if(msgs.length<=16)return;
+  const old=msgs.slice(0,msgs.length-8);
+  const text=old.map(function(m){return (m.r==='u'?'선생님: ':'조교: ')+m.t}).join('\n').slice(0,6000);
+  try{
+    const out=await gemText('아래는 과외 선생님과 조교의 지난 대화다. 앞으로의 대화에 필요한 결정·선호·맥락만 6줄 이내로 요약하라. 이미 앱 데이터로 아는 사실(진도 회차, 시험 날짜 등)은 빼고, 판단과 합의 위주로.\n\n'+(aiSummary()?('[기존 요약]\n'+aiSummary()+'\n\n'):'')+'[대화]\n'+text);
+    localStorage.setItem(AI_SUM, out.trim().slice(0,1200));
+    aiSave(msgs.slice(-8));
+  }catch(e){}
+}
+/* 공통 Gemini 호출 (모델 자동 선택·503 폴백) */
+async function gemText(prompt){
+  const key=v3GemKey(); if(!key)throw new Error('설정 탭에 Gemini API 키를 먼저 넣어주세요');
+  const body={contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.6}};
+  let cand=[];const cached=localStorage.getItem('yt_gem_model'); if(cached)cand.push(cached);
+  let listed=false,r=null;
+  for(let i=0;i<5;i++){
+    if(i>=cand.length){ if(listed)break; listed=true; (await v3GemModels(key)).forEach(function(m){ if(cand.indexOf(m)<0)cand.push(m); }); if(i>=cand.length)break; }
+    const url='https://generativelanguage.googleapis.com/v1beta/models/'+cand[i]+':generateContent?key='+encodeURIComponent(key);
+    r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.status===503){ await new Promise(function(z){setTimeout(z,2500)}); r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+    if(r.ok){ localStorage.setItem('yt_gem_model',cand[i]); break; }
+    if(r.status===400||r.status===403)break;
+  }
+  if(!r||!r.ok)throw new Error(r?('Gemini 오류 '+r.status+(r.status===503?' — 잠시 뒤 다시 시도':'')):'사용 가능한 모델 없음');
+  const j=await r.json();
+  return (((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+}
+/* UI */
+function aiToggle(open){
+  const p=document.getElementById('ai-panel');
+  const show=(open===undefined)?!p.classList.contains('on'):open;
+  p.classList.toggle('on',show);
+  if(show){ aiRender(); document.getElementById('ai-input').focus(); }
+}
+function aiRender(){
+  const box=document.getElementById('ai-msgs'); const msgs=aiLoad();
+  const sum=aiSummary();
+  box.innerHTML=(sum?'<div class="ai-sum">기억 중인 맥락: '+tEscH(sum.split('\n')[0].slice(0,60))+'…</div>':'')
+   +(msgs.length?msgs.map(function(m){
+      return '<div class="ai-b '+(m.r==='u'?'u':'a')+'">'+tEscH(m.t).replace(/\n/g,'<br>')+'</div>';
+    }).join(''):'<div class="ai-empty">수업에 대해 물어보세요. 학생 진도·시험 일정·오답을 이미 알고 있습니다.</div>');
+  box.scrollTop=box.scrollHeight;
+}
+async function aiSend(preset){
+  const inp=document.getElementById('ai-input');
+  const msg=(preset||inp.value||'').trim(); if(!msg)return;
+  const msgs=aiLoad(); msgs.push({r:'u',t:msg,at:new Date().toISOString()}); aiSave(msgs);
+  inp.value=''; aiRender();
+  const box=document.getElementById('ai-msgs');
+  const tip=document.createElement('div'); tip.className='ai-b a ai-typing'; tip.textContent='생각 중…'; box.appendChild(tip); box.scrollTop=box.scrollHeight;
+  try{
+    const sys='너는 고1 수학 과외 선생님의 조교다. 아래 [현재 상태]는 앱이 계산한 사실이니 그대로 신뢰하고 숫자를 새로 계산하지 마라.\n'
+      +'짧고 구체적으로 답한다(기본 5줄 이내). 일반론 대신 이 학생의 진도·약점·남은 수업 수에 근거해 답한다.\n'
+      +'모르는 것은 모른다고 하고, 필요하면 되묻는다. 마크다운 기호(**, ##)는 쓰지 말고 평문으로 쓴다.';
+    const win=aiLoad().slice(-8).map(function(m){return (m.r==='u'?'[선생님] ':'[조교] ')+m.t}).join('\n');
+    const prompt=[sys,'--- 현재 상태 ---',aiStateBlock(),(aiSummary()?'--- 지난 대화 요약 ---\n'+aiSummary():''),'--- 최근 대화 ---',win].filter(Boolean).join('\n');
+    const out=await gemText(prompt);
+    const m2=aiLoad(); m2.push({r:'a',t:out.trim(),at:new Date().toISOString()}); aiSave(m2);
+    aiRender(); aiCompact();
+  }catch(e){
+    tip.remove();
+    const m2=aiLoad(); m2.push({r:'a',t:'⚠ '+e.message,at:new Date().toISOString()}); aiSave(m2); aiRender();
+  }
+}
+function aiClear(){
+  if(!confirm('대화와 기억을 모두 지울까요? (앱 데이터는 그대로입니다)'))return;
+  localStorage.removeItem(AI_MSGS); localStorage.removeItem(AI_SUM); aiRender();
+}
+
 /* ══ 수업 로드맵 (AI 조교) — 계산은 코드가, 배분은 AI가 ══ */
 function yexUnitList(){ const out=[]; Object.entries(CURRICULUM).forEach(function(e){ Object.keys(e[1]).forEach(function(m){ out.push({big:e[0],mid:m}); }); }); return out; }
 function yexRenderUnitPickers(){
@@ -2807,7 +2960,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.0';
+var APP_VER='6.1';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
