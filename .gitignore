@@ -5,3 +5,6 @@ dashboard.backup.html
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# 팀 공유 설정 (로컬 전용)
+.teamshare-project.json
