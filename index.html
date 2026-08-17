@@ -2827,9 +2827,13 @@ function miniRenderUnits(){
   }).join('');
 }
 function _ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function miniDates(n){
+function miniDates(n){   // 평일만 — 주말(금 수업~월 수업)은 교재 숙제 기간
   const out=[]; const d=new Date(); d.setHours(0,0,0,0);
-  for(let i=0;i<n;i++){ const x=new Date(d); x.setDate(d.getDate()+i); out.push(_ymd(x)); }   // 로컬 날짜 (UTC 변환 금지)
+  for(let i=0;out.length<n&&i<n+14;i++){
+    const x=new Date(d); x.setDate(d.getDate()+i);
+    const w=x.getDay(); if(w===0||w===6)continue;
+    out.push(_ymd(x));   // 로컬 날짜 (UTC 변환 금지)
+  }
   return out;
 }
 async function miniGenOne(units, dayLabel){

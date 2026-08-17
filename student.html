@@ -310,7 +310,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.2';
+var APP_VER='6.3';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -547,16 +547,27 @@ function fitScale(el){return Math.max(.4,Math.min(1.4,(el.clientWidth-36)/620))}
 /* ═══ ①-1 새로운 문제 ═══ */
 let pvSheet=null;
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function weekMonday(){   // 이번 주 월요일 (월=주 시작)
+  const d=new Date(); d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return ymd(d);
+}
+/* 미모 규칙 — 그날 것은 그날만. 밀린 것은 금요일에만 열리고, 그 주가 지나면 만료.
+   주말(금 수업~월 수업)은 미모 없이 교재 숙제 기간. */
 function miniToday(){
-  const t=todayStr();
+  const t=todayStr(), wk=weekMonday(), dow=new Date().getDay();
   const mini=rows.filter(w=>w.kind==='mini').sort((a,b)=>String(a.serve_date||'').localeCompare(String(b.serve_date||'')));
   const todaySet=mini.find(w=>String(w.serve_date||'')===t);
-  const backlog=mini.filter(w=>w.status==='assigned'&&String(w.serve_date||'')<t);   // 지난 날짜 미제출
+  const backlog=mini.filter(w=>{const d=String(w.serve_date||'');return w.status==='assigned'&&d<t&&d>=wk;});  // 이번 주 미제출만
   const next=mini.find(w=>w.status==='assigned'&&String(w.serve_date||'')>t);
   return {
     due: (todaySet&&todaySet.status==='assigned')?todaySet:null,   // 오늘 것만
     doneToday: (todaySet&&todaySet.status!=='assigned')?todaySet:null,
-    backlog: backlog, next: next||null
+    backlog: backlog,
+    backlogOpen: dow===5,          // 금요일에만 개방
+    weekend: (dow===0||dow===6),
+    next: next||null
   };
 }
 function renderMiniBtn(){
@@ -572,17 +583,27 @@ function renderMiniBtn(){
     b.style.display='block'; b.style.background='var(--card)';
     $('mini-btn-t').textContent='오늘 미모 완료';
     $('mini-btn-s').textContent=(sub&&sub.score)?('점수 '+sub.score+' — 내일 또 만나요'):'제출했어요';
+  }else if(m.weekend){
+    b.style.display='block'; b.style.background='var(--card)';
+    $('mini-btn-t').textContent='주말은 교재 숙제';
+    $('mini-btn-s').textContent='미모는 월요일에 다시 열려요';
   }else if(m.next){
     b.style.display='block'; b.style.background='var(--card)';
     $('mini-btn-t').textContent='미모 준비됨';
     $('mini-btn-s').textContent=m.next.serve_date.slice(5).replace('-','/')+'부터 열려요';
   }else{ b.style.display='none'; }
-  // 밀린 미모는 보조로만 (오늘 것을 가리지 않는다)
+  // 밀린 미모 — 평소엔 잠금, 금요일에만 열림. 주말엔 표시 안 함.
   const bl=$('mini-back');
   if(bl){
-    if(m.backlog.length){
+    if(m.backlog.length&&!m.weekend){
       bl.style.display='block';
-      bl.textContent='밀린 미모 '+m.backlog.length+'개 ('+m.backlog[0].serve_date.slice(5).replace('-','/')+'부터) — 눌러서 풀기';
+      if(m.backlogOpen){
+        bl.style.borderColor='var(--ink)'; bl.style.color='var(--ink)'; bl.style.cursor='pointer';
+        bl.textContent='이번 주 밀린 미모 '+m.backlog.length+'개 — 금요일이라 열렸어요, 눌러서 풀기';
+      }else{
+        bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
+        bl.textContent='밀린 미모 '+m.backlog.length+'개 — 금요일에 열려요';
+      }
     }else bl.style.display='none';
   }
 }
@@ -590,13 +611,14 @@ function openMini(){
   const m=miniToday();
   if(m.due){ startSolve(m.due); return; }
   if(m.doneToday){ toast('오늘 미모는 이미 제출했어요'); return; }
-  if(m.backlog.length){ startSolve(m.backlog[0]); return; }
+  if(m.weekend){ toast('주말은 교재 숙제 기간이에요 — 미모는 월요일에'); return; }
   toast('아직 준비된 미모가 없어요');
 }
 function openBacklog(){
   const m=miniToday();
-  if(m.backlog.length){ startSolve(m.backlog[0]); return; }
-  toast('밀린 미모가 없어요');
+  if(!m.backlog.length){ toast('밀린 미모가 없어요'); return; }
+  if(!m.backlogOpen){ toast('지난 미모는 금요일에 열려요 — 오늘은 오늘 것만',3000); return; }
+  startSolve(m.backlog[0]);
 }
 function openNewList(){
   const items=rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').slice().reverse(); // 아래가 최신
