@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보처리방침 — 오늘선생 · 오늘학생</title>
+<style>
+  :root{ --ink:#222; --muted:#666; --line:#ddd; --lime:#B9F18D; --paper:#fff; }
+  *{box-sizing:border-box}
+  body{margin:0;padding:2.5rem 1.2rem 4rem;background:var(--paper);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+       line-height:1.75;font-size:16px}
+  main{max-width:760px;margin:0 auto}
+  h1{font-size:1.6rem;margin:0 0 .3rem}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+  .mark{background:var(--lime);padding:1px 6px;border-radius:4px}
+  h2{font-size:1.1rem;margin:2.2rem 0 .6rem;padding-bottom:.35rem;border-bottom:2px solid var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.94rem}
+  th,td{border:1px solid var(--line);padding:.55rem .7rem;text-align:left;vertical-align:top}
+  th{background:#f7f7f7;white-space:nowrap}
+  ul{padding-left:1.2rem}
+  li{margin:.3rem 0}
+  .box{border:1.5px solid var(--ink);border-radius:10px;padding:1rem 1.1rem;margin:1rem 0;background:#fafafa}
+  footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem}
+  @media (max-width:600px){ table,thead,tbody,th,td,tr{display:block} th{border-bottom:none} td{border-top:none} }
+</style>
+</head>
+<body>
+<main>
+  <h1>개인정보처리방침</h1>
+  <div class="sub"><span class="mark">오늘선생</span> · <span class="mark">오늘학생</span> — 시행일 2026년 8월 18일</div>
+
+  <p>‘오늘선생’과 ‘오늘학생’(이하 “본 앱”)은 1:1 과외 수업의 진도·과제·학습 기록을 관리하기 위한 개인용 도구입니다.
+  본 앱은 광고를 게재하지 않으며, 수집한 정보를 판매하거나 제3자에게 마케팅 목적으로 제공하지 않습니다.</p>
+
+  <h2>1. 수집하는 정보</h2>
+  <p>본 앱은 앱 사용자가 <b>직접 입력하거나 촬영한 정보만</b> 처리합니다. 별도의 자동 수집(위치, 광고 식별자, 사용 분석)은 하지 않습니다.</p>
+  <table>
+    <tr><th>구분</th><th>항목</th><th>수집 방법</th></tr>
+    <tr><td>학생 정보</td><td>이름, 학년, 학교, 과목, 수업 요일·시간, 메모</td><td>선생님이 직접 입력</td></tr>
+    <tr><td>연락처</td><td>학생·학부모 연락처(선택 입력)</td><td>선생님이 직접 입력</td></tr>
+    <tr><td>학습 기록</td><td>수업 진도, 숙제 범위, 성적, 오답·약점 기록, 학부모 안내 문자 초안</td><td>선생님이 직접 입력, 또는 채점 결과로 생성</td></tr>
+    <tr><td>사진</td><td>학생이 종이에 푼 풀이 사진, 학습 자료 사진</td><td>카메라 촬영 또는 사진 보관함에서 선택</td></tr>
+    <tr><td>문제지·답안</td><td>문제지 내용, 학생이 입력한 답, 채점 결과, 질문 내용</td><td>앱 사용 중 생성</td></tr>
+  </table>
+
+  <h2>2. 이용 목적</h2>
+  <ul>
+    <li>수업 진도와 과제를 기록하고 이어서 관리하기 위해</li>
+    <li>선생님이 만든 문제지를 학생 기기로 전달하고, 학생의 답안을 채점해 되돌려주기 위해</li>
+    <li>학생이 종이에 쓴 풀이 과정을 선생님이 확인해 지도하기 위해</li>
+    <li>학부모에게 보낼 수업 안내 문자의 초안을 만들기 위해 (발송은 사용자가 직접 합니다)</li>
+  </ul>
+
+  <h2>3. 보관 장소와 기간</h2>
+  <ul>
+    <li><b>기기 내부</b>: 입력한 정보는 기기의 로컬 저장소에 보관됩니다. 앱을 삭제하면 함께 삭제됩니다.</li>
+    <li><b>클라우드(Supabase)</b>: 선생님이 클라우드 연동을 설정한 경우에 한해, 두 기기 간 자료 전달을 위해 저장됩니다.
+        서버는 사용자가 직접 만든 프로젝트이며, 접속 정보는 사용자만 보유합니다.</li>
+    <li>보관 기간: <b>이용 목적이 끝나거나 사용자가 삭제할 때까지</b>입니다. 앱 내에서 개별 기록을 언제든 삭제할 수 있습니다.</li>
+  </ul>
+
+  <h2>4. 제3자 제공 및 처리 위탁</h2>
+  <p>수집한 정보를 제3자에게 판매하거나 제공하지 않습니다. 다만 아래 서비스가 기능 수행을 위해 관여합니다.</p>
+  <table>
+    <tr><th>서비스</th><th>역할</th><th>전달되는 정보</th></tr>
+    <tr><td>Supabase</td><td>두 앱 사이의 자료 전달·보관(사용자가 연동을 설정한 경우)</td><td>학습 기록, 문제지·답안, 풀이 사진</td></tr>
+    <tr><td>Google Gemini API</td><td>선생님이 ‘문제 생성’ 기능을 실행할 때 문제를 만들어 주는 용도</td><td>선생님이 입력한 단원·유형 등 문제 생성 요청 내용<br>(학생 개인정보는 전송하지 않습니다)</td></tr>
+  </table>
+  <div class="box">두 서비스 모두 <b>사용자가 자신의 계정·키를 앱 설정에 직접 입력한 경우에만</b> 동작합니다.
+  입력하지 않으면 해당 기능은 사용되지 않으며, 외부로 전송되는 정보도 없습니다.</div>
+
+  <h2>5. 미성년자의 정보</h2>
+  <p>본 앱은 과외 학생(미성년자를 포함)의 학습 기록을 다룹니다. 학생 정보는 <b>수업을 담당하는 선생님이 직접 입력</b>하며,
+  본 앱은 미성년자에게 직접 정보 제공을 요구하거나 광고를 노출하지 않습니다.
+  법정대리인은 아래 연락처로 자녀 정보의 열람·삭제를 요청할 수 있습니다.</p>
+
+  <h2>6. 이용자의 권리</h2>
+  <ul>
+    <li>앱 내에서 기록을 <b>직접 열람·수정·삭제</b>할 수 있습니다.</li>
+    <li>앱을 삭제하면 기기에 저장된 정보가 삭제됩니다.</li>
+    <li>클라우드에 저장된 정보의 삭제를 원하면 아래 연락처로 요청해 주세요.</li>
+    <li>카메라·사진 접근 권한은 기기의 <i>설정 → 개인정보 보호 및 보안</i>에서 언제든 철회할 수 있습니다.</li>
+  </ul>
+
+  <h2>7. 안전성 확보 조치</h2>
+  <ul>
+    <li>외부 통신은 모두 HTTPS로 암호화합니다.</li>
+    <li>클라우드 접속 정보와 API 키는 앱 바이너리에 포함하지 않고, 사용자 기기에만 저장합니다.</li>
+    <li>본 앱은 앱 사용 기록을 분석하거나 외부 분석 도구로 전송하지 않습니다.</li>
+  </ul>
+
+  <h2>8. 문의처</h2>
+  <p>개인정보 관련 문의·열람·삭제 요청: <b>farohance@gmail.com</b></p>
+
+  <h2>9. 방침 변경</h2>
+  <p>내용이 변경되면 이 페이지에 변경된 방침과 시행일을 게시합니다.</p>
+
+  <footer>오늘선생 · 오늘학생 — 최종 수정일 2026년 8월 18일</footer>
+</main>
+</body>
+</html>
