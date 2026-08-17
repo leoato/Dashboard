@@ -10,3 +10,12 @@ desktop.ini
 .teamshare-project.json
 node_modules
 .env
+
+# iOS 빌드 산출물 (Capacitor)
+ios/*/node_modules/
+ios/*/www/
+ios/*/ios/App/App/public/
+ios/*/ios/App/build/
+ios/*/ios/DerivedData/
+ios/*/ios/App/.swiftpm/
+*.xcarchive
