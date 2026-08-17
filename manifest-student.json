@@ -1,0 +1,12 @@
+{
+  "name": "오늘학생",
+  "short_name": "오늘학생",
+  "start_url": "./student.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#222222",
+  "icons": [
+    { "src": "icon-student.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-student.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

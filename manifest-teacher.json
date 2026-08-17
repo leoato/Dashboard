@@ -1,0 +1,12 @@
+{
+  "name": "오늘선생",
+  "short_name": "오늘선생",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#222222",
+  "icons": [
+    { "src": "icon-teacher.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-teacher.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
