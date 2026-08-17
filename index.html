@@ -565,6 +565,12 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-modal, #tutor-overlay .wz-modal { background:#FFFFFF; border:1.5px solid #222222; box-shadow:3px 3px 0 #222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:8px; }
 #tutor-overlay .t-tab-btn { font-family:inherit; font-size:.8rem; font-weight:600; }
+#tutor-overlay .yex-units{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 8px;max-height:132px;overflow-y:auto;border:1px solid #D8DADF;border-radius:6px;padding:6px 8px;background:#fff}
+#tutor-overlay .yex-units label{display:flex;align-items:center;gap:5px;font-size:.66rem;cursor:pointer;padding:2px 0}
+#tutor-overlay .yex-units input{width:12px;height:12px}
+#tutor-overlay #rm-table th{background:#F4F5F2;font-weight:700;text-align:left;padding:6px 8px;border-bottom:1.5px solid #222222;white-space:nowrap}
+#tutor-overlay #rm-table td{padding:7px 8px;border-bottom:1px dashed #D8DADF;vertical-align:top}
+#tutor-overlay #rm-table td.d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#777777}
 #tutor-overlay .t-tab-btn.active { color:#fff; background:rgba(185,241,141,.12); border-bottom:3px solid #B9F18D; font-weight:800; }
 #tutor-overlay .t-lbadge { border-radius:5px; }
 #tutor-overlay .t-tc { background-image:none; }
@@ -614,6 +620,35 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
     <div class="t-tc">
       <div class="t-ptitle">수업 준비</div>
       <div class="t-psub">PREP — 준비 · 진도 · 계획 · 시험 일정</div>
+
+      <div class="t-card" id="rm-card">
+        <div class="t-ctitle">수업 로드맵 <span id="rm-mode" style="margin-left:auto;font-size:.68rem;color:#777777"></span></div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">목표 시험</label><select id="rm-exam"></select></div>
+          <div class="t-fg"><label class="tl">목표</label><input type="text" id="rm-goal" value="시험 범위의 난이도 중까지 스스로 풀 수 있게"></div>
+        </div>
+        <div id="rm-facts" style="font-size:.74rem;color:#4A4A4A;background:#F4F5F2;border-radius:8px;padding:.6rem .8rem;margin-bottom:.7rem;line-height:1.75"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="t-btn t-btn-p" id="rm-go" onclick="rmGenerate()">로드맵 짜기</button>
+          <button class="t-btn t-btn-g" onclick="rmRefreshFacts()">↺ 다시 계산</button>
+        </div>
+        <div id="rm-out" style="display:none;margin-top:.9rem">
+          <div id="rm-diag" style="border-left:3px solid #B9F18D;background:rgba(185,241,141,.14);padding:.65rem .85rem;border-radius:0 8px 8px 0;font-size:.8rem;line-height:1.7;margin-bottom:.7rem"></div>
+          <div style="overflow-x:auto"><table id="rm-table" style="width:100%;border-collapse:collapse;font-size:.76rem"></table></div>
+          <div id="rm-risk" style="font-size:.75rem;color:#777777;margin-top:.6rem;line-height:1.7"></div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:.8rem">
+            <button class="t-btn t-btn-p t-btn-sm" onclick="rmApplyToPlan()">진도 계획에 반영</button>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="rmCopy()">텍스트 복사</button>
+          </div>
+          <div style="margin-top:.9rem">
+            <label class="tl">이어서 요청 (예: 2주차를 더 쉽게, 숙제량 줄여줘)</label>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <input type="text" id="rm-follow" placeholder="고칠 점을 적어주세요" style="flex:1" onkeydown="if(event.key==='Enter')rmFollow()">
+              <button class="t-btn t-btn-g t-btn-sm" onclick="rmFollow()">보내기</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="legacy-wrap">
 
         <div class="card card-t">
@@ -653,11 +688,17 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           <div class="card-head"><span>학생 시험 일정</span><button class="btn" onclick="tf('yex-add')">+ 추가</button></div>
           <div id="yex-add" class="add-form" style="display:none;">
             <input type="text" id="yex-ttl" placeholder="시험 이름">
-            <div class="row"><input type="date" id="yex-dt" style="flex:1"><button class="btn acc" onclick="addYEX()">저장</button></div>
+            <div class="row"><input type="date" id="yex-dt" style="flex:1"></div>
+            <div style="font-size:.62rem;color:#777777;margin:5px 0 3px">시험 범위 (중단원)</div>
+            <div id="yex-units" class="yex-units"></div>
+            <div class="row"><button class="btn acc" onclick="addYEX()">저장</button></div>
           </div>
           <div id="yex-ep" class="ep">
             <input type="text" id="yex-ettl" placeholder="시험 이름">
-            <div class="row"><input type="date" id="yex-edt" style="flex:1"><button class="btn acc" onclick="saveYEX()">저장</button><button class="btn" onclick="ce('yex')">취소</button></div>
+            <div class="row"><input type="date" id="yex-edt" style="flex:1"></div>
+            <div style="font-size:.62rem;color:#777777;margin:5px 0 3px">시험 범위 (중단원)</div>
+            <div id="yex-eunits" class="yex-units"></div>
+            <div class="row"><button class="btn acc" onclick="saveYEX()">저장</button><button class="btn" onclick="ce('yex')">취소</button></div>
           </div>
           <div class="slist" id="yex-list" style="margin-bottom:7px"><div class="empty">시험 일정이 없습니다</div></div>
           <hr class="divider">
@@ -1138,7 +1179,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v5.8 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.0 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1556,9 +1597,9 @@ function addPLAN(){ const ttl=gv('plan-ttl').trim(); if(!ttl)return; S.plan.push
 function rPLAN(){ const el=document.getElementById('plan-list'); if(!S.plan.length){el.innerHTML='<div class="empty">계획 없음</div>';return;} el.innerHTML=S.plan.map(p=>'<div class="irow"><span class="ilbl">→ '+tEscH(p.ttl)+'</span><button class="btn del" onclick="delI(\'plan\','+p.id+')">✕</button></div>').join(''); }
 
 /* ── YOON EXAM ── */
-function addYEX(){ const ttl=gv('yex-ttl').trim(),dt=gv('yex-dt'); if(!ttl||!dt){alert('이름과 날짜를 입력하세요');return;} S.yex.push({id:Date.now(),ttl,dt}); save(); rYEX(); rCal('yoon'); clr('yex-ttl','yex-dt'); hd('yex-add'); }
-function openEditYEX(id){ const x=S.yex.find(i=>i.id==id); if(!x)return; ed.yex=id; sv('yex-ettl',x.ttl); sv('yex-edt',x.dt); document.getElementById('yex-ep').classList.add('on'); }
-function saveYEX(){ const x=S.yex.find(i=>i.id==ed.yex); if(!x)return; x.ttl=gv('yex-ettl').trim()||x.ttl; x.dt=gv('yex-edt')||x.dt; ce('yex'); save(); rYEX(); rCal('yoon'); }
+function addYEX(){ const ttl=gv('yex-ttl').trim(),dt=gv('yex-dt'); if(!ttl||!dt){alert('이름과 날짜를 입력하세요');return;} S.yex.push({id:Date.now(),ttl,dt,units:yexGetUnits('yex-units')}); save(); rYEX(); rCal('yoon'); clr('yex-ttl','yex-dt'); yexSetUnits('yex-units',[]); hd('yex-add'); rmRefreshFacts(); }
+function openEditYEX(id){ const x=S.yex.find(i=>i.id==id); if(!x)return; ed.yex=id; sv('yex-ettl',x.ttl); sv('yex-edt',x.dt); yexSetUnits('yex-eunits',x.units); document.getElementById('yex-ep').classList.add('on'); }
+function saveYEX(){ const x=S.yex.find(i=>i.id==ed.yex); if(!x)return; x.ttl=gv('yex-ettl').trim()||x.ttl; x.dt=gv('yex-edt')||x.dt; x.units=yexGetUnits('yex-eunits'); ce('yex'); save(); rYEX(); rCal('yoon'); rmRefreshFacts(); }
 function rYEX(){ const el=document.getElementById('yex-list'); if(!S.yex.length){el.innerHTML='<div class="empty">시험 일정이 없습니다</div>';return;} el.innerHTML=[...S.yex].sort((a,b)=>new Date(a.dt)-new Date(b.dt)).map(e=>'<div class="erow"><span class="edate">'+fmtD(e.dt)+'</span><span class="ilbl">'+tEscH(e.ttl)+'</span>'+ddH(e.dt)+'<button class="btn sm" onclick="openEditYEX('+e.id+')">수정</button><button class="btn del" onclick="delI(\'yex\','+e.id+')">✕</button></div>').join(''); }
 
 /* ── TRASH ── */
@@ -1611,7 +1652,7 @@ function tShowGroup(g){
   const b=document.querySelector(`[data-tgroup="${g}"]`);if(b)b.classList.add('active');
   tCurrentTab=TGROUPS[g][0];
   if(g==='today') tDashRefresh();
-  if(g==='today') try{v2DashAlert()}catch(e){}
+  if(g==='today'){ try{v2DashAlert()}catch(e){} try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){} }
   if(g==='sheets') try{v2Render()}catch(e){}
   if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} }
   if(g==='student') t7Render();
@@ -2602,8 +2643,171 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 // 질문함 모달을 탭 패널 밖(오버레이 직속)으로 이동 — 어느 탭에서 열어도 보이게
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
+
+/* ══ 수업 로드맵 (AI 조교) — 계산은 코드가, 배분은 AI가 ══ */
+function yexUnitList(){ const out=[]; Object.entries(CURRICULUM).forEach(function(e){ Object.keys(e[1]).forEach(function(m){ out.push({big:e[0],mid:m}); }); }); return out; }
+function yexRenderUnitPickers(){
+  ['yex-units','yex-eunits'].forEach(function(id){ const el=document.getElementById(id); if(!el)return;
+    el.innerHTML=yexUnitList().map(function(u){ return '<label title="'+tEscH(u.big)+'"><input type="checkbox" value="'+tEscH(u.mid)+'">'+tEscH(u.mid)+'</label>'; }).join('');
+  });
+}
+function yexGetUnits(id){ return [].slice.call(document.querySelectorAll('#'+id+' input:checked')).map(function(i){return i.value}); }
+function yexSetUnits(id,units){ document.querySelectorAll('#'+id+' input').forEach(function(i){ i.checked=(units||[]).indexOf(i.value)>=0; }); }
+
+/* 수업 요일 — 학생 등록 정보 우선, 없으면 진도 기록에서 추론 */
+function rmWeekdays(){
+  const map={'일':0,'월':1,'화':2,'수':3,'목':4,'금':5,'토':6};
+  const t1=safeParse(localStorage.getItem('t1'),[]);
+  const day=(t1[0]&&t1[0].day)||'';
+  const found=[];(day.match(/[일월화수목금토](?=요일)/g)||[]).forEach(function(c){ if(found.indexOf(map[c])<0)found.push(map[c]); });
+  if(found.length)return found;
+  const t3=safeParse(localStorage.getItem('t3'),[]); const cnt={};
+  t3.slice(-16).forEach(function(l){ const d=new Date(l.date); if(!isNaN(d))cnt[d.getDay()]=(cnt[d.getDay()]||0)+1; });
+  return Object.keys(cnt).filter(function(k){return cnt[k]>=2}).map(Number);
+}
+function rmSessionDates(examDt){
+  const wd=rmWeekdays(); if(!wd.length)return [];
+  const out=[]; const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+1);
+  const end=new Date(examDt); end.setHours(0,0,0,0);
+  let guard=0;
+  while(d<end && guard++<400){ if(wd.indexOf(d.getDay())>=0)out.push(new Date(d)); d.setDate(d.getDate()+1); }
+  return out;
+}
+function rmFmt(d){ return (d.getMonth()+1)+'/'+d.getDate()+'('+['일','월','화','수','목','금','토'][d.getDay()]+')'; }
+function rmExams(){ return (S.yex||[]).slice().sort(function(a,b){return new Date(a.dt)-new Date(b.dt)}); }
+function rmFillExams(){
+  const sel=document.getElementById('rm-exam'); if(!sel)return;
+  const list=rmExams(); const today=new Date(); today.setHours(0,0,0,0);
+  const future=list.filter(function(e){return new Date(e.dt)>=today});
+  sel.innerHTML=(future.length?future:list).map(function(e){
+    return '<option value="'+e.id+'">'+tEscH(e.ttl)+' · '+e.dt+((e.units&&e.units.length)?(' · 범위 '+e.units.length+'단원'):' · 범위 미지정')+'</option>';
+  }).join('')||'<option value="">시험 일정을 먼저 추가하세요</option>';
+}
+/* 사실 블록 — AI에게 넘길 계산된 값 */
+function rmFacts(){
+  const sel=document.getElementById('rm-exam'); const id=sel&&sel.value;
+  const ex=(S.yex||[]).find(function(e){return String(e.id)===String(id)});
+  if(!ex)return null;
+  const t1=safeParse(localStorage.getItem('t1'),[]);
+  const t3=safeParse(localStorage.getItem('t3'),[]);
+  const t5=safeParse(localStorage.getItem('t5'),[]);
+  const hrs=parseFloat((t1[0]&&t1[0].hrs)||2)||2;
+  const dates=rmSessionDates(ex.dt);
+  const cut=new Date(ex.dt); cut.setDate(cut.getDate()-14);
+  const newProg=dates.filter(function(d){return d<cut});
+  const subUnits=[];
+  Object.values(CURRICULUM).forEach(function(mids){ Object.entries(mids).forEach(function(e){
+    if((ex.units||[]).indexOf(e[0])>=0) subUnits.push({mid:e[0],subs:e[1]});
+  }); });
+  return {ex:ex, dates:dates, hrs:hrs, hours:dates.length*hrs, cut:cut, newProg:newProg,
+    subUnits:subUnits, subCount:subUnits.reduce(function(n,u){return n+u.subs.length},0),
+    recent:t3.slice(-8), lessonCount:t3.length,
+    weak:t5.slice(0,6).map(function(w){return [w.subject,w.unit1,w.unit2,w.type].filter(Boolean).join(' > ')})};
+}
+function rmRefreshFacts(){
+  rmFillExams();
+  const f=rmFacts(); const box=document.getElementById('rm-facts'); if(!box)return;
+  if(!f){ box.innerHTML='시험 일정을 먼저 추가하세요 (아래 <b>학생 시험 일정</b> 카드에서 범위까지 체크).'; return; }
+  const wd=rmWeekdays().map(function(d){return ['일','월','화','수','목','금','토'][d]}).join('·');
+  box.innerHTML='<b>'+tEscH(f.ex.ttl)+'</b> ('+f.ex.dt+')까지 남은 수업 <b>'+f.dates.length+'회</b> · '+f.hours+'시간 ('+wd+' 기준)<br>'
+    +'새 진도 가능 <b>'+f.newProg.length+'회</b> (시험 2주 전까지) · 이후 마무리 '+(f.dates.length-f.newProg.length)+'회<br>'
+    +'범위 '+(f.ex.units||[]).length+'중단원 · 소단원 <b>'+f.subCount+'개</b>'
+    +(f.subCount&&f.newProg.length?(' → 회당 평균 <b>'+(f.subCount/f.newProg.length).toFixed(1)+'개</b> 소화 필요'):'')
+    + ((f.ex.units&&f.ex.units.length)?'':'<br><span style="color:#C0392B">범위가 지정되지 않았습니다 — 시험 일정에서 중단원을 체크하세요</span>');
+}
+/* AI 호출 */
+let rmThread=[], rmLast=null;
+function rmStateBlock(f,goal){
+  const lines=[];
+  lines.push('[학생] '+(tStudentName()||'학생')+' · '+tStudentSubject()+' · 지금까지 '+f.lessonCount+'회 수업');
+  lines.push('[시험] '+f.ex.ttl+' — '+f.ex.dt);
+  lines.push('[남은 수업] 총 '+f.dates.length+'회('+f.hours+'시간). 새 진도는 '+f.newProg.length+'회까지, 나머지 '+(f.dates.length-f.newProg.length)+'회는 총정리.');
+  lines.push('[수업 날짜] '+f.dates.map(rmFmt).join(', '));
+  lines.push('[시험 범위 소단원]');
+  f.subUnits.forEach(function(u){ lines.push('  · '+u.mid+': '+u.subs.join(', ')); });
+  lines.push('[최근 진도 기록]');
+  f.recent.forEach(function(l){ lines.push('  · '+l.num+'회('+l.date+'): '+String(l.content||'').replace(/\n/g,' / ')); });
+  if(f.weak.length){ lines.push('[약점 기록]'); f.weak.forEach(function(w){ lines.push('  · '+w); }); }
+  lines.push('[목표] '+goal);
+  return lines.join('\n');
+}
+async function rmCall(userMsg){
+  const key=v3GemKey(); if(!key)throw new Error('설정 탭에 Gemini API 키를 먼저 넣어주세요');
+  const f=rmFacts(); if(!f)throw new Error('시험 일정을 먼저 추가하세요');
+  if(!(f.ex.units||[]).length)throw new Error('시험 범위(중단원)를 먼저 체크하세요');
+  const goal=(document.getElementById('rm-goal').value||'').trim()||'시험 범위를 스스로 풀 수 있게';
+  const sys='너는 고1 수학 과외 선생님의 수업 설계 조교다. 아래 사실은 앱이 계산한 값이므로 그대로 신뢰하고, 날짜나 회차 수를 새로 계산하지 마라.\n'
+    +'회차 수와 날짜는 [수업 날짜] 목록을 순서대로 쓴다. 진도가 더딘 학생이므로 욕심내지 말고 실제 최근 페이스에 맞춰 배분하라.\n'
+    +'각 회차는 2시간이며, 시작 30분은 지난 숙제 점검/테스트에 쓰는 습관이 있다.\n'
+    +'JSON만 출력:\n'
+    +'{"diagnosis":"현재 페이스로 가능한지 2~3문장 진단(부족하면 몇 회 부족한지 명시)",'
+    +'"sessions":[{"date":"[수업 날짜]의 항목 그대로","units":"다룰 소단원(쉼표)","goal":"이 회차 목표 한 줄","homework":"숙제 한 줄"}],'
+    +'"risks":["위험 신호나 조정 제안 2~4개"]}';
+  const parts=[sys,'--- 사실 ---',rmStateBlock(f,goal)];
+  rmThread.slice(-6).forEach(function(t){ parts.push((t.role==='user'?'[선생님]':'[조교]')+' '+t.text); });
+  if(userMsg)parts.push('[선생님] '+userMsg);
+  const body={contents:[{parts:[{text:parts.join('\n')}]}],generationConfig:{responseMimeType:'application/json',temperature:0.5}};
+  let cand=[];const cached=localStorage.getItem('yt_gem_model'); if(cached)cand.push(cached);
+  let listed=false,r=null,used='';
+  for(let i=0;i<5;i++){
+    if(i>=cand.length){ if(listed)break; listed=true; (await v3GemModels(key)).forEach(function(m){ if(cand.indexOf(m)<0)cand.push(m); }); if(i>=cand.length)break; }
+    used=cand[i];
+    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+used+':generateContent?key='+encodeURIComponent(key),
+      {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(r.status===503){ await new Promise(function(z){setTimeout(z,2500)}); r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+used+':generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+    if(r.ok){ localStorage.setItem('yt_gem_model',used); break; }
+    if(r.status===400||r.status===403)break;
+  }
+  if(!r||!r.ok)throw new Error(r?('Gemini 오류 '+r.status+(r.status===503?' — 잠시 뒤 다시':'')):'모델 없음');
+  const j=await r.json();
+  const txt=(((j.candidates||[])[0]||{}).content||{parts:[{}]}).parts[0].text||'';
+  const out=JSON.parse(txt);
+  if(userMsg)rmThread.push({role:'user',text:userMsg});
+  rmThread.push({role:'ai',text:(out.diagnosis||'')+' / '+(out.sessions||[]).length+'회차 계획'});
+  return out;
+}
+function rmRender(out){
+  rmLast=out;
+  document.getElementById('rm-out').style.display='block';
+  document.getElementById('rm-diag').innerHTML='<b>진단</b> — '+tEscH(out.diagnosis||'');
+  const rows=(out.sessions||[]).map(function(x,i){
+    return '<tr><td class="d">'+(i+1)+'회<br>'+tEscH(x.date||'')+'</td><td><b>'+tEscH(x.units||'')+'</b><br><span style="color:#777777">'+tEscH(x.goal||'')+'</span></td><td>'+tEscH(x.homework||'')+'</td></tr>';
+  }).join('');
+  document.getElementById('rm-table').innerHTML='<tr><th>회차</th><th>다룰 내용</th><th>숙제</th></tr>'+rows;
+  document.getElementById('rm-risk').innerHTML=(out.risks||[]).map(function(r){return '· '+tEscH(r)}).join('<br>');
+  try{ localStorage.setItem('rm_last',JSON.stringify({out:out,at:new Date().toISOString()})); }catch(e){}
+}
+async function rmGenerate(){
+  const btn=document.getElementById('rm-go'); btn.disabled=true; btn.textContent='짜는 중… (15~25초)';
+  try{ rmThread=[]; rmRender(await rmCall(null)); tShowToast('✅ 로드맵이 나왔습니다'); }
+  catch(e){ tShowToast('❗ '+e.message,4500); }
+  btn.disabled=false; btn.textContent='로드맵 짜기';
+}
+async function rmFollow(){
+  const inp=document.getElementById('rm-follow'); const msg=(inp.value||'').trim();
+  if(!msg){tShowToast('고칠 점을 적어주세요');return;}
+  inp.disabled=true;
+  try{ rmRender(await rmCall(msg)); inp.value=''; tShowToast('✅ 반영했습니다'); }
+  catch(e){ tShowToast('❗ '+e.message,4500); }
+  inp.disabled=false;
+}
+function rmApplyToPlan(){
+  if(!rmLast||!(rmLast.sessions||[]).length){tShowToast('먼저 로드맵을 만들어주세요');return;}
+  if(!confirm('로드맵 '+rmLast.sessions.length+'회차를 진도 계획에 추가할까요?'))return;
+  rmLast.sessions.forEach(function(x){ S.plan.push({id:Date.now()+Math.floor(Math.random()*10000),ttl:(x.date||'')+' · '+(x.units||'')+' — '+(x.goal||'')}); });
+  save(); rPLAN(); tShowToast('진도 계획에 '+rmLast.sessions.length+'개 추가됨');
+}
+function rmCopy(){
+  if(!rmLast)return;
+  const txt='[수업 로드맵]\n'+(rmLast.diagnosis||'')+'\n\n'
+    +(rmLast.sessions||[]).map(function(x,i){return (i+1)+'회 '+(x.date||'')+' · '+(x.units||'')+'\n   목표: '+(x.goal||'')+'\n   숙제: '+(x.homework||'')}).join('\n')
+    +'\n\n[체크]\n'+(rmLast.risks||[]).map(function(r){return '· '+r}).join('\n');
+  if(navigator.clipboard)navigator.clipboard.writeText(txt).catch(function(){});
+  tShowToast('복사되었습니다');
+}
+
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='5.8';
+var APP_VER='6.0';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
