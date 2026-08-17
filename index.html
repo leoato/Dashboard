@@ -1121,7 +1121,11 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">페어링 코드</label><input type="text" id="v2-pair" placeholder="YUN-4821" onchange="v2SaveCfg()"></div>
-        <button class="t-btn t-btn-p" onclick="v2CopyConnect()">태블릿 연결 코드 복사</button>
+        <div id="v2-conn-state" style="font-size:.74rem;margin-bottom:.6rem;line-height:1.7"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="t-btn t-btn-g" onclick="v2ConnTest()">연결 확인</button>
+          <button class="t-btn t-btn-p" onclick="v2CopyConnect()">태블릿 연결 코드 복사</button>
+        </div>
         <div style="font-size:.72rem;color:#777777;margin-top:.5rem">URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-setup-guide.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
       </div>
 
@@ -1134,7 +1138,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v5.6 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v5.7 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1589,7 +1593,7 @@ function tShowGroup(g){
   if(g==='today') tDashRefresh();
   if(g==='today') try{v2DashAlert()}catch(e){}
   if(g==='sheets') try{v2Render()}catch(e){}
-  if(g==='settings') t6RefreshSummary();
+  if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} }
   if(g==='student') t7Render();
   const area=document.querySelector('#tutor-overlay .t-area');if(area)area.scrollTop=0;
 }
@@ -2381,6 +2385,7 @@ function v2LoadCfg(){
 function v2SaveCfg(){
   ['url','key','pair','gem'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)v2Set(k,el.value)});
   v2sb=null;v2ModeChip();tShowToast('✅ 연동 설정 저장');v2Render();v2PushPublic();
+  if(!v2Demo()){ updateUnsaved(); silentCloudUpload(); }
 }
 function v2TogglePw(id,btn){
   const el=document.getElementById(id);
@@ -2391,6 +2396,30 @@ function v2ModeChip(){
   const t=v2Demo()?'데모 모드':'Supabase 연결됨 · '+v2Pair();
   const m=document.getElementById('v2-mode');if(m)m.textContent=t;
   const c=document.getElementById('v2-chip');if(c)c.textContent=t;
+}
+function v2ConnLine(ok,txt){return '<div style="color:'+(ok?'#2F7A4D':'#C0392B')+'">'+(ok?'✓':'✗')+' '+txt+'</div>';}
+async function v2ConnTest(){
+  const box=document.getElementById('v2-conn-state'); if(box)box.innerHTML='확인 중…';
+  const url=v2Cfg('url'), key=v2Cfg('key');
+  let html='';
+  html+=v2ConnLine(!!url, url?('주소 입력됨 ('+url.replace(/^https?:\/\//,'').slice(0,28)+')'):'주소가 비어 있습니다 — Settings → API의 Project URL');
+  html+=v2ConnLine(!!key, key?('키 입력됨 (…'+key.slice(-6)+')'):'anon key가 비어 있습니다 — 키 칸에 붙여넣고 칸 밖을 한 번 누르세요');
+  if(!url||!key){ if(box)box.innerHTML=html+'<div style="color:#6d675e">둘 다 있어야 연결됩니다.</div>'; v2ModeChip(); return; }
+  // 테이블 접근 확인
+  let ws=false,qs=false,app=false,err='';
+  try{ const r=await v2Sb().from('worksheets').select('id').limit(1); ws=!r.error; if(r.error)err=r.error.message; }catch(e){err=e.message}
+  try{ const r=await v2Sb().from('questions').select('id').limit(1); qs=!r.error; }catch(e){}
+  try{ const r=await v2Sb().from('app_state').select('pair_code').limit(1); app=!r.error; }catch(e){}
+  html+=v2ConnLine(ws,'문제지 테이블'+(ws?' 연결됨':' 실패 — '+err));
+  html+=v2ConnLine(qs,'질문 테이블'+(qs?' 연결됨':' 없음 — supabase-v4.sql 실행'));
+  html+=v2ConnLine(app,'기록 동기화 테이블'+(app?' 연결됨':' 없음 — supabase-v6.sql 실행'));
+  if(ws&&app){
+    try{ await silentCloudUpload(); await v2PushPublic();
+      html+='<div style="color:#2F7A4D">✓ 지금 이 기기의 기록을 클라우드에 올렸습니다</div>';
+    }catch(e){ html+='<div style="color:#C0392B">✗ 업로드 실패: '+(e.message||e)+'</div>'; }
+  }
+  if(box)box.innerHTML=html;
+  v2ModeChip();
 }
 function v2CopyConnect(){
   if(v2Demo()){tShowToast('❗ 먼저 위 칸에 URL·anon key를 넣어 "Supabase 연결됨"이 된 뒤에 복사하세요');return;}
@@ -2537,7 +2566,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='5.6';
+var APP_VER='5.7';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
