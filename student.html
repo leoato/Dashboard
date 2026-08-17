@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
 <title>오늘학생</title>
 <link rel="icon" type="image/png" href="icon-student.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-student.png">
@@ -99,6 +99,15 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .stamp{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:4px double #C43E2F;border-radius:50%;color:#C43E2F;font-family:var(--serif);font-weight:700;font-size:1.35rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);background:rgba(253,251,247,.92);line-height:1.35;text-align:center}
 @keyframes stampin{0%{transform:rotate(-35deg) scale(2.4);opacity:0}55%{transform:rotate(-9deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
 @media(max-width:760px){.home-grid{grid-template-columns:1fr}.split{flex-direction:column}.split>*{width:100%}}
+
+/* ── iOS 세이프에어리어 (노치·홈 인디케이터) ── */
+@supports (padding: env(safe-area-inset-top)) {
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+         padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .toast { bottom: calc(24px + env(safe-area-inset-bottom)); }
+}
+/* 입력 포커스 시 iOS 자동 확대 방지 — 16px 미만 폰트가 원인 */
+input, select, textarea { font-size: max(16px, 1em); }
 </style>
 </head>
 <body>

@@ -2,7 +2,7 @@
 <html lang="ko" data-theme="mono">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
 <title>오늘선생</title>
 <link rel="icon" type="image/png" href="icon-teacher.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-teacher.png">
@@ -601,6 +601,15 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-panel { height:auto; overflow-y:visible; }
 #tutor-overlay .t-tc { min-height:0; }
 #tutor-overlay .t-panel.active + .t-panel.active { border-top:2px solid #222222; }
+
+/* ── iOS 세이프에어리어 (노치·홈 인디케이터) ── */
+@supports (padding: env(safe-area-inset-top)) {
+  #tutor-overlay { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .t-hd { padding-top: calc(7px + env(safe-area-inset-top)); }
+  .t-tc { padding-bottom: calc(1.3rem + env(safe-area-inset-bottom)); }
+}
+/* 입력 포커스 시 iOS 자동 확대 방지 — 16px 미만 폰트가 원인 */
+input, select, textarea { font-size: max(16px, 1em); }
 </style>
 </head>
 <body>
@@ -3159,7 +3168,7 @@ function v3BuildSheetHTML(title,problems,withAnswers){
   const ans=withAnswers?'<div class="ansgrid"><header><div class="side">정답 &amp; 해설</div><div class="ttl">'+v3EscQ(title)+'</div><div class="side">&nbsp;</div></header><div class="answers"><table><tr><th>번호</th><th>정답</th><th>풀이 핵심</th></tr>'
     +problems.map(function(p,i){return '<tr><td>'+String(i+1).padStart(2,'0')+'</td><td class="k">'+v3EscQ(p.answer)+'</td><td style="text-align:left">'+v3EscQ(p.solution||'')+'</td></tr>'}).join('')
     +'</table></div></div>':'';
-  return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>'+v3EscQ(title)+'</title><style>'
+  return '<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0"><title>'+v3EscQ(title)+'</title><style>'
     +'@page{size:A4;margin:16mm 15mm}*{box-sizing:border-box}'
     +'body{font-family:"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;color:#1a1a1a;margin:0;font-size:11.5pt;line-height:1.55}'
     +'.sheet{max-width:180mm;margin:0 auto;padding:12px}'
