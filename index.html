@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>할일 대시보드</title>
+<title>오늘선생</title>
 <link rel="icon" type="image/jpeg" href="icon.jpg">
 <link rel="apple-touch-icon" href="icon.jpg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script>
 // Apply saved theme before first paint to avoid flash
 (function(){var t=localStorage.getItem('dash6_theme');if(t){document.documentElement.setAttribute('data-theme',t);}})();
@@ -26,7 +27,7 @@
   --past-bg:#eee; --past-fg:#bbb; --past-bd:#ddd;
   --today-bg:#000; --today-fg:#fff;
   --ev-bg:#e8e8e8; --urgev-bg:#000; --urgev-fg:#fff; --evdot:#000;
-  --font:'Noto Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --font:'Noto Sans KR',sans-serif; --mono:'Pretendard Variable',Pretendard,sans-serif;
   --r:0px; --bw:1.5px;
   /* column accent colours */
   --s-lt:#e8eef8; --s-dk:#1a3f7a; --s-md:#6b96d4;
@@ -47,7 +48,7 @@
   --past-bg:#e8e0d5; --past-fg:#b0a090; --past-bd:#c8bfb0;
   --today-bg:#4a3728; --today-fg:#faf7f2;
   --ev-bg:#e0d8c8; --urgev-bg:#4a3728; --urgev-fg:#faf7f2; --evdot:#4a3728;
-  --font:'Gowun Dodum',serif; --mono:'DM Mono',monospace;
+  --font:'Gowun Dodum',serif; --mono:'Pretendard Variable',Pretendard,sans-serif;
   --r:3px; --bw:1px;
   --s-lt:#dce6f5; --s-dk:#1e3d6a; --s-md:#6b96d4;
   --t-lt:#eeddf5; --t-dk:#5a2a88; --t-md:#b07ad4;
@@ -65,7 +66,7 @@
   --past-bg:#252830; --past-fg:#4a5070; --past-bd:#3a3d48;
   --today-bg:#5b6ef5; --today-fg:#fff;
   --ev-bg:#252838; --urgev-bg:#5b6ef5; --urgev-fg:#fff; --evdot:#5b6ef5;
-  --font:'IBM Plex Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --font:'IBM Plex Sans KR',sans-serif; --mono:'Pretendard Variable',Pretendard,sans-serif;
   --r:5px; --bw:1px;
   --s-lt:#1e2540; --s-dk:#a0b8f8; --s-md:#4a6ee0;
   --t-lt:#26183a; --t-dk:#d0a8f8; --t-md:#9a68e8;
@@ -83,7 +84,7 @@
   --past-bg:#deeade; --past-fg:#8aaa8a; --past-bd:#b0c8b0;
   --today-bg:#2d4d2d; --today-fg:#f4f7f4;
   --ev-bg:#d0e8d0; --urgev-bg:#2d4d2d; --urgev-fg:#f4f7f4; --evdot:#2d4d2d;
-  --font:'Noto Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --font:'Noto Sans KR',sans-serif; --mono:'Pretendard Variable',Pretendard,sans-serif;
   --r:4px; --bw:1px;
   --s-lt:#d8e8f8; --s-dk:#164880; --s-md:#5090d0;
   --t-lt:#ede0f8; --t-dk:#522888; --t-md:#a070d0;
@@ -281,56 +282,56 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 }
 /* All tutoring styles are scoped inside #tutor-overlay to avoid collisions */
 #tutor-overlay * { box-sizing: border-box; }
-#tutor-overlay header.t-hd { background:#1A1A1A; padding:7px 1.1rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; min-height:52px; flex-shrink:0; box-shadow:0 2px 16px rgba(26,35,64,.25); z-index:10; }
+#tutor-overlay header.t-hd { background:#222222; padding:7px 1.1rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; min-height:52px; flex-shrink:0; box-shadow:0 2px 16px rgba(26,35,64,.25); z-index:10; }
 #tutor-overlay .t-hd-r { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-#tutor-overlay .t-hd-clock { font-family:'DM Mono',monospace; font-size:.63rem; color:rgba(245,240,232,.55); white-space:nowrap; }
+#tutor-overlay .t-hd-clock { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.63rem; color:rgba(245,240,232,.55); white-space:nowrap; }
 #tutor-overlay .t-hd .tbtn { font-family:'Noto Sans KR',sans-serif; font-size:.58rem; padding:2px 7px; border:1px solid rgba(245,240,232,.28); background:transparent; color:rgba(245,240,232,.6); border-radius:5px; cursor:pointer; transition:all .15s; }
-#tutor-overlay .t-hd .tbtn:hover { border-color:#E0764E; color:#E0764E; background:transparent; }
-#tutor-overlay .t-hd .tbtn.on { background:#D4552A; border-color:#D4552A; color:#fff; }
-#tutor-overlay .t-hd .hbtn { font-family:'Noto Sans KR',sans-serif; font-size:.66rem; font-weight:700; padding:3px 10px; border:1.5px solid rgba(245,240,232,.35); background:transparent; color:#FDFBF7; border-radius:6px; cursor:pointer; transition:all .15s; white-space:nowrap; }
-#tutor-overlay .t-hd .hbtn:hover { background:rgba(245,240,232,.12); border-color:#E0764E; color:#E0764E; }
-#tutor-overlay .t-hd-note { font-family:'DM Mono',monospace; font-size:.58rem; color:rgba(245,240,232,.5); white-space:nowrap; cursor:pointer; }
-#tutor-overlay .t-logo { font-family:'Nanum Myeongjo',serif; font-weight:800; font-size:1.05rem; color:#FDFBF7; display:flex; align-items:center; gap:8px; }
-#tutor-overlay .t-logo-dot { width:7px; height:7px; background:#D4552A; border-radius:50%; }
-#tutor-overlay .t-hd-meta { font-family:'DM Mono',monospace; font-size:.61rem; color:rgba(245,240,232,.4); letter-spacing:1px; }
-#tutor-overlay .t-back { font-family:'Noto Sans KR',sans-serif; font-size:.7rem; font-weight:700; border:1.5px solid rgba(245,240,232,.35); background:transparent; color:#FDFBF7; padding:4px 11px; cursor:pointer; border-radius:6px; transition:all .15s; }
+#tutor-overlay .t-hd .tbtn:hover { border-color:#000000; color:#000000; background:transparent; }
+#tutor-overlay .t-hd .tbtn.on { background:#222222; border-color:#222222; color:#fff; }
+#tutor-overlay .t-hd .hbtn { font-family:'Noto Sans KR',sans-serif; font-size:.66rem; font-weight:700; padding:3px 10px; border:1.5px solid rgba(245,240,232,.35); background:transparent; color:#FFFFFF; border-radius:6px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+#tutor-overlay .t-hd .hbtn:hover { background:rgba(245,240,232,.12); border-color:#000000; color:#000000; }
+#tutor-overlay .t-hd-note { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:rgba(245,240,232,.5); white-space:nowrap; cursor:pointer; }
+#tutor-overlay .t-logo { font-family:'Nanum Myeongjo',serif; font-weight:800; font-size:1.05rem; color:#FFFFFF; display:flex; align-items:center; gap:8px; }
+#tutor-overlay .t-logo-dot { width:7px; height:7px; background:#222222; border-radius:50%; }
+#tutor-overlay .t-hd-meta { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.61rem; color:rgba(245,240,232,.4); letter-spacing:1px; }
+#tutor-overlay .t-back { font-family:'Noto Sans KR',sans-serif; font-size:.7rem; font-weight:700; border:1.5px solid rgba(245,240,232,.35); background:transparent; color:#FFFFFF; padding:4px 11px; cursor:pointer; border-radius:6px; transition:all .15s; }
 #tutor-overlay .t-back:hover { background:rgba(245,240,232,.12); }
 #tutor-overlay nav.t-nav { background:#4A4A4A; display:flex; overflow-x:auto; scrollbar-width:none; border-bottom:2px solid rgba(232,101,42,.3); flex-shrink:0; }
 #tutor-overlay nav.t-nav::-webkit-scrollbar { display:none; }
 #tutor-overlay .t-tab-btn { padding:.62rem .95rem; border:none; background:transparent; color:rgba(245,240,232,.55); font-family:'Noto Sans KR',sans-serif; font-size:.75rem; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s; border-bottom:2px solid transparent; margin-bottom:-2px; }
-#tutor-overlay .t-tab-btn.active { color:#E0764E; border-bottom-color:#D4552A; background:rgba(232,101,42,.08); font-weight:700; }
+#tutor-overlay .t-tab-btn.active { color:#000000; border-bottom-color:#222222; background:rgba(232,101,42,.08); font-weight:700; }
 #tutor-overlay .t-area { flex:1; overflow:hidden; position:relative; }
-#tutor-overlay .t-panel { display:none; width:100%; height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; font-family:'Noto Sans KR',sans-serif; color:#1A1A1A; }
+#tutor-overlay .t-panel { display:none; width:100%; height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; font-family:'Noto Sans KR',sans-serif; color:#222222; }
 #tutor-overlay .t-panel.active { display:block; }
-#tutor-overlay .t-tc { padding:1.3rem; background:#FDFBF7; background-image:repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(26,35,64,.04) 31px,rgba(26,35,64,.04) 32px); min-height:100%; }
+#tutor-overlay .t-tc { padding:1.3rem; background:#FFFFFF; background-image:repeating-linear-gradient(0deg,transparent,transparent 31px,rgba(26,35,64,.04) 31px,rgba(26,35,64,.04) 32px); min-height:100%; }
 /* Common tutoring components */
 #tutor-overlay .t-ptitle { font-family:'Nanum Myeongjo',serif; font-size:1.45rem; font-weight:700; margin-bottom:.15rem; }
-#tutor-overlay .t-psub { font-size:.7rem; color:#6d675e; font-family:'DM Mono',monospace; letter-spacing:.5px; margin-bottom:1.3rem; }
+#tutor-overlay .t-psub { font-size:.7rem; color:#777777; font-family:'Pretendard Variable',Pretendard,sans-serif; letter-spacing:.5px; margin-bottom:1.3rem; }
 #tutor-overlay .t-card { background:white; border-radius:12px; padding:1.2rem 1.3rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1px solid rgba(26,35,64,.12); margin-bottom:1rem; }
-#tutor-overlay .t-ctitle { font-family:'Nanum Myeongjo',serif; font-size:.95rem; font-weight:700; color:#1A1A1A; margin-bottom:.85rem; padding-bottom:.45rem; border-bottom:1.5px solid rgba(26,35,64,.12); display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
-#tutor-overlay .t-ic { width:21px; height:21px; background:#D4552A; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:.7rem; color:white; flex-shrink:0; }
-#tutor-overlay label.tl { font-size:.66rem; font-weight:700; color:#4A4A4A; text-transform:uppercase; letter-spacing:.5px; font-family:'DM Mono',monospace; display:block; margin-bottom:4px; }
+#tutor-overlay .t-ctitle { font-family:'Nanum Myeongjo',serif; font-size:.95rem; font-weight:700; color:#222222; margin-bottom:.85rem; padding-bottom:.45rem; border-bottom:1.5px solid rgba(26,35,64,.12); display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+#tutor-overlay .t-ic { width:21px; height:21px; background:#222222; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:.7rem; color:white; flex-shrink:0; }
+#tutor-overlay label.tl { font-size:.66rem; font-weight:700; color:#4A4A4A; text-transform:uppercase; letter-spacing:.5px; font-family:'Pretendard Variable',Pretendard,sans-serif; display:block; margin-bottom:4px; }
 #tutor-overlay .t-panel input:not([type=file]):not([type=checkbox]),
 #tutor-overlay .t-panel textarea,
-#tutor-overlay .t-panel select { border:1.5px solid rgba(26,35,64,.12); border-radius:8px; padding:.52rem .8rem; font-family:'Noto Sans KR',sans-serif; font-size:.83rem; color:#1A1A1A; background:#FDFBF7; transition:border-color .2s; outline:none; width:100%; -webkit-appearance:none; }
+#tutor-overlay .t-panel select { border:1.5px solid rgba(26,35,64,.12); border-radius:8px; padding:.52rem .8rem; font-family:'Noto Sans KR',sans-serif; font-size:.83rem; color:#222222; background:#FFFFFF; transition:border-color .2s; outline:none; width:100%; -webkit-appearance:none; }
 #tutor-overlay .t-panel input:focus,
 #tutor-overlay .t-panel textarea:focus,
-#tutor-overlay .t-panel select:focus { border-color:#D4552A; background:white; }
+#tutor-overlay .t-panel select:focus { border-color:#222222; background:white; }
 #tutor-overlay .t-panel textarea { resize:vertical; line-height:1.6; }
 #tutor-overlay .t-fr { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem; }
 #tutor-overlay .t-fg { display:flex; flex-direction:column; gap:4px; }
 #tutor-overlay .t-fg.full { grid-column:1/-1; }
 #tutor-overlay .t-btn { padding:.52rem 1rem; border-radius:8px; border:none; cursor:pointer; font-family:'Noto Sans KR',sans-serif; font-weight:700; font-size:.78rem; transition:all .2s; display:inline-flex; align-items:center; gap:5px; }
-#tutor-overlay .t-btn-p { background:#D4552A; color:white; } #tutor-overlay .t-btn-p:hover { background:#E0764E; }
-#tutor-overlay .t-btn-g { background:transparent; color:#4A4A4A; border:1.5px solid rgba(26,35,64,.12); } #tutor-overlay .t-btn-g:hover { border-color:#D4552A; color:#D4552A; }
-#tutor-overlay .t-btn-n { background:#1A1A1A; color:white; } #tutor-overlay .t-btn-n:hover { background:#4A4A4A; }
+#tutor-overlay .t-btn-p { background:#222222; color:white; } #tutor-overlay .t-btn-p:hover { background:#000000; }
+#tutor-overlay .t-btn-g { background:transparent; color:#4A4A4A; border:1.5px solid rgba(26,35,64,.12); } #tutor-overlay .t-btn-g:hover { border-color:#222222; color:#222222; }
+#tutor-overlay .t-btn-n { background:#222222; color:white; } #tutor-overlay .t-btn-n:hover { background:#4A4A4A; }
 #tutor-overlay .t-btn-d { background:transparent; color:#C0392B; border:1.5px solid rgba(192,57,43,.2); padding:.3rem .6rem; font-size:.69rem; } #tutor-overlay .t-btn-d:hover { background:#FDECEA; }
 #tutor-overlay .t-btn-sm { padding:.35rem .8rem; font-size:.72rem; }
-#tutor-overlay .t-hint { font-size:.68rem; color:#6d675e; margin-top:3px; line-height:1.5; }
-#tutor-overlay .t-empty { text-align:center; padding:2rem; color:#6d675e; font-size:.78rem; }
+#tutor-overlay .t-hint { font-size:.68rem; color:#777777; margin-top:3px; line-height:1.5; }
+#tutor-overlay .t-empty { text-align:center; padding:2rem; color:#777777; font-size:.78rem; }
 #tutor-overlay .t-sep { height:1px; background:rgba(26,35,64,.12); margin:.9rem 0; }
 /* Toast */
-#t-toast { position:absolute; bottom:1.4rem; right:1.4rem; background:#1A1A1A; color:#FDFBF7; padding:.68rem 1.1rem; border-radius:10px; font-size:.78rem; font-weight:700; box-shadow:0 4px 20px rgba(0,0,0,.25); opacity:0; transform:translateY(10px); transition:all .3s; pointer-events:none; z-index:999; max-width:calc(100% - 3rem); font-family:'Noto Sans KR',sans-serif; }
+#t-toast { position:absolute; bottom:1.4rem; right:1.4rem; background:#222222; color:#FFFFFF; padding:.68rem 1.1rem; border-radius:10px; font-size:.78rem; font-weight:700; box-shadow:0 4px 20px rgba(0,0,0,.25); opacity:0; transform:translateY(10px); transition:all .3s; pointer-events:none; z-index:999; max-width:calc(100% - 3rem); font-family:'Noto Sans KR',sans-serif; }
 #t-toast.show { opacity:1; transform:translateY(0); }
 /* Modal inside overlay */
 #tutor-overlay .t-mbg { display:none; position:absolute; inset:0; background:rgba(26,35,64,.45); z-index:50; align-items:center; justify-content:center; padding:1rem; }
@@ -339,7 +340,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .wz-modal { background:white; border-radius:14px; width:100%; max-width:520px; max-height:88vh; box-shadow:0 10px 40px rgba(0,0,0,.25); display:flex; flex-direction:column; overflow:hidden; }
 #tutor-overlay .wz-dots { display:flex; gap:6px; justify-content:center; padding:10px 0 4px; }
 #tutor-overlay .wz-dot { width:8px; height:8px; border-radius:50%; background:#ddd; transition:all .2s; }
-#tutor-overlay .wz-dot.on { background:#D4552A; width:22px; border-radius:5px; }
+#tutor-overlay .wz-dot.on { background:#222222; width:22px; border-radius:5px; }
 #tutor-overlay .wz-vp { overflow:hidden; }
 #tutor-overlay .wz-track { display:flex; transition:transform .3s ease; }
 #tutor-overlay .wz-step { width:100%; flex-shrink:0; padding:1rem 1.3rem 1.2rem; overflow-y:auto; max-height:56vh; }
@@ -351,133 +352,133 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .t-mtitle { font-family:'Nanum Myeongjo',serif; font-size:1.02rem; font-weight:700; margin-bottom:.85rem; padding-bottom:.45rem; border-bottom:1.5px solid rgba(26,35,64,.12); }
 #tutor-overlay .t-mact { display:flex; gap:7px; margin-top:.85rem; flex-wrap:wrap; }
 /* Student bar */
-#tutor-overlay .t-sbar { background:#1A1A1A; border-radius:12px; padding:1.05rem 1.25rem; display:flex; align-items:center; gap:1.1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
-#tutor-overlay .t-savatar { width:42px; height:42px; background:#D4552A; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1.05rem; color:white; font-weight:700; flex-shrink:0; }
-#tutor-overlay .t-sname { font-family:'Nanum Myeongjo',serif; font-size:.97rem; font-weight:700; color:#FDFBF7; }
-#tutor-overlay .t-smeta { font-family:'DM Mono',monospace; font-size:.59rem; color:rgba(245,240,232,.45); }
+#tutor-overlay .t-sbar { background:#222222; border-radius:12px; padding:1.05rem 1.25rem; display:flex; align-items:center; gap:1.1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+#tutor-overlay .t-savatar { width:42px; height:42px; background:#222222; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1.05rem; color:white; font-weight:700; flex-shrink:0; }
+#tutor-overlay .t-sname { font-family:'Nanum Myeongjo',serif; font-size:.97rem; font-weight:700; color:#FFFFFF; }
+#tutor-overlay .t-smeta { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.59rem; color:rgba(245,240,232,.45); }
 #tutor-overlay .t-sinfo { flex:1; min-width:90px; }
 #tutor-overlay .t-stats { display:flex; gap:1.1rem; flex-wrap:wrap; }
 #tutor-overlay .t-stat { text-align:center; }
-#tutor-overlay .t-stat-n { font-family:'DM Mono',monospace; font-size:1.15rem; font-weight:700; color:#E0764E; line-height:1; }
+#tutor-overlay .t-stat-n { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:1.15rem; font-weight:700; color:#000000; line-height:1; }
 #tutor-overlay .t-stat-l { font-size:.58rem; color:rgba(245,240,232,.4); margin-top:2px; }
 /* Dash */
 #tutor-overlay .t-dgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:.85rem; margin-bottom:1rem; }
 #tutor-overlay .t-dc { background:white; border-radius:12px; padding:1rem 1.1rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1px solid rgba(26,35,64,.12); cursor:pointer; transition:all .2s; position:relative; overflow:hidden; }
-#tutor-overlay .t-dc::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#D4552A; opacity:0; transition:opacity .2s; }
+#tutor-overlay .t-dc::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:#222222; opacity:0; transition:opacity .2s; }
 #tutor-overlay .t-dc:hover { transform:translateY(-2px); } #tutor-overlay .t-dc:hover::before { opacity:1; }
-#tutor-overlay .t-dc-num { font-family:'DM Mono',monospace; font-size:.57rem; color:#D4552A; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:.28rem; }
-#tutor-overlay .t-dc-title { font-family:'Nanum Myeongjo',serif; font-size:.92rem; font-weight:700; color:#1A1A1A; margin-bottom:.22rem; }
-#tutor-overlay .t-dc-desc { font-size:.68rem; color:#6d675e; line-height:1.4; }
-#tutor-overlay .t-dc-badge { position:absolute; top:.85rem; right:.85rem; background:#F5EFE2; border-radius:20px; padding:.1rem .5rem; font-family:'DM Mono',monospace; font-size:.56rem; color:#4A4A4A; }
+#tutor-overlay .t-dc-num { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.57rem; color:#222222; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:.28rem; }
+#tutor-overlay .t-dc-title { font-family:'Nanum Myeongjo',serif; font-size:.92rem; font-weight:700; color:#222222; margin-bottom:.22rem; }
+#tutor-overlay .t-dc-desc { font-size:.68rem; color:#777777; line-height:1.4; }
+#tutor-overlay .t-dc-badge { position:absolute; top:.85rem; right:.85rem; background:#F4F5F2; border-radius:20px; padding:.1rem .5rem; font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#4A4A4A; }
 #tutor-overlay .t-lgrid { display:flex; flex-wrap:wrap; gap:6px; }
-#tutor-overlay .t-lbox { width:48px; height:48px; border-radius:8px; background:#F5EFE2; border:1.5px solid rgba(26,35,64,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'DM Mono',monospace; cursor:pointer; transition:all .15s; }
-#tutor-overlay .t-lbox.done { background:#1A1A1A; border-color:#1A1A1A; }
-#tutor-overlay .t-lbox.done .t-lnum { color:#E0764E; } #tutor-overlay .t-lbox.done .t-ldate { color:rgba(245,240,232,.4); }
-#tutor-overlay .t-lnum { font-size:.82rem; font-weight:700; color:#1A1A1A; line-height:1; }
-#tutor-overlay .t-ldate { font-size:.42rem; color:#6d675e; margin-top:2px; }
+#tutor-overlay .t-lbox { width:48px; height:48px; border-radius:8px; background:#F4F5F2; border:1.5px solid rgba(26,35,64,.12); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Pretendard Variable',Pretendard,sans-serif; cursor:pointer; transition:all .15s; }
+#tutor-overlay .t-lbox.done { background:#222222; border-color:#222222; }
+#tutor-overlay .t-lbox.done .t-lnum { color:#000000; } #tutor-overlay .t-lbox.done .t-ldate { color:rgba(245,240,232,.4); }
+#tutor-overlay .t-lnum { font-size:.82rem; font-weight:700; color:#222222; line-height:1; }
+#tutor-overlay .t-ldate { font-size:.42rem; color:#777777; margin-top:2px; }
 #tutor-overlay .t-2col { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; margin-bottom:.85rem; }
-#tutor-overlay .t-rmsg { font-size:.76rem; line-height:1.65; color:#1A1A1A; background:#F5EFE2; border-radius:8px; padding:.68rem .88rem; border-left:3px solid #D4552A; white-space:pre-line; word-break:break-word; }
-#tutor-overlay .t-rmsg-date { font-family:'DM Mono',monospace; font-size:.58rem; color:#6d675e; margin-bottom:.32rem; }
-#tutor-overlay .t-wtag { display:inline-flex; align-items:center; gap:3px; background:#F5EFE2; border:1.5px solid rgba(26,35,64,.12); border-radius:20px; padding:.26rem .68rem; font-size:.68rem; color:#1A1A1A; margin:2px; }
+#tutor-overlay .t-rmsg { font-size:.76rem; line-height:1.65; color:#222222; background:#F4F5F2; border-radius:8px; padding:.68rem .88rem; border-left:3px solid #222222; white-space:pre-line; word-break:break-word; }
+#tutor-overlay .t-rmsg-date { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:#777777; margin-bottom:.32rem; }
+#tutor-overlay .t-wtag { display:inline-flex; align-items:center; gap:3px; background:#F4F5F2; border:1.5px solid rgba(26,35,64,.12); border-radius:20px; padding:.26rem .68rem; font-size:.68rem; color:#222222; margin:2px; }
 /* Tab1 views */
 #tutor-overlay .t1v { display:none; } #tutor-overlay .t1v.active { display:block; }
 #tutor-overlay .t-bbtn { display:inline-flex; align-items:center; gap:5px; background:transparent; border:1.5px solid rgba(26,35,64,.12); border-radius:8px; padding:.38rem .85rem; font-size:.76rem; font-weight:700; color:#4A4A4A; cursor:pointer; margin-bottom:1rem; transition:all .15s; font-family:'Noto Sans KR',sans-serif; }
-#tutor-overlay .t-bbtn:hover { border-color:#D4552A; color:#D4552A; }
+#tutor-overlay .t-bbtn:hover { border-color:#222222; color:#222222; }
 #tutor-overlay .t-scard { background:white; border-radius:12px; padding:.95rem 1.1rem; box-shadow:0 4px 24px rgba(26,35,64,.10); border:1.5px solid rgba(26,35,64,.12); margin-bottom:.8rem; cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:.85rem; position:relative; overflow:hidden; }
-#tutor-overlay .t-scard::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:#D4552A; opacity:0; transition:opacity .15s; }
+#tutor-overlay .t-scard::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:#222222; opacity:0; transition:opacity .15s; }
 #tutor-overlay .t-scard:hover { transform:translateY(-2px); } #tutor-overlay .t-scard:hover::before { opacity:1; }
-#tutor-overlay .t-scavatar { width:40px; height:40px; border-radius:50%; background:#1A1A1A; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#E0764E; flex-shrink:0; }
-#tutor-overlay .t-scname { font-family:'Nanum Myeongjo',serif; font-size:.94rem; font-weight:700; color:#1A1A1A; }
-#tutor-overlay .t-scmeta { font-family:'DM Mono',monospace; font-size:.58rem; color:#6d675e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-#tutor-overlay .t-addbtn { border:2px dashed rgba(26,35,64,.12); border-radius:12px; padding:.95rem; text-align:center; cursor:pointer; color:#6d675e; font-size:.81rem; transition:all .18s; background:transparent; width:100%; font-family:'Noto Sans KR',sans-serif; }
-#tutor-overlay .t-addbtn:hover { border-color:#D4552A; color:#D4552A; }
-#tutor-overlay .t-dhdr { background:#1A1A1A; border-radius:12px; padding:1.05rem 1.25rem; display:flex; align-items:center; gap:.85rem; margin-bottom:1rem; }
-#tutor-overlay .t-davatar { width:46px; height:46px; border-radius:50%; background:#D4552A; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1.15rem; font-weight:700; color:white; flex-shrink:0; }
-#tutor-overlay .t-dname { font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#FDFBF7; }
-#tutor-overlay .t-dmeta { font-family:'DM Mono',monospace; font-size:.58rem; color:rgba(245,240,232,.5); }
-#tutor-overlay .t-unsaved { width:7px; height:7px; background:#D4552A; border-radius:50%; display:inline-block; margin-left:5px; opacity:0; transition:opacity .2s; vertical-align:middle; }
+#tutor-overlay .t-scavatar { width:40px; height:40px; border-radius:50%; background:#222222; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#000000; flex-shrink:0; }
+#tutor-overlay .t-scname { font-family:'Nanum Myeongjo',serif; font-size:.94rem; font-weight:700; color:#222222; }
+#tutor-overlay .t-scmeta { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:#777777; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#tutor-overlay .t-addbtn { border:2px dashed rgba(26,35,64,.12); border-radius:12px; padding:.95rem; text-align:center; cursor:pointer; color:#777777; font-size:.81rem; transition:all .18s; background:transparent; width:100%; font-family:'Noto Sans KR',sans-serif; }
+#tutor-overlay .t-addbtn:hover { border-color:#222222; color:#222222; }
+#tutor-overlay .t-dhdr { background:#222222; border-radius:12px; padding:1.05rem 1.25rem; display:flex; align-items:center; gap:.85rem; margin-bottom:1rem; }
+#tutor-overlay .t-davatar { width:46px; height:46px; border-radius:50%; background:#222222; display:flex; align-items:center; justify-content:center; font-family:'Nanum Myeongjo',serif; font-size:1.15rem; font-weight:700; color:white; flex-shrink:0; }
+#tutor-overlay .t-dname { font-family:'Nanum Myeongjo',serif; font-size:1rem; font-weight:700; color:#FFFFFF; }
+#tutor-overlay .t-dmeta { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:rgba(245,240,232,.5); }
+#tutor-overlay .t-unsaved { width:7px; height:7px; background:#222222; border-radius:50%; display:inline-block; margin-left:5px; opacity:0; transition:opacity .2s; vertical-align:middle; }
 #tutor-overlay .t-unsaved.vis { opacity:1; }
-#tutor-overlay .t-fee { background:#F5EFE2; border-radius:10px; padding:1rem 1.1rem; border:1.5px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-fee { background:#F4F5F2; border-radius:10px; padding:1rem 1.1rem; border:1.5px solid rgba(26,35,64,.12); }
 #tutor-overlay .t-fee-in { display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; margin-bottom:.85rem; }
 #tutor-overlay .t-fee-ig { display:flex; flex-direction:column; gap:3px; }
-#tutor-overlay .t-fee-ig input { width:95px; text-align:center; font-family:'DM Mono',monospace; font-weight:700; }
-#tutor-overlay .t-fee-op { font-family:'DM Mono',monospace; font-size:1.15rem; color:#D4552A; font-weight:700; padding-bottom:.22rem; }
-#tutor-overlay .t-fee-res { background:#1A1A1A; border-radius:8px; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
-#tutor-overlay .t-fee-rl { font-size:.68rem; color:rgba(245,240,232,.55); font-family:'DM Mono',monospace; }
-#tutor-overlay .t-fee-rb { font-family:'DM Mono',monospace; font-size:.58rem; color:rgba(245,240,232,.35); margin-top:2px; }
-#tutor-overlay .t-fee-rn { font-family:'DM Mono',monospace; font-size:1.2rem; font-weight:700; color:#E0764E; }
+#tutor-overlay .t-fee-ig input { width:95px; text-align:center; font-family:'Pretendard Variable',Pretendard,sans-serif; font-weight:700; }
+#tutor-overlay .t-fee-op { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:1.15rem; color:#222222; font-weight:700; padding-bottom:.22rem; }
+#tutor-overlay .t-fee-res { background:#222222; border-radius:8px; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; }
+#tutor-overlay .t-fee-rl { font-size:.68rem; color:rgba(245,240,232,.55); font-family:'Pretendard Variable',Pretendard,sans-serif; }
+#tutor-overlay .t-fee-rb { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:rgba(245,240,232,.35); margin-top:2px; }
+#tutor-overlay .t-fee-rn { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:1.2rem; font-weight:700; color:#000000; }
 /* Tab2 */
 #tutor-overlay .t-fwrap { margin-bottom:.85rem; border-radius:10px; overflow:hidden; border:1.5px solid rgba(26,35,64,.12); }
-#tutor-overlay .t-fhdr { display:flex; align-items:center; gap:8px; padding:.75rem .9rem; background:#F5EFE2; cursor:pointer; font-weight:700; font-size:.83rem; color:#1A1A1A; transition:background .15s; user-select:none; }
+#tutor-overlay .t-fhdr { display:flex; align-items:center; gap:8px; padding:.75rem .9rem; background:#F4F5F2; cursor:pointer; font-weight:700; font-size:.83rem; color:#222222; transition:background .15s; user-select:none; }
 #tutor-overlay .t-fhdr:hover { background:#e5dece; }
-#tutor-overlay .t-fname-input { background:transparent; border:none; font-weight:700; font-size:.83rem; color:#1A1A1A; font-family:'Noto Sans KR',sans-serif; flex:1; outline:none; cursor:pointer; padding:0; }
-#tutor-overlay .t-fcount { font-family:'DM Mono',monospace; font-size:.58rem; color:#6d675e; margin-left:auto; white-space:nowrap; }
-#tutor-overlay .t-fchev { font-size:.65rem; color:#6d675e; transition:transform .2s; flex-shrink:0; }
+#tutor-overlay .t-fname-input { background:transparent; border:none; font-weight:700; font-size:.83rem; color:#222222; font-family:'Noto Sans KR',sans-serif; flex:1; outline:none; cursor:pointer; padding:0; }
+#tutor-overlay .t-fcount { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:#777777; margin-left:auto; white-space:nowrap; }
+#tutor-overlay .t-fchev { font-size:.65rem; color:#777777; transition:transform .2s; flex-shrink:0; }
 #tutor-overlay .t-fchev.open { transform:rotate(90deg); }
 #tutor-overlay .t-fbody { background:white; padding:.65rem .9rem; display:none; }
 #tutor-overlay .t-fbody.open { display:block; }
 #tutor-overlay .t-fitem { display:flex; align-items:center; gap:6px; padding:.45rem 0; border-bottom:1px solid rgba(26,35,64,.12); font-size:.78rem; flex-wrap:wrap; }
 #tutor-overlay .t-fitem:last-of-type { border-bottom:none; }
-#tutor-overlay .t-ficon { color:#D4552A; flex-shrink:0; }
+#tutor-overlay .t-ficon { color:#222222; flex-shrink:0; }
 #tutor-overlay .t-fname { font-weight:500; word-break:break-all; flex:1; min-width:90px; }
-#tutor-overlay .t-fpath { font-family:'DM Mono',monospace; font-size:.56rem; color:#6d675e; word-break:break-all; width:100%; padding-left:17px; }
-#tutor-overlay .t-fopen { background:#F5EFE2; border:1.5px solid rgba(26,35,64,.12); border-radius:6px; padding:.2rem .52rem; font-size:.63rem; font-family:'DM Mono',monospace; color:#4A4A4A; cursor:pointer; white-space:nowrap; flex-shrink:0; text-decoration:none; transition:all .15s; }
-#tutor-overlay .t-fopen:hover { border-color:#D4552A; color:#D4552A; }
-#tutor-overlay .t-add-file-form { background:#F5EFE2; border-radius:8px; padding:.85rem; margin-top:.65rem; display:none; }
+#tutor-overlay .t-fpath { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#777777; word-break:break-all; width:100%; padding-left:17px; }
+#tutor-overlay .t-fopen { background:#F4F5F2; border:1.5px solid rgba(26,35,64,.12); border-radius:6px; padding:.2rem .52rem; font-size:.63rem; font-family:'Pretendard Variable',Pretendard,sans-serif; color:#4A4A4A; cursor:pointer; white-space:nowrap; flex-shrink:0; text-decoration:none; transition:all .15s; }
+#tutor-overlay .t-fopen:hover { border-color:#222222; color:#222222; }
+#tutor-overlay .t-add-file-form { background:#F4F5F2; border-radius:8px; padding:.85rem; margin-top:.65rem; display:none; }
 #tutor-overlay .t-add-file-form.open { display:block; }
-#tutor-overlay .t-new-folder-form { background:#F5EFE2; border-radius:10px; padding:.85rem; margin-top:.4rem; display:none; }
+#tutor-overlay .t-new-folder-form { background:#F4F5F2; border-radius:10px; padding:.85rem; margin-top:.4rem; display:none; }
 #tutor-overlay .t-new-folder-form.open { display:block; }
 /* Tab3 */
 #tutor-overlay .t-exitem { display:flex; gap:6px; margin-bottom:.5rem; align-items:flex-start; }
 #tutor-overlay .t-exitem input:first-child { max-width:115px; flex-shrink:0; }
 #tutor-overlay .t-exitem textarea { flex:1; min-height:50px; }
-#tutor-overlay .t-rmfbtn { background:none; border:none; color:#6d675e; cursor:pointer; font-size:.9rem; padding:.42rem; flex-shrink:0; }
+#tutor-overlay .t-rmfbtn { background:none; border:none; color:#777777; cursor:pointer; font-size:.9rem; padding:.42rem; flex-shrink:0; }
 #tutor-overlay .t-rmfbtn:hover { color:#C0392B; }
 #tutor-overlay .t-lrec { border:1.5px solid rgba(26,35,64,.12); border-radius:10px; padding:.9rem 1.05rem; margin-bottom:.7rem; background:white; }
-#tutor-overlay .t-lbadge { font-family:'DM Mono',monospace; font-size:.58rem; background:#1A1A1A; color:#E0764E; padding:.16rem .58rem; border-radius:4px; white-space:nowrap; }
-#tutor-overlay .t-ldlbl { font-size:.71rem; color:#6d675e; }
+#tutor-overlay .t-lbadge { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; background:#222222; color:#000000; padding:.16rem .58rem; border-radius:4px; white-space:nowrap; }
+#tutor-overlay .t-ldlbl { font-size:.71rem; color:#777777; }
 #tutor-overlay .t-lf { margin-bottom:.3rem; }
-#tutor-overlay .t-lfl { font-family:'DM Mono',monospace; font-size:.56rem; color:#6d675e; text-transform:uppercase; }
-#tutor-overlay .t-lfv { color:#1A1A1A; margin-top:1px; font-size:.79rem; }
+#tutor-overlay .t-lfl { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#777777; text-transform:uppercase; }
+#tutor-overlay .t-lfv { color:#222222; margin-top:1px; font-size:.79rem; }
 #tutor-overlay .t-hwv { color:#5C7A6B; font-weight:500; }
-#tutor-overlay .t-msgtpl { background:#F5EFE2; border:1.5px dashed #D4552A; border-radius:10px; padding:1rem; font-size:.81rem; line-height:1.9; color:#1A1A1A; white-space:pre-wrap; word-break:break-word; margin-bottom:.85rem; min-height:115px; }
-#tutor-overlay .t-tplbl { font-family:'DM Mono',monospace; font-size:.56rem; color:#D4552A; letter-spacing:1px; text-transform:uppercase; margin-bottom:.52rem; display:block; }
+#tutor-overlay .t-msgtpl { background:#F4F5F2; border:1.5px dashed #222222; border-radius:10px; padding:1rem; font-size:.81rem; line-height:1.9; color:#222222; white-space:pre-wrap; word-break:break-word; margin-bottom:.85rem; min-height:115px; }
+#tutor-overlay .t-tplbl { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#222222; letter-spacing:1px; text-transform:uppercase; margin-bottom:.52rem; display:block; }
 /* Tab4 */
 #tutor-overlay .t-mitem { display:flex; gap:.85rem; padding:.85rem 0; border-bottom:1px solid rgba(26,35,64,.12); }
 #tutor-overlay .t-mitem:last-child { border-bottom:none; }
 #tutor-overlay .t-mleft { display:flex; flex-direction:column; align-items:center; min-width:44px; padding-top:2px; }
-#tutor-overlay .t-mdd { font-family:'DM Mono',monospace; font-size:.58rem; color:#6d675e; text-align:center; line-height:1.4; }
-#tutor-overlay .t-mdn { font-family:'DM Mono',monospace; font-size:.82rem; font-weight:700; color:#4A4A4A; text-align:center; }
-#tutor-overlay .t-mbubble { flex:1; background:#F5EFE2; border-radius:10px; padding:.75rem .9rem; border-left:3px solid #D4552A; font-size:.79rem; line-height:1.75; color:#1A1A1A; white-space:pre-line; word-break:break-word; }
-#tutor-overlay .t-mbubble.editing { background:white; border:1.5px solid #D4552A; padding:0; }
+#tutor-overlay .t-mdd { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; color:#777777; text-align:center; line-height:1.4; }
+#tutor-overlay .t-mdn { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.82rem; font-weight:700; color:#4A4A4A; text-align:center; }
+#tutor-overlay .t-mbubble { flex:1; background:#F4F5F2; border-radius:10px; padding:.75rem .9rem; border-left:3px solid #222222; font-size:.79rem; line-height:1.75; color:#222222; white-space:pre-line; word-break:break-word; }
+#tutor-overlay .t-mbubble.editing { background:white; border:1.5px solid #222222; padding:0; }
 #tutor-overlay .t-mbubble.editing textarea { background:transparent; border:none; padding:.75rem .9rem; border-radius:8px; min-height:95px; }
 #tutor-overlay .t-sbar2 { position:relative; margin-bottom:.85rem; }
 #tutor-overlay .t-sbar2 input { padding-left:2rem; }
-#tutor-overlay .t-sico { position:absolute; left:.65rem; top:50%; transform:translateY(-50%); font-size:.85rem; color:#6d675e; pointer-events:none; }
+#tutor-overlay .t-sico { position:absolute; left:.65rem; top:50%; transform:translateY(-50%); font-size:.85rem; color:#777777; pointer-events:none; }
 #tutor-overlay .highlight { background:rgba(232,101,42,.2); border-radius:2px; }
 /* Tab5 */
-#tutor-overlay .t-pathdisplay { display:flex; align-items:center; gap:4px; background:#F5EFE2; border-radius:8px; padding:.52rem .88rem; margin-bottom:.7rem; flex-wrap:wrap; font-size:.78rem; }
-#tutor-overlay .t-pseg { color:#1A1A1A; } #tutor-overlay .t-psep { color:#6d675e; font-size:.65rem; } #tutor-overlay .t-pleaf { color:#D4552A; font-weight:700; }
-#tutor-overlay .t-pup { border:2px dashed rgba(26,35,64,.12); border-radius:10px; padding:1.1rem; text-align:center; cursor:pointer; transition:all .2s; background:#F5EFE2; }
-#tutor-overlay .t-pup:hover { border-color:#D4552A; }
+#tutor-overlay .t-pathdisplay { display:flex; align-items:center; gap:4px; background:#F4F5F2; border-radius:8px; padding:.52rem .88rem; margin-bottom:.7rem; flex-wrap:wrap; font-size:.78rem; }
+#tutor-overlay .t-pseg { color:#222222; } #tutor-overlay .t-psep { color:#777777; font-size:.65rem; } #tutor-overlay .t-pleaf { color:#222222; font-weight:700; }
+#tutor-overlay .t-pup { border:2px dashed rgba(26,35,64,.12); border-radius:10px; padding:1.1rem; text-align:center; cursor:pointer; transition:all .2s; background:#F4F5F2; }
+#tutor-overlay .t-pup:hover { border-color:#222222; }
 #tutor-overlay .t-pico { font-size:1.55rem; margin-bottom:.32rem; }
-#tutor-overlay .t-ptxt { font-size:.78rem; color:#6d675e; }
-#tutor-overlay .t-psub { font-size:.6rem; color:#6d675e; margin-top:.22rem; font-family:'DM Mono',monospace; }
+#tutor-overlay .t-ptxt { font-size:.78rem; color:#777777; }
+#tutor-overlay .t-psub { font-size:.6rem; color:#777777; margin-top:.22rem; font-family:'Pretendard Variable',Pretendard,sans-serif; }
 #tutor-overlay .t-pgrid { display:flex; flex-wrap:wrap; gap:6px; margin-top:.65rem; }
 #tutor-overlay .t-pthumb { width:68px; height:68px; border-radius:8px; overflow:hidden; border:1.5px solid rgba(26,35,64,.12); position:relative; flex-shrink:0; cursor:pointer; }
 #tutor-overlay .t-pthumb img { width:100%; height:100%; object-fit:cover; }
-#tutor-overlay .t-pthumb .t-rmbtn { position:absolute; top:2px; right:2px; width:17px; height:17px; background:#D4552A; color:white; border-radius:50%; font-size:.56rem; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .15s; border:none; }
+#tutor-overlay .t-pthumb .t-rmbtn { position:absolute; top:2px; right:2px; width:17px; height:17px; background:#222222; color:white; border-radius:50%; font-size:.56rem; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .15s; border:none; }
 #tutor-overlay .t-pthumb:hover .t-rmbtn { opacity:1; }
-#tutor-overlay .t-wcard { background:#F5EFE2; border-radius:10px; padding:.9rem 1.05rem; border:1.5px solid rgba(26,35,64,.12); margin-bottom:.7rem; }
+#tutor-overlay .t-wcard { background:#F4F5F2; border-radius:10px; padding:.9rem 1.05rem; border:1.5px solid rgba(26,35,64,.12); margin-bottom:.7rem; }
 #tutor-overlay .t-wcpath { display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:.52rem; }
-#tutor-overlay .t-wcseg { font-size:.74rem; color:#1A1A1A; } #tutor-overlay .t-wcsep { font-size:.58rem; color:#6d675e; } #tutor-overlay .t-wcleaf { font-size:.78rem; color:#D4552A; font-weight:700; } #tutor-overlay .t-wcdate { font-family:'DM Mono',monospace; font-size:.56rem; color:#6d675e; margin-left:auto; }
-#tutor-overlay .t-wcmemo { font-size:.76rem; color:#6d675e; line-height:1.55; margin-bottom:.62rem; }
+#tutor-overlay .t-wcseg { font-size:.74rem; color:#222222; } #tutor-overlay .t-wcsep { font-size:.58rem; color:#777777; } #tutor-overlay .t-wcleaf { font-size:.78rem; color:#222222; font-weight:700; } #tutor-overlay .t-wcdate { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.56rem; color:#777777; margin-left:auto; }
+#tutor-overlay .t-wcmemo { font-size:.76rem; color:#777777; line-height:1.55; margin-bottom:.62rem; }
 #tutor-overlay .t-wcphotos { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:.52rem; }
 #tutor-overlay .t-wcphoto { width:55px; height:55px; border-radius:7px; overflow:hidden; border:1.5px solid rgba(26,35,64,.12); cursor:pointer; }
 #tutor-overlay .t-wcphoto img { width:100%; height:100%; object-fit:cover; }
 #tutor-overlay .t-frow { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:.85rem; }
-#tutor-overlay .t-fchip { padding:.26rem .75rem; border-radius:20px; border:1.5px solid rgba(26,35,64,.12); font-size:.71rem; font-family:'Noto Sans KR',sans-serif; cursor:pointer; background:#F5EFE2; color:#1A1A1A; transition:all .15s; }
-#tutor-overlay .t-fchip.active { background:#D4552A; color:white; border-color:#D4552A; font-weight:700; }
+#tutor-overlay .t-fchip { padding:.26rem .75rem; border-radius:20px; border:1.5px solid rgba(26,35,64,.12); font-size:.71rem; font-family:'Noto Sans KR',sans-serif; cursor:pointer; background:#F4F5F2; color:#222222; transition:all .15s; }
+#tutor-overlay .t-fchip.active { background:#222222; color:white; border-color:#222222; font-weight:700; }
 #tutor-overlay .t-lb { display:none; position:absolute; inset:0; background:rgba(26,35,64,.9); z-index:60; align-items:center; justify-content:center; }
 #tutor-overlay .t-lb.open { display:flex; }
 #tutor-overlay .t-lb img { max-width:90%; max-height:85%; border-radius:10px; }
@@ -485,56 +486,56 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 /* Tab6 */
 #tutor-overlay .t-cfgst { display:flex; align-items:center; gap:6px; padding:.62rem .9rem; border-radius:8px; font-size:.76rem; font-weight:700; margin-bottom:.85rem; }
 #tutor-overlay .t-cfgst.ok { background:#E8F5EE; color:#2E7D52; border:1.5px solid rgba(46,125,82,.2); }
-#tutor-overlay .t-cfgst.empty { background:#F5EFE2; color:#6d675e; border:1.5px solid rgba(26,35,64,.12); }
+#tutor-overlay .t-cfgst.empty { background:#F4F5F2; color:#777777; border:1.5px solid rgba(26,35,64,.12); }
 #tutor-overlay .t-sacts { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.65rem; margin-bottom:1rem; }
 #tutor-overlay .t-sbcard { border:1.5px solid rgba(26,35,64,.12); border-radius:12px; padding:.85rem; text-align:center; cursor:pointer; transition:all .2s; background:white; display:flex; flex-direction:column; align-items:center; gap:.32rem; }
 #tutor-overlay .t-sbcard:hover:not(.disabled) { transform:translateY(-2px); box-shadow:0 4px 24px rgba(26,35,64,.10); }
 #tutor-overlay .t-sbcard.disabled { opacity:.4; cursor:not-allowed; }
 #tutor-overlay .t-sico2 { font-size:1.45rem; }
-#tutor-overlay .t-stitle { font-family:'Nanum Myeongjo',serif; font-size:.82rem; font-weight:700; color:#1A1A1A; }
-#tutor-overlay .t-sdesc { font-size:.62rem; color:#6d675e; line-height:1.4; }
-#tutor-overlay .t-logbox { background:#1A1A1A; border-radius:10px; padding:.85rem 1.05rem; font-family:'DM Mono',monospace; font-size:.68rem; color:rgba(245,240,232,.7); min-height:70px; max-height:150px; overflow-y:auto; line-height:1.8; }
+#tutor-overlay .t-stitle { font-family:'Nanum Myeongjo',serif; font-size:.82rem; font-weight:700; color:#222222; }
+#tutor-overlay .t-sdesc { font-size:.62rem; color:#777777; line-height:1.4; }
+#tutor-overlay .t-logbox { background:#222222; border-radius:10px; padding:.85rem 1.05rem; font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.68rem; color:rgba(245,240,232,.7); min-height:70px; max-height:150px; overflow-y:auto; line-height:1.8; }
 #tutor-overlay .t-lline { display:flex; gap:8px; }
 #tutor-overlay .t-ltime { color:rgba(245,240,232,.35); flex-shrink:0; }
-#tutor-overlay .t-lmsg.ok{color:#6fcf97;} #tutor-overlay .t-lmsg.err{color:#eb5757;} #tutor-overlay .t-lmsg.info{color:#E0764E;}
-#tutor-overlay .t-ssbar { display:flex; align-items:center; justify-content:space-between; background:#F5EFE2; border-radius:10px; padding:.75rem 1.05rem; margin-bottom:1rem; flex-wrap:wrap; gap:.38rem; }
-#tutor-overlay .t-slast { font-family:'DM Mono',monospace; font-size:.61rem; color:#6d675e; }
-#tutor-overlay .t-sbadge { font-family:'DM Mono',monospace; font-size:.58rem; padding:.16rem .62rem; border-radius:20px; font-weight:700; }
-#tutor-overlay .t-sbadge.synced{background:#E8F5EE;color:#2E7D52;} #tutor-overlay .t-sbadge.never{background:#F5EFE2;color:#6d675e;border:1px solid rgba(26,35,64,.12);}
+#tutor-overlay .t-lmsg.ok{color:#6fcf97;} #tutor-overlay .t-lmsg.err{color:#eb5757;} #tutor-overlay .t-lmsg.info{color:#000000;}
+#tutor-overlay .t-ssbar { display:flex; align-items:center; justify-content:space-between; background:#F4F5F2; border-radius:10px; padding:.75rem 1.05rem; margin-bottom:1rem; flex-wrap:wrap; gap:.38rem; }
+#tutor-overlay .t-slast { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.61rem; color:#777777; }
+#tutor-overlay .t-sbadge { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.58rem; padding:.16rem .62rem; border-radius:20px; font-weight:700; }
+#tutor-overlay .t-sbadge.synced{background:#E8F5EE;color:#2E7D52;} #tutor-overlay .t-sbadge.never{background:#F4F5F2;color:#777777;border:1px solid rgba(26,35,64,.12);}
 #tutor-overlay .t-warn { background:#FFF8E1; border:1.5px solid #F59E0B; border-radius:10px; padding:.9rem 1.05rem; font-size:.76rem; line-height:1.7; color:#78350F; margin-bottom:.85rem; }
 #tutor-overlay .t-dsum { display:grid; grid-template-columns:repeat(4,1fr); gap:.62rem; margin-bottom:.85rem; }
-#tutor-overlay .t-di { background:#F5EFE2; border-radius:8px; padding:.62rem .42rem; text-align:center; }
-#tutor-overlay .t-din { font-family:'DM Mono',monospace; font-size:.96rem; font-weight:700; color:#1A1A1A; }
-#tutor-overlay .t-dil { font-size:.56rem; color:#6d675e; margin-top:1px; font-family:'DM Mono',monospace; }
+#tutor-overlay .t-di { background:#F4F5F2; border-radius:8px; padding:.62rem .42rem; text-align:center; }
+#tutor-overlay .t-din { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.96rem; font-weight:700; color:#222222; }
+#tutor-overlay .t-dil { font-size:.56rem; color:#777777; margin-top:1px; font-family:'Pretendard Variable',Pretendard,sans-serif; }
 #tutor-overlay .t-trow { display:flex; gap:6px; align-items:flex-end; }
-#tutor-overlay .t-trow input { flex:1; font-family:'DM Mono',monospace; letter-spacing:1px; }
-#tutor-overlay .t-step { font-family:'DM Mono',monospace; font-size:.63rem; background:#1A1A1A; color:#E0764E; padding:.1rem .42rem; border-radius:4px; }
+#tutor-overlay .t-trow input { flex:1; font-family:'Pretendard Variable',Pretendard,sans-serif; letter-spacing:1px; }
+#tutor-overlay .t-step { font-family:'Pretendard Variable',Pretendard,sans-serif; font-size:.63rem; background:#222222; color:#000000; padding:.1rem .42rem; border-radius:4px; }
 #tutor-overlay .t-spinner { display:inline-block; width:12px; height:12px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:tSpin .7s linear infinite; }
 @keyframes tSpin{to{transform:rotate(360deg);}}
 /* 데이터 이전 카드 */
-#tutor-overlay .t-import-card { background:linear-gradient(135deg,#1A1A1A,#4A4A4A); border-radius:12px; padding:1.1rem 1.3rem; color:#FDFBF7; margin-bottom:1rem; }
-#tutor-overlay .t-import-card h3 { font-family:'Nanum Myeongjo',serif; font-size:.97rem; margin-bottom:.42rem; color:#E0764E; }
+#tutor-overlay .t-import-card { background:linear-gradient(135deg,#222222,#4A4A4A); border-radius:12px; padding:1.1rem 1.3rem; color:#FFFFFF; margin-bottom:1rem; }
+#tutor-overlay .t-import-card h3 { font-family:'Nanum Myeongjo',serif; font-size:.97rem; margin-bottom:.42rem; color:#000000; }
 #tutor-overlay .t-import-card p { font-size:.73rem; line-height:1.7; color:rgba(245,240,232,.75); margin-bottom:.75rem; }
-#tutor-overlay .t-impta { width:100%; min-height:65px; font-size:.66rem; font-family:'DM Mono',monospace; border:1px solid rgba(245,240,232,.2); background:rgba(255,255,255,.08); color:#FDFBF7; padding:6px 8px; border-radius:8px; resize:vertical; }
-#tutor-overlay .t-impta:focus { border-color:#D4552A; outline:none; }
+#tutor-overlay .t-impta { width:100%; min-height:65px; font-size:.66rem; font-family:'Pretendard Variable',Pretendard,sans-serif; border:1px solid rgba(245,240,232,.2); background:rgba(255,255,255,.08); color:#FFFFFF; padding:6px 8px; border-radius:8px; resize:vertical; }
+#tutor-overlay .t-impta:focus { border-color:#222222; outline:none; }
 /* ══ 수업 준비 탭 — 기존 대시보드 카드를 과외앱 팔레트에 맞춰 재사용 ══ */
 #tutor-overlay .legacy-wrap {
-  --bg:#FDFBF7; --col-bg:#FDFBF7; --card-bg:#ffffff;
+  --bg:#FFFFFF; --col-bg:#FFFFFF; --card-bg:#ffffff;
   --border:rgba(26,35,64,.14); --border-mid:rgba(26,35,64,.22); --border-soft:rgba(26,35,64,.12); --border-dash:rgba(26,35,64,.16);
-  --text:#1A1A1A; --muted:#6d675e; --tag-bg:#FDFBF7;
-  --btn-bg:#ffffff; --btn-acc:#D4552A; --btn-acc-fg:#ffffff;
+  --text:#222222; --muted:#777777; --tag-bg:#FFFFFF;
+  --btn-bg:#ffffff; --btn-acc:#222222; --btn-acc-fg:#ffffff;
   --urg-bg:#C0392B; --urg-fg:#fff; --urg-bd:#C0392B;
   --soon-bg:#fff; --soon-fg:#4A4A4A; --soon-bd:#4A4A4A;
-  --ok-bg:#fff; --ok-fg:#6d675e; --ok-bd:rgba(26,35,64,.16);
-  --past-bg:#FDFBF7; --past-fg:#b5aea4; --past-bd:rgba(26,35,64,.1);
-  --today-bg:#D4552A; --today-fg:#fff;
-  --ev-bg:#FDFBF7; --urgev-bg:#C0392B; --urgev-fg:#fff; --evdot:#D4552A;
-  --font:'Noto Sans KR',sans-serif; --mono:'DM Mono',monospace;
+  --ok-bg:#fff; --ok-fg:#777777; --ok-bd:rgba(26,35,64,.16);
+  --past-bg:#FFFFFF; --past-fg:#b5aea4; --past-bd:rgba(26,35,64,.1);
+  --today-bg:#222222; --today-fg:#fff;
+  --ev-bg:#FFFFFF; --urgev-bg:#C0392B; --urgev-fg:#fff; --evdot:#222222;
+  --font:'Noto Sans KR',sans-serif; --mono:'Pretendard Variable',Pretendard,sans-serif;
   --r:10px; --bw:1px;
   display:grid; grid-template-columns:repeat(auto-fit,minmax(272px,1fr)); gap:1rem; align-items:start;
 }
 #tutor-overlay .legacy-wrap .card { background:var(--card-bg); box-shadow:0 4px 24px rgba(26,35,64,.10); padding:1rem 1.1rem; }
-#tutor-overlay .legacy-wrap .card-head { font-family:'Nanum Myeongjo',serif; font-size:.9rem; font-weight:700; color:#1A1A1A; }
+#tutor-overlay .legacy-wrap .card-head { font-family:'Nanum Myeongjo',serif; font-size:.9rem; font-weight:700; color:#222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:6px; }
 #tutor-overlay .legacy-wrap .slist { max-height:none; }
 @media(max-width:600px){
@@ -546,20 +547,27 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   #tutor-overlay .t-sacts{grid-template-columns:1fr;}
 }
 
-/* ── v1.5 종이 노트 스킨 (B안 확정 토큰) — 맨 끝에 두어 기존 규칙을 이긴다 ── */
-#tutor-overlay { font-family:'IBM Plex Sans KR',sans-serif; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.028 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E"); }
-#tutor-overlay .t-ptitle, #tutor-overlay .t-ctitle, #tutor-overlay .card-head span, #tutor-overlay .t-import-card h3 { font-family:'Gowun Batang','Nanum Myeongjo',serif; }
-#tutor-overlay .t-card, #tutor-overlay .legacy-wrap .card { background:#FFFEFB; border:1.5px solid #1A1A1A; border-radius:8px; box-shadow:none; }
+/* ── v5.0 오늘선생 플래너 스킨 (kill-ai-slop: 포인트 1색=형광연두 하이라이트, 위계는 크기·여백) ── */
+#tutor-overlay { font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif; background-image:linear-gradient(#F0F1F3 1px,transparent 1px),linear-gradient(90deg,#F0F1F3 1px,transparent 1px); background-size:22px 22px; background-color:#FFFFFF; }
+#tutor-overlay .t-ptitle, #tutor-overlay .t-ctitle, #tutor-overlay .card-head span, #tutor-overlay .t-import-card h3 { font-family:inherit; font-weight:800; letter-spacing:-.01em; }
+#tutor-overlay .t-card, #tutor-overlay .legacy-wrap .card { background:#FFFFFF; border:1.5px solid #222222; border-radius:10px; box-shadow:2.5px 2.5px 0 #222222; }
 #tutor-overlay .t-dgrid { display:none; }
-#tutor-overlay .t-btn { border-radius:8px; font-family:'IBM Plex Sans KR',sans-serif; }
-#tutor-overlay .t-modal, #tutor-overlay .wz-modal { background:#FDFBF7; border:1.5px solid #1A1A1A; }
+#tutor-overlay .t-btn { border-radius:8px; font-family:inherit; border:1.5px solid #222222; box-shadow:1.5px 1.5px 0 #222222; }
+#tutor-overlay .t-btn:active { transform:translate(1.5px,1.5px); box-shadow:none; }
+#tutor-overlay .t-btn-p { background:#222222; color:#fff; }
+#tutor-overlay .t-btn-p:hover { background:#000; }
+#tutor-overlay .t-btn-g { background:#fff; color:#222222; }
+#tutor-overlay .t-modal, #tutor-overlay .wz-modal { background:#FFFFFF; border:1.5px solid #222222; box-shadow:3px 3px 0 #222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:8px; }
-#tutor-overlay .t-tab-btn { font-family:'IBM Plex Sans KR',sans-serif; font-size:.8rem; }
+#tutor-overlay .t-tab-btn { font-family:inherit; font-size:.8rem; font-weight:600; }
+#tutor-overlay .t-tab-btn.active { color:#222222; background:linear-gradient(transparent 60%, #B9F18D 60%); border-bottom-color:#222222; font-weight:800; }
+#tutor-overlay .t-lbadge { border-radius:5px; }
+#tutor-overlay .t-tc { background-image:none; }
 /* 그룹(패널 여러 개) 세로 스택 — 스크롤 주체를 t-area로 이동 */
-#tutor-overlay .t-area { overflow-y:auto; -webkit-overflow-scrolling:touch; }
+#tutor-overlay .t-area { overflow-y:auto; -webkit-overflow-scrolling:touch; background:transparent; }
 #tutor-overlay .t-panel { height:auto; overflow-y:visible; }
 #tutor-overlay .t-tc { min-height:0; }
-#tutor-overlay .t-panel.active + .t-panel.active { border-top:2px solid #1A1A1A; }
+#tutor-overlay .t-panel.active + .t-panel.active { border-top:2px solid #222222; }
 </style>
 </head>
 <body>
@@ -567,7 +575,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 <!-- ══ 과외 관리 노트 ══ -->
 <div id="tutor-overlay">
   <header class="t-hd">
-    <div class="t-logo"><span class="t-logo-dot"></span>과외 관리 노트</div>
+    <div class="t-logo"><span class="t-logo-dot"></span>오늘<span style="background:linear-gradient(transparent 55%, #B9F18D 55%);padding:0 2px;color:#222">선생</span></div>
     <div class="t-hd-r">
       <span class="t-hd-clock" id="clock"></span>
       <div class="theme-switcher">
@@ -584,7 +592,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <button class="hbtn" onclick="openSync()">⇅ 동기화</button>
       <span id="sync-badge" onclick="openSync()" title="동기화 상태" class="t-hd-note" style="display:none"></span>
       <span id="backup-time-display" class="t-hd-note"></span>
-      <button class="hbtn" onclick="toggleTrash()">🗑 휴지통</button>
+      <button class="hbtn" onclick="toggleTrash()">휴지통</button>
     </div>
   </header>
   <nav class="t-nav">
@@ -665,7 +673,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-psub">TAB 07 — SCORE TRACKER</div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">✏️</span>시험 성적 기록</div>
+        <div class="t-ctitle">시험 성적 기록</div>
         <div class="t-fr">
           <div class="t-fg"><label class="tl">시험 이름</label><input type="text" id="t7-name" placeholder="예: 6월 모의고사"></div>
           <div class="t-fg"><label class="tl">종류</label><select id="t7-type"><option value="모의고사">모의고사</option><option value="내신">내신</option></select></div>
@@ -687,18 +695,18 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       </div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📈</span>점수 추이
+        <div class="t-ctitle">점수 추이
           <select id="t7-filter-student" onchange="t7Render()" style="margin-left:auto;width:auto;min-width:120px"><option value="">전체 학생</option></select>
         </div>
-        <div style="font-family:'DM Mono',monospace;font-size:.62rem;color:#4A4A4A;margin-bottom:.3rem;font-weight:700">● 모의고사</div>
+        <div style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.62rem;color:#4A4A4A;margin-bottom:.3rem;font-weight:700">● 모의고사</div>
         <div id="t7-chart-mock"></div>
         <div class="t-sep"></div>
-        <div style="font-family:'DM Mono',monospace;font-size:.62rem;color:#D4552A;margin-bottom:.3rem;font-weight:700">● 내신</div>
+        <div style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.62rem;color:#222222;margin-bottom:.3rem;font-weight:700">● 내신</div>
         <div id="t7-chart-naesin"></div>
       </div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📋</span>전체 기록</div>
+        <div class="t-ctitle">전체 기록</div>
         <div id="t7-list"></div>
       </div>
     </div>
@@ -711,7 +719,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-ptitle">대시보드</div>
       <div class="t-psub">OVERVIEW — 모든 정보를 한눈에</div>
       <div id="t-dash-sbar"></div>
-      <button class="t-btn t-btn-p" id="wz-open-btn" style="width:100%;justify-content:center;padding:.95rem;font-size:.95rem;border-radius:12px;margin-bottom:1rem" onclick="wzOpen()">🏁 오늘 수업 종료</button>
+      <button class="t-btn t-btn-p" id="wz-open-btn" style="width:100%;justify-content:center;padding:.95rem;font-size:.95rem;border-radius:12px;margin-bottom:1rem" onclick="wzOpen()">오늘 수업 종료</button>
       <div id="v2-dash-alert" style="margin-bottom:1rem"></div>
       <div class="t-dgrid">
         <div class="t-dc" onclick="tShowTab('tab1')"><div class="t-dc-num">TAB 01</div><div class="t-dc-title">학생 기본 정보</div><div class="t-dc-desc">학생 리스트, 프로필, 수업료 계산기</div><div class="t-dc-badge" id="t-dc-students">0명</div></div>
@@ -722,18 +730,18 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-dc" onclick="tShowTab('tab6')"><div class="t-dc-num">TAB 06</div><div class="t-dc-title">데이터 이전 & 동기화</div><div class="t-dc-desc">기존 데이터 불러오기 + 백업</div><div class="t-dc-badge" id="t-dc-sync">미동기화</div></div>
       </div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📖</span>수업 진도 한눈에 보기</div>
-        <div class="t-lgrid" id="t-dash-lgrid"><div style="font-size:.76rem;color:#6d675e">수업을 기록하면 여기에 표시됩니다</div></div>
+        <div class="t-ctitle">수업 진도 한눈에 보기</div>
+        <div class="t-lgrid" id="t-dash-lgrid"><div style="font-size:.76rem;color:#777777">수업을 기록하면 여기에 표시됩니다</div></div>
       </div>
       <div class="t-2col">
-        <div class="t-card"><div class="t-ctitle"><span class="t-ic">💬</span>최근 안내 문자</div><div id="t-dash-rmsg"><div style="font-size:.76rem;color:#6d675e">문자를 기록하면 여기에 표시됩니다</div></div></div>
-        <div class="t-card"><div class="t-ctitle"><span class="t-ic">🎯</span>최근 약점</div><div id="t-dash-rw"><div style="font-size:.76rem;color:#6d675e">약점을 기록하면 여기에 표시됩니다</div></div></div>
+        <div class="t-card"><div class="t-ctitle">최근 안내 문자</div><div id="t-dash-rmsg"><div style="font-size:.76rem;color:#777777">문자를 기록하면 여기에 표시됩니다</div></div></div>
+        <div class="t-card"><div class="t-ctitle">최근 약점</div><div id="t-dash-rw"><div style="font-size:.76rem;color:#777777">약점을 기록하면 여기에 표시됩니다</div></div></div>
       </div>
 
       <!-- v4: 질문 수신함 모달 -->
       <div class="t-mbg" id="v2-q-modal">
         <div class="t-modal" style="max-width:640px">
-          <div style="display:flex;align-items:center;margin-bottom:.6rem"><b style="font-family:'Gowun Batang',serif">🙋 윤서의 질문함</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-q-modal').classList.remove('open')">✕</button></div>
+          <div style="display:flex;align-items:center;margin-bottom:.6rem"><b style="font-family:'Gowun Batang',serif">윤서의 질문함</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-q-modal').classList.remove('open')">✕</button></div>
           <div id="v2-q-list" style="max-height:60vh;overflow-y:auto"></div>
         </div>
       </div>
@@ -773,7 +781,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
                 <div style="font-size:.78rem;margin:.3rem 0 .6rem" id="wz-done-badge"></div>
                 <div class="wz-preview" id="wz-final"></div>
                 <div style="display:flex;gap:8px;margin-top:.8rem">
-                  <button class="t-btn t-btn-p" style="flex:1;justify-content:center" onclick="wzCopy()">📋 문자 복사</button>
+                  <button class="t-btn t-btn-p" style="flex:1;justify-content:center" onclick="wzCopy()">문자 복사</button>
                   <button class="t-btn t-btn-g" style="flex:1;justify-content:center" onclick="wzClose()">닫기</button>
                 </div>
               </div>
@@ -801,7 +809,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <button class="t-bbtn" onclick="t1ShowList()">← 학생 목록으로</button>
         <div id="t1-detail-header"></div>
         <div class="t-card">
-          <div class="t-ctitle"><span class="t-ic">👤</span>기본 프로필 <span class="t-unsaved" id="t1-unsaved"></span></div>
+          <div class="t-ctitle">기본 프로필 <span class="t-unsaved" id="t1-unsaved"></span></div>
           <div class="t-fr">
             <div class="t-fg"><label class="tl">학생 이름</label><input type="text" id="t1-name" placeholder="김○○" oninput="t1Mark()"></div>
             <div class="t-fg"><label class="tl">학년</label><select id="t1-grade" onchange="t1Mark()"><option value="">선택</option><option>중1</option><option>중2</option><option>중3</option><option>고1</option><option>고2</option><option>고3</option></select></div>
@@ -811,7 +819,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
         </div>
         <div class="t-card">
-          <div class="t-ctitle"><span class="t-ic">📅</span>수업 정보</div>
+          <div class="t-ctitle">수업 정보</div>
           <div class="t-fr">
             <div class="t-fg"><label class="tl">수업 요일</label><input type="text" id="t1-day" placeholder="매주 월요일" oninput="t1Mark()"></div>
             <div class="t-fg"><label class="tl">수업 시간</label><input type="text" id="t1-time" placeholder="오후 7:00 ~ 9:00" oninput="t1Mark()"></div>
@@ -849,22 +857,22 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-ptitle">문제지 · 자료</div>
       <div class="t-psub">SHEETS &amp; MATERIALS</div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">🧾</span>문제지 — 학생 태블릿 <span id="v2-chip" style="margin-left:auto;font-size:.68rem;color:#6d675e;font-family:'DM Mono',monospace"></span></div>
+        <div class="t-ctitle">문제지 — 학생 태블릿 <span id="v2-chip" style="margin-left:auto;font-size:.68rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif"></span></div>
         <div style="display:flex;gap:7px;margin-bottom:.8rem;flex-wrap:wrap">
           <button class="t-btn t-btn-p" onclick="v2OpenNew()">＋ 새 문제지</button>
           <button class="t-btn t-btn-g" onclick="v2Render()">↺ 새로고침</button>
-          <button class="t-btn t-btn-g" onclick="v2OpenQuestions()">🙋 질문함</button>
+          <button class="t-btn t-btn-g" onclick="v2OpenQuestions()">질문함</button>
         </div>
-        <div id="v2-list"><div style="font-size:.76rem;color:#6d675e">불러오는 중…</div></div>
-        <div style="font-size:.7rem;color:#6d675e;margin-top:.6rem">흐름: 배정됨 → 제출됨(자동 채점 완료) → 확인함. 제출된 줄을 누르면 점수·문항 ○✕·손풀이 사진이 열립니다.</div>
+        <div id="v2-list"><div style="font-size:.76rem;color:#777777">불러오는 중…</div></div>
+        <div style="font-size:.7rem;color:#777777;margin-top:.6rem">흐름: 배정됨 → 제출됨(자동 채점 완료) → 확인함. 제출된 줄을 누르면 점수·문항 ○✕·손풀이 사진이 열립니다.</div>
       </div>
 
       <!-- v2: 새 문제지 모달 -->
       <div class="t-mbg" id="v2-new-modal">
         <div class="t-modal">
           <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">새 문제지</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-new-modal').classList.remove('open')">✕</button></div>
-          <button class="t-btn t-btn-g" style="width:100%;justify-content:center;margin-bottom:.3rem" onclick="v3OpenGen('')">⚡ Gemini로 문제 만들기 (앱에서 바로)</button>
-          <div style="text-align:center;font-size:.7rem;color:#A39B8B;margin-bottom:.5rem">— 또는 파일 업로드 —</div>
+          <button class="t-btn t-btn-g" style="width:100%;justify-content:center;margin-bottom:.3rem" onclick="v3OpenGen('')">Gemini로 문제 만들기 (앱에서 바로)</button>
+          <div style="text-align:center;font-size:.7rem;color:#B9BCC2;margin-bottom:.5rem">— 또는 파일 업로드 —</div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">제목</label><input type="text" id="v2-title" placeholder="예: 도형의 대칭이동 기본 연습"></div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">정답 (쉼표로 구분 — 자동 채점용)</label><input type="text" id="v2-answers" placeholder="예: 2, 5, 1, 3, 7, 5"></div>
           <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">학습지 파일 (선택 — <b>PDF 권장</b>. Claude 학습지 HTML은 브라우저에서 ⌘P → "PDF로 저장" 후 업로드)</label><input type="file" id="v2-file" accept=".pdf,.html,.htm"></div>
@@ -875,7 +883,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <!-- v3: Gemini 문제 생성 모달 -->
       <div class="t-mbg" id="v3-gen-modal">
         <div class="t-modal">
-          <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">⚡ Gemini 문제 생성</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v3-gen-modal').classList.remove('open')">✕</button></div>
+          <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">Gemini 문제 생성</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v3-gen-modal').classList.remove('open')">✕</button></div>
           <div class="t-fr">
             <div class="t-fg"><label class="tl">대단원 (공통수학2)</label><select id="v3-u1" onchange="v3UnitCascade(1)"></select></div>
             <div class="t-fg"><label class="tl">중단원</label><select id="v3-u2" onchange="v3UnitCascade(2)"></select></div>
@@ -888,14 +896,14 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">형식</label><select id="v3-fmt"><option selected>단답형</option><option>객관식</option></select></div>
           <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">참고 문제 (선택 — 기출·오답을 붙여넣으면 같은 유형으로 변형)</label><textarea id="v3-ref" style="min-height:56px" placeholder="비워두면 주제만으로 출제"></textarea></div>
-          <button class="t-btn t-btn-p" id="v3-gen-btn" style="width:100%;justify-content:center" onclick="v3Gen()">⚡ 문제 생성</button>
+          <button class="t-btn t-btn-p" id="v3-gen-btn" style="width:100%;justify-content:center" onclick="v3Gen()">문제 생성</button>
 
           <div id="v3-preview-wrap" style="display:none;margin-top:1rem">
             <div style="font-size:.78rem;font-weight:700;font-family:'Gowun Batang',serif;margin-bottom:.4rem">검수 — 정답을 확인·수정하고 이상한 문항은 ✕로 빼세요</div>
             <div class="t-fg full" style="margin-bottom:.5rem"><label class="tl">제목</label><input type="text" id="v3-title"></div>
-            <div id="v3-preview" style="max-height:280px;overflow-y:auto;border:1.5px solid #C9C2B4;border-radius:8px;padding:4px 10px;margin-bottom:.7rem"></div>
+            <div id="v3-preview" style="max-height:280px;overflow-y:auto;border:1.5px solid #D8DADF;border-radius:8px;padding:4px 10px;margin-bottom:.7rem"></div>
             <div style="display:flex;gap:7px;flex-wrap:wrap">
-              <button class="t-btn t-btn-g t-btn-sm" onclick="v3OpenPrint()">🖨 정답지 열기 (선생님용)</button>
+              <button class="t-btn t-btn-g t-btn-sm" onclick="v3OpenPrint()">정답지 열기 (선생님용)</button>
               <button class="t-btn t-btn-g t-btn-sm" onclick="v3Gen()">↺ 다시 생성</button>
               <button class="t-btn t-btn-p" id="v3-send-btn" style="flex:1;justify-content:center" onclick="v3SendGen()">학생 태블릿으로 전송</button>
             </div>
@@ -908,10 +916,10 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <div class="t-modal" style="max-width:860px;width:100%;height:88vh;display:flex;flex-direction:column;padding:.8rem">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
             <b style="font-family:'Gowun Batang',serif;font-size:.9rem" id="v3-view-title">정답지</b>
-            <button class="t-btn t-btn-g t-btn-sm" style="margin-left:auto" onclick="v3ViewPrint()">🖨 인쇄</button>
+            <button class="t-btn t-btn-g t-btn-sm" style="margin-left:auto" onclick="v3ViewPrint()">인쇄</button>
             <button class="t-btn t-btn-p t-btn-sm" onclick="document.getElementById('v3-view-modal').classList.remove('open')">닫기</button>
           </div>
-          <iframe id="v3-view-frame" style="flex:1;border:1.5px solid #1A1A1A;border-radius:8px;background:#fff;width:100%"></iframe>
+          <iframe id="v3-view-frame" style="flex:1;border:1.5px solid #222222;border-radius:8px;background:#fff;width:100%"></iframe>
         </div>
       </div>
 
@@ -919,19 +927,19 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-mbg" id="v2-sub-modal">
         <div class="t-modal">
           <div style="display:flex;align-items:center;margin-bottom:.6rem"><b style="font-family:'Gowun Batang',serif" id="v2s-title"></b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-sub-modal').classList.remove('open')">✕</button></div>
-          <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:.6rem"><span id="v2s-score" style="font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:700"></span><span style="font-size:.74rem;color:#6d675e">자동 채점 · 열면 확인함 처리</span></div>
+          <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:.6rem"><span id="v2s-score" style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:1.5rem;font-weight:700"></span><span style="font-size:.74rem;color:#777777">자동 채점 · 열면 확인함 처리</span></div>
           <div id="v2s-marks" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem"></div>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.8rem">
-            <button class="t-btn t-btn-g t-btn-sm" onclick="v3WrongToWeak()">🎯 오답 → 약점 노트</button>
-            <button class="t-btn t-btn-g t-btn-sm" onclick="v3SimilarFromWrong()">⚡ 오답 유사문제 만들기</button>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="v3WrongToWeak()">오답 → 약점 노트</button>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="v3SimilarFromWrong()">오답 유사문제 만들기</button>
           </div>
-          <div style="font-size:.78rem;font-weight:700;font-family:'Gowun Batang',serif;margin-bottom:.4rem">✍️ 손풀이 종이</div>
+          <div style="font-size:.78rem;font-weight:700;font-family:'Gowun Batang',serif;margin-bottom:.4rem">손풀이 종이</div>
           <div id="v2s-photos" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
       </div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📁</span>폴더 & 파일 관리</div>
+        <div class="t-ctitle">폴더 & 파일 관리</div>
         <div id="t2-folder-list"></div>
         <div class="t-new-folder-form" id="t2-new-folder-form">
           <label class="tl">새 폴더 이름</label>
@@ -953,21 +961,21 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-ptitle">수업 진도 기록</div>
       <div class="t-psub">TAB 03 — LESSON LOG + MESSAGE GENERATOR</div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">🗂</span>수업 한눈에 보기</div>
-        <div class="t-lgrid" id="t3-grid"><div style="font-size:.76rem;color:#6d675e">아직 기록이 없습니다</div></div>
+        <div class="t-ctitle">수업 한눈에 보기</div>
+        <div class="t-lgrid" id="t3-grid"><div style="font-size:.76rem;color:#777777">아직 기록이 없습니다</div></div>
       </div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📅</span>수업 달력
+        <div class="t-ctitle">수업 달력
           <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
             <button class="t-btn t-btn-g t-btn-sm" onclick="t3CalNav(-1)">‹</button>
-            <span id="t3-cal-label" style="font-family:'DM Mono',monospace;font-size:.72rem;min-width:78px;text-align:center;color:#1A1A1A"></span>
+            <span id="t3-cal-label" style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.72rem;min-width:78px;text-align:center;color:#222222"></span>
             <button class="t-btn t-btn-g t-btn-sm" onclick="t3CalNav(1)">›</button>
           </span>
         </div>
         <div id="t3-cal"></div>
       </div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">✏️</span>새 수업 기록 <span id="t3-next-badge" style="font-family:'DM Mono',monospace;font-size:.68rem;background:#D4552A;color:white;padding:.12rem .55rem;border-radius:4px;margin-left:4px"></span></div>
+        <div class="t-ctitle">새 수업 기록 <span id="t3-next-badge" style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.68rem;background:#222222;color:white;padding:.12rem .55rem;border-radius:4px;margin-left:4px"></span></div>
         <div class="t-fr">
           <div class="t-fg"><label class="tl">날짜</label><input type="date" id="t3-date"></div>
           <div class="t-fg"><label class="tl">회차</label><input type="number" id="t3-num" min="1"></div>
@@ -981,18 +989,18 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         </div>
       </div>
       <div class="t-card" id="t3-msg-card" style="display:none">
-        <div class="t-ctitle"><span class="t-ic">💬</span>안내 문자 자동 생성</div>
+        <div class="t-ctitle">안내 문자 자동 생성</div>
         <span class="t-tplbl">자동 완성된 내용 확인 후 마무리 인사말 입력</span>
         <div class="t-msgtpl" id="t3-msg-preview"></div>
         <div class="t-fg" style="margin-bottom:.9rem"><label class="tl">마무리 인사말</label><textarea id="t3-closing" placeholder="예: 오늘 집중력이 좋았어요! 숙제 꼭 확인 부탁드립니다 🙏" style="min-height:62px" oninput="t3UpdatePreview()"></textarea></div>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
-          <button class="t-btn t-btn-n" onclick="t3CopyMsg()">📋 복사</button>
+          <button class="t-btn t-btn-n" onclick="t3CopyMsg()">복사</button>
           <button class="t-btn t-btn-p" onclick="t3SaveToTab4()">탭4에 저장</button>
           <button class="t-btn t-btn-g" onclick="document.getElementById('t3-msg-card').style.display='none'">닫기</button>
         </div>
       </div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📋</span>수업 기록 목록</div>
+        <div class="t-ctitle">수업 기록 목록</div>
         <div id="t3-list"></div>
       </div>
       <div class="t-mbg" id="t3-edit-modal">
@@ -1017,13 +1025,13 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-ptitle">안내 문자 보관소</div>
       <div class="t-psub">TAB 04 — MESSAGE LOG</div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">✏️</span>문자 직접 기록</div>
+        <div class="t-ctitle">문자 직접 기록</div>
         <div class="t-fg" style="margin-bottom:.75rem"><label class="tl">발송 날짜</label><input type="date" id="t4-date"></div>
         <div class="t-fg" style="margin-bottom:.9rem"><label class="tl">문자 내용</label><textarea id="t4-text" placeholder="학부모님께 보낸 문자 내용..." style="min-height:95px"></textarea></div>
         <button class="t-btn t-btn-p" onclick="t4Add()">💾 저장</button>
       </div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">💬</span>문자 기록 목록 <span style="font-family:'DM Mono',monospace;font-size:.62rem;color:#6d675e;margin-left:auto" id="t4-count">0건</span></div>
+        <div class="t-ctitle">문자 기록 목록 <span style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.62rem;color:#777777;margin-left:auto" id="t4-count">0건</span></div>
         <div class="t-sbar2"><span class="t-sico">🔍</span><input type="text" id="t4-search" placeholder="날짜 또는 내용으로 검색..." oninput="t4Render()"></div>
         <div id="t4-list"></div>
       </div>
@@ -1036,8 +1044,8 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-ptitle">약점 기록소</div>
       <div class="t-psub">TAB 05 — WEAKNESS TRACKER</div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">➕</span>새 약점 추가</div>
-        <div class="t-pathdisplay" id="t5-path-preview"><span style="color:#6d675e;font-size:.76rem">아래를 입력하면 경로가 표시됩니다</span></div>
+        <div class="t-ctitle">새 약점 추가</div>
+        <div class="t-pathdisplay" id="t5-path-preview"><span style="color:#777777;font-size:.76rem">아래를 입력하면 경로가 표시됩니다</span></div>
         <div class="t-fr">
           <div class="t-fg"><label class="tl">과목</label><input type="text" id="t5-subject" placeholder="공통수학1" oninput="t5UpdatePath()"></div>
           <div class="t-fg"><label class="tl">대단원</label><input type="text" id="t5-unit1" placeholder="다항식 연산" oninput="t5UpdatePath()"></div>
@@ -1050,7 +1058,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           <div class="t-pup" onclick="document.getElementById('t5-photo-input').click()">
             <div class="t-pico">📷</div>
             <div class="t-ptxt">클릭해서 사진 첨부</div>
-            <div class="t-psub2" style="font-size:.6rem;color:#6d675e;margin-top:.2rem;font-family:'DM Mono',monospace">JPG · PNG · 여러 장 가능</div>
+            <div class="t-psub2" style="font-size:.6rem;color:#777777;margin-top:.2rem;font-family:'Pretendard Variable',Pretendard,sans-serif">JPG · PNG · 여러 장 가능</div>
           </div>
           <input type="file" id="t5-photo-input" accept="image/*" multiple style="display:none" onchange="t5HandlePhotos(this)">
           <div class="t-pgrid" id="t5-new-preview"></div>
@@ -1058,7 +1066,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <button class="t-btn t-btn-p" onclick="t5Add()">📌 약점 추가</button>
       </div>
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">🎯</span>약점 목록 <span style="font-family:'DM Mono',monospace;font-size:.62rem;color:#6d675e;margin-left:auto" id="t5-count"></span></div>
+        <div class="t-ctitle">약점 목록 <span style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.62rem;color:#777777;margin-left:auto" id="t5-count"></span></div>
         <div class="t-sbar2"><span class="t-sico">🔍</span><input type="text" id="t5-search" placeholder="과목, 단원, 유형으로 검색..." oninput="t5Render()"></div>
         <div class="t-frow" id="t5-filters"></div>
         <div id="t5-list"></div>
@@ -1075,7 +1083,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
           </div>
           <div class="t-fg" style="margin-bottom:.9rem">
             <label class="tl">첨부 사진 관리</label>
-            <div class="t-pup" onclick="document.getElementById('t5e-photo-input').click()" style="padding:.75rem"><div style="font-size:.8rem;color:#6d675e">📷 사진 추가</div></div>
+            <div class="t-pup" onclick="document.getElementById('t5e-photo-input').click()" style="padding:.75rem"><div style="font-size:.8rem;color:#777777">📷 사진 추가</div></div>
             <input type="file" id="t5e-photo-input" accept="image/*" multiple style="display:none" onchange="t5HandleEditPhotos(this)">
             <div class="t-pgrid" id="t5e-preview"></div>
           </div>
@@ -1092,45 +1100,45 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <div class="t-psub">SETTINGS — 문자 템플릿 · 데이터</div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">💬</span>안내 문자 템플릿</div>
+        <div class="t-ctitle">안내 문자 템플릿</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">인사말</label><input type="text" id="tpl-greet" onchange="tplSave('greet',this.value);tShowToast('✅ 템플릿 저장 — 다음 문자부터 반영')"></div>
         <div class="t-fg full"><label class="tl">마무리 문구</label><input type="text" id="tpl-close" onchange="tplSave('close',this.value);tShowToast('✅ 템플릿 저장 — 다음 문자부터 반영')"></div>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">회차 인사·📖 진도·📝 숙제 형식은 자동입니다. 여기서 바꾼 인사말·마무리는 수업 종료 문자와 [문자 생성] 모두에 바로 적용돼요.</div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">회차 인사·📖 진도·📝 숙제 형식은 자동입니다. 여기서 바꾼 인사말·마무리는 수업 종료 문자와 [문자 생성] 모두에 바로 적용돼요.</div>
       </div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📲</span>학생 태블릿 연동 <span id="v2-mode" style="margin-left:auto;font-size:.68rem;color:#6d675e;font-family:'DM Mono',monospace"></span></div>
+        <div class="t-ctitle">학생 태블릿 연동 <span id="v2-mode" style="margin-left:auto;font-size:.68rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif"></span></div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Supabase URL</label><input type="text" id="v2-url" placeholder="https://xxxx.supabase.co" onchange="v2SaveCfg()"></div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Supabase anon key</label>
           <div style="display:flex;gap:6px;align-items:center">
             <input type="password" id="v2-key" placeholder="eyJhbGciOi… (Settings → API)" onchange="v2SaveCfg()" autocomplete="new-password" style="flex:1">
-            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-key',this)" title="보기/가리기">👁</button>
+            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-key',this)" title="보기/가리기">보기</button>
           </div>
         </div>
         <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">페어링 코드</label><input type="text" id="v2-pair" placeholder="YUN-4821" onchange="v2SaveCfg()"></div>
-        <button class="t-btn t-btn-p" onclick="v2CopyConnect()">📲 태블릿 연결 코드 복사</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-설정법.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
+        <button class="t-btn t-btn-p" onclick="v2CopyConnect()">태블릿 연결 코드 복사</button>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-설정법.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
       </div>
 
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">⚡</span>문제 생성 (Gemini)</div>
+        <div class="t-ctitle">문제 생성 (Gemini)</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label>
           <div style="display:flex;gap:6px;align-items:center">
             <input type="password" id="v2-gem" placeholder="AIza… (aistudio.google.com/apikey 에서 무료 발급)" onchange="v2SaveCfg()" autocomplete="new-password" style="flex:1">
-            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-gem',this)" title="보기/가리기">👁</button>
+            <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-gem',this)" title="보기/가리기">보기</button>
           </div>
         </div>
-        <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">🔌 연결 테스트</button>
-        <div style="font-size:.72rem;color:#6d675e;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>⚡ Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#A39B8B">앱 버전 v4.4 (새 버전 자동 감지)</span></div>
+        <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#B9BCC2">앱 버전 v5.0 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
       <div class="t-import-card">
-        <h3>📥 기존 과외 앱에서 데이터 이전</h3>
+        <h3>기존 과외 앱에서 데이터 이전</h3>
         <p>기존 과외 관리 앱에서 JSON 백업 파일을 내려받거나, 탭6 → 백업만 버튼을 눌러 JSON을 복사하세요.<br>아래에 붙여넣으면 자동으로 이전됩니다.</p>
         <textarea class="t-impta" id="t-import-json" placeholder="기존 앱의 JSON 백업 내용을 여기에 붙여넣으세요..."></textarea>
         <div style="display:flex;gap:7px;margin-top:.65rem;flex-wrap:wrap">
-          <button class="t-btn t-btn-p" onclick="tImportFromText()">📥 데이터 이전하기</button>
+          <button class="t-btn t-btn-p" onclick="tImportFromText()">데이터 이전하기</button>
           <button class="t-btn t-btn-g t-btn-sm" onclick="document.getElementById('t-restore-file').click()">📂 파일 선택</button>
           <input type="file" id="t-restore-file" accept=".json" style="display:none" onchange="tImportFromFile(event)">
         </div>
@@ -1139,7 +1147,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
       <!-- 현재 데이터 현황 -->
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">📊</span>현재 데이터 현황</div>
+        <div class="t-ctitle">현재 데이터 현황</div>
         <div class="t-dsum">
           <div class="t-di"><div class="t-din" id="t6-sum-students">0</div><div class="t-dil">학생</div></div>
           <div class="t-di"><div class="t-din" id="t6-sum-lessons">0</div><div class="t-dil">수업</div></div>
@@ -1151,8 +1159,8 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
       <!-- 로컬 백업 -->
       <div class="t-card">
-        <div class="t-ctitle"><span class="t-ic">💾</span>로컬 백업</div>
-        <p style="font-size:.76rem;color:#6d675e;margin-bottom:.85rem;line-height:1.6">현재 과외 데이터를 JSON 파일로 저장합니다. 대시보드의 ⇅ 동기화를 통해 클라우드(Supabase)와 함께 동기화됩니다.</p>
+        <div class="t-ctitle">로컬 백업</div>
+        <p style="font-size:.76rem;color:#777777;margin-bottom:.85rem;line-height:1.6">현재 과외 데이터를 JSON 파일로 저장합니다. 대시보드의 ⇅ 동기화를 통해 클라우드(Supabase)와 함께 동기화됩니다.</p>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
           <button class="t-btn t-btn-p" onclick="t6BackupOnly()">💾 JSON 백업 저장</button>
         </div>
@@ -1191,7 +1199,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 
     <!-- Cloud Sync (Supabase 우선, Drive 예비) -->
     <div class="sync-sec" style="border:1.5px solid var(--s-md);border-radius:var(--r);padding:12px;background:var(--s-lt)">
-      <h3 style="color:var(--s-dk)">☁️ 클라우드 자동 동기화</h3>
+      <h3 style="color:var(--s-dk)">클라우드 자동 동기화</h3>
       <p class="sync-note" style="margin-top:4px"><b>설정 탭의 Supabase 연동이 있으면 자동으로 Supabase에 동기화됩니다</b> (노트북↔아이패드). 아래 Apps Script URL은 Supabase 미설정 시의 예비 경로예요.</p>
       <div class="cloud-url-row">
         <input class="cloud-url-input" id="gas-url" placeholder="(예비) https://script.google.com/macros/s/..." value="">
@@ -1202,8 +1210,8 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
         <span id="cloud-status-txt">연결 확인 중…</span>
       </div>
       <div class="sync-btns" style="margin-top:4px">
-        <button class="btn" onclick="cloudUpload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬆ 클라우드에 저장</button>
-        <button class="btn" onclick="cloudDownload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">⬇ 클라우드에서 불러오기</button>
+        <button class="btn" onclick="cloudUpload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">클라우드에 저장</button>
+        <button class="btn" onclick="cloudDownload()" style="border-color:var(--s-md);color:var(--s-dk);font-weight:700">클라우드에서 불러오기</button>
       </div>
       <p class="sync-note" style="margin-top:6px">✅ 수업·문자 입력 시 <b>자동으로 클라우드에 저장</b>되고, 열 때 더 최신이면 자동으로 받아옵니다. 오래된 데이터로 덮어쓰려 하면 먼저 확인합니다.</p>
       <div class="sync-btns" style="margin-top:4px">
@@ -1216,7 +1224,7 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
       <h3>내보내기</h3>
       <p class="sync-note">현재 데이터를 JSON 파일로 저장합니다.</p>
       <div class="sync-btns">
-        <button class="btn acc" onclick="expJSON()">📥 JSON 저장</button>
+        <button class="btn acc" onclick="expJSON()">JSON 저장</button>
         <button class="btn" onclick="cpJSON()">클립보드 복사</button>
       </div>
       <div id="exp-msg" class="smsg"></div>
@@ -1618,21 +1626,21 @@ function t7Add(){
   t7Save_();t7ResetForm();t7Render();
 }
 function t7Edit(id){const x=t7scores.find(s=>s.id==id);if(!x)return;document.getElementById('t7-edit-id').value=x.id;document.getElementById('t7-name').value=x.name||'';document.getElementById('t7-type').value=x.type||'모의고사';document.getElementById('t7-date').value=x.date||'';document.getElementById('t7-score').value=x.score||'';document.getElementById('t7-grade').value=x.grade||'';document.getElementById('t7-weak').value=x.weak||'';document.getElementById('t7-student').value=x.student||'';document.getElementById('t7-add-btn').textContent='저장';document.getElementById('t7-cancel-btn').style.display='';const tc=document.querySelector('#t-panel-tab7 .t-tc');if(tc)tc.scrollIntoView({behavior:'smooth'});}
-function t7Delete(id){if(!confirm('이 기록을 삭제할까요?'))return;t7scores=t7scores.filter(s=>s.id!=id);t7Save_();t7Render();tShowToast('🗑 삭제되었습니다');}
+function t7Delete(id){if(!confirm('이 기록을 삭제할까요?'))return;t7scores=t7scores.filter(s=>s.id!=id);t7Save_();t7Render();tShowToast('삭제되었습니다');}
 function t7PopulateStudentFilter(){const sel=document.getElementById('t7-filter-student');if(!sel)return;const cur=sel.value;const names=[...new Set(t7scores.map(s=>s.student).filter(Boolean))];sel.innerHTML='<option value="">전체 학생</option>'+names.map(n=>`<option value="${tEscH(n)}">${tEscH(n)}</option>`).join('');sel.value=cur;}
 function t7Chart(type,filterStudent){
   let rows=t7scores.filter(s=>s.type===type&&s.score!==''&&s.score!=null&&!isNaN(parseFloat(s.score)));
   if(filterStudent)rows=rows.filter(s=>s.student===filterStudent);
   rows=rows.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
-  if(!rows.length)return '<div style="font-size:.74rem;color:#6d675e;padding:.4rem 0">데이터가 없습니다</div>';
+  if(!rows.length)return '<div style="font-size:.74rem;color:#777777;padding:.4rem 0">데이터가 없습니다</div>';
   const W=Math.max(280,rows.length*70),H=150,pad=28,top=14;
   const xs=rows.map((r,i)=>rows.length===1?W/2:pad+i*(W-pad*2)/(rows.length-1));
-  const color=type==='모의고사'?'#4A4A4A':'#D4552A';
+  const color=type==='모의고사'?'#4A4A4A':'#222222';
   const y=v=>top+(100-v)/100*(H-top-pad);
   let grid='';
-  for(let v=0;v<=100;v+=25){const yy=y(v);grid+=`<line x1="${pad}" y1="${yy}" x2="${W-pad}" y2="${yy}" stroke="rgba(26,35,64,.10)" stroke-width="1"/><text x="2" y="${(yy+3).toFixed(1)}" font-size="8" fill="#6d675e" font-family="monospace">${v}</text>`;}
+  for(let v=0;v<=100;v+=25){const yy=y(v);grid+=`<line x1="${pad}" y1="${yy}" x2="${W-pad}" y2="${yy}" stroke="rgba(26,35,64,.10)" stroke-width="1"/><text x="2" y="${(yy+3).toFixed(1)}" font-size="8" fill="#777777" font-family="monospace">${v}</text>`;}
   let path='';rows.forEach((r,i)=>{const X=xs[i],Y=y(parseFloat(r.score));path+=(i===0?'M':'L')+X.toFixed(1)+' '+Y.toFixed(1)+' ';});
-  let pts='';rows.forEach((r,i)=>{const X=xs[i],Y=y(parseFloat(r.score));const d=(r.date||'').slice(5).replace('-','/');pts+=`<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="3.5" fill="${color}"><title>${tEscH(r.name)} (${d}): ${r.score}점</title></circle><text x="${X.toFixed(1)}" y="${(Y-7).toFixed(1)}" font-size="8.5" text-anchor="middle" fill="${color}" font-weight="700">${tEscH(String(r.score))}</text><text x="${X.toFixed(1)}" y="${(H-pad+12).toFixed(1)}" font-size="7.5" text-anchor="middle" fill="#6d675e" font-family="monospace">${d}</text>`;});
+  let pts='';rows.forEach((r,i)=>{const X=xs[i],Y=y(parseFloat(r.score));const d=(r.date||'').slice(5).replace('-','/');pts+=`<circle cx="${X.toFixed(1)}" cy="${Y.toFixed(1)}" r="3.5" fill="${color}"><title>${tEscH(r.name)} (${d}): ${r.score}점</title></circle><text x="${X.toFixed(1)}" y="${(Y-7).toFixed(1)}" font-size="8.5" text-anchor="middle" fill="${color}" font-weight="700">${tEscH(String(r.score))}</text><text x="${X.toFixed(1)}" y="${(H-pad+12).toFixed(1)}" font-size="7.5" text-anchor="middle" fill="#777777" font-family="monospace">${d}</text>`;});
   return `<div style="overflow-x:auto"><svg width="${W}" height="${H+6}" viewBox="0 0 ${W} ${H+6}" style="display:block">${grid}<path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>${pts}</svg></div>`;
 }
 function t7Render(){
@@ -1643,21 +1651,21 @@ function t7Render(){
   const el=document.getElementById('t7-list');if(!el)return;
   let rows=t7scores.slice();if(fs)rows=rows.filter(s=>s.student===fs);
   rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(!rows.length){el.innerHTML='<div style="font-size:.76rem;color:#6d675e">기록이 없습니다</div>';return;}
+  if(!rows.length){el.innerHTML='<div style="font-size:.76rem;color:#777777">기록이 없습니다</div>';return;}
   el.innerHTML=rows.map(s=>{
-    const tc=s.type==='내신'?'#D4552A':'#4A4A4A';
+    const tc=s.type==='내신'?'#222222':'#4A4A4A';
     return `<div style="border:1.5px solid rgba(26,35,64,.12);border-radius:10px;padding:.7rem .85rem;margin-bottom:.6rem;background:#fff">
       <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:.35rem">
-        <span style="background:${tc};color:#fff;border-radius:14px;padding:.12rem .55rem;font-size:.62rem;font-weight:700;font-family:'DM Mono',monospace">${tEscH(s.type||'')}</span>
-        <span style="font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:.9rem;color:#1A1A1A">${tEscH(s.name||'')}</span>
-        ${s.student?`<span style="font-size:.66rem;color:#6d675e">· ${tEscH(s.student)}</span>`:''}
-        <span style="font-family:'DM Mono',monospace;font-size:.6rem;color:#6d675e;margin-left:auto">${tEscH((s.date||'').replace(/-/g,'.'))}</span>
+        <span style="background:${tc};color:#fff;border-radius:14px;padding:.12rem .55rem;font-size:.62rem;font-weight:700;font-family:'Pretendard Variable',Pretendard,sans-serif">${tEscH(s.type||'')}</span>
+        <span style="font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:.9rem;color:#222222">${tEscH(s.name||'')}</span>
+        ${s.student?`<span style="font-size:.66rem;color:#777777">· ${tEscH(s.student)}</span>`:''}
+        <span style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.6rem;color:#777777;margin-left:auto">${tEscH((s.date||'').replace(/-/g,'.'))}</span>
       </div>
       <div style="display:flex;gap:1.2rem;flex-wrap:wrap;margin-bottom:.4rem">
-        <div><span style="font-size:.6rem;color:#6d675e">점수 </span><span style="font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:700;color:${tc}">${s.score!==''&&s.score!=null?tEscH(String(s.score)):'—'}</span></div>
-        <div><span style="font-size:.6rem;color:#6d675e">등급 </span><span style="font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:700;color:#1A1A1A">${s.grade?tEscH(s.grade):'—'}</span></div>
+        <div><span style="font-size:.6rem;color:#777777">점수 </span><span style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:1.05rem;font-weight:700;color:${tc}">${s.score!==''&&s.score!=null?tEscH(String(s.score)):'—'}</span></div>
+        <div><span style="font-size:.6rem;color:#777777">등급 </span><span style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:1.05rem;font-weight:700;color:#222222">${s.grade?tEscH(s.grade):'—'}</span></div>
       </div>
-      ${s.weak?`<div style="font-size:.72rem;line-height:1.55;color:#1A1A1A;background:#F5EFE2;border-radius:8px;padding:.5rem .7rem;border-left:3px solid ${tc};white-space:pre-line;margin-bottom:.4rem"><span style="font-weight:700;font-size:.62rem;color:#6d675e">약점 </span>${tEscH(s.weak)}</div>`:''}
+      ${s.weak?`<div style="font-size:.72rem;line-height:1.55;color:#222222;background:#F4F5F2;border-radius:8px;padding:.5rem .7rem;border-left:3px solid ${tc};white-space:pre-line;margin-bottom:.4rem"><span style="font-weight:700;font-size:.62rem;color:#777777">약점 </span>${tEscH(s.weak)}</div>`:''}
       <div style="display:flex;gap:5px;flex-wrap:wrap">
         <button class="t-btn t-btn-g t-btn-sm" onclick="t7Edit(${s.id})">수정</button>
         <button class="t-btn t-btn-d" onclick="t7Delete(${s.id})">삭제</button>
@@ -1687,7 +1695,7 @@ function tDashRefresh(){
   if(!students.length){
     el.innerHTML=`<div class="t-sbar"><div class="t-savatar">?</div><div class="t-sinfo"><div class="t-sname">학생 없음</div><div class="t-smeta">학생 정보 탭에서 추가하세요</div></div></div>`;
   } else {
-    el.innerHTML=students.slice(0,3).map(s=>`<div class="t-sbar" style="cursor:pointer" onclick="tShowTab('tab1')"><div class="t-savatar">${tEscH((s.name||'?').charAt(0))}</div><div class="t-sinfo"><div class="t-sname">${tEscH(s.name||'이름 없음')}</div><div class="t-smeta">${tEscH([s.grade,s.subject].filter(Boolean).join(' · ')||'정보 없음')}</div></div>${students.length>1?`<div style="font-family:'DM Mono',monospace;font-size:.59rem;color:rgba(245,240,232,.4);margin-left:auto">총 ${students.length}명</div>`:''}</div>`).join('');
+    el.innerHTML=students.slice(0,3).map(s=>`<div class="t-sbar" style="cursor:pointer" onclick="tShowTab('tab1')"><div class="t-savatar">${tEscH((s.name||'?').charAt(0))}</div><div class="t-sinfo"><div class="t-sname">${tEscH(s.name||'이름 없음')}</div><div class="t-smeta">${tEscH([s.grade,s.subject].filter(Boolean).join(' · ')||'정보 없음')}</div></div>${students.length>1?`<div style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.59rem;color:rgba(245,240,232,.4);margin-left:auto">총 ${students.length}명</div>`:''}</div>`).join('');
   }
   // 헤더 메타
   const hm=document.getElementById('t-hd-meta');
@@ -1707,16 +1715,16 @@ function tDashRefresh(){
   if(sy){ const ls=localStorage.getItem('dash6_lastsync'); sy.textContent = ls ? fmtSyncT(ls)+' 동기화' : '미동기화'; }
 
   const lg=document.getElementById('t-dash-lgrid');
-  if(!l3.length){lg.innerHTML='<div style="font-size:.74rem;color:#6d675e">수업을 기록하면 여기에 표시됩니다</div>';}
+  if(!l3.length){lg.innerHTML='<div style="font-size:.74rem;color:#777777">수업을 기록하면 여기에 표시됩니다</div>';}
   else{lg.innerHTML=l3.map(l=>{const d=l.date?l.date.slice(5).replace('-','/'):'';return`<div class="t-lbox done" title="${l.date}"><span class="t-lnum">${l.num}</span><span class="t-ldate">${d}</span></div>`;}).join('');}
 
   const rm=document.getElementById('t-dash-rmsg');
-  if(!m4.length) rm.innerHTML='<div style="font-size:.74rem;color:#6d675e">문자를 기록하면 여기에 표시됩니다</div>';
+  if(!m4.length) rm.innerHTML='<div style="font-size:.74rem;color:#777777">문자를 기록하면 여기에 표시됩니다</div>';
   else{const m=m4[0],d=(m.date||'').replace(/-/g,'.'),prev=m.text.length>80?m.text.slice(0,80)+'…':m.text;rm.innerHTML=`<div class="t-rmsg-date">${d}</div><div class="t-rmsg">${tEscH(prev)}</div>`;}
 
   const rw=document.getElementById('t-dash-rw');
-  if(!w5.length) rw.innerHTML='<div style="font-size:.74rem;color:#6d675e">약점을 기록하면 여기에 표시됩니다</div>';
-  else rw.innerHTML=w5.slice(0,4).map(w=>{const p=[w.subject,w.unit1,w.unit2].filter(Boolean);return`<span class="t-wtag">${p.map(x=>`<span>${tEscH(x)}</span><span style="color:#6d675e;font-size:.6rem">›</span>`).join('')}<span style="color:#D4552A;font-weight:700">${tEscH(w.type)}</span></span>`;}).join('');
+  if(!w5.length) rw.innerHTML='<div style="font-size:.74rem;color:#777777">약점을 기록하면 여기에 표시됩니다</div>';
+  else rw.innerHTML=w5.slice(0,4).map(w=>{const p=[w.subject,w.unit1,w.unit2].filter(Boolean);return`<span class="t-wtag">${p.map(x=>`<span>${tEscH(x)}</span><span style="color:#777777;font-size:.6rem">›</span>`).join('')}<span style="color:#222222;font-weight:700">${tEscH(w.type)}</span></span>`;}).join('');
 }
 
 /* ══ 탭1 - 학생 정보 ══ */
@@ -1733,7 +1741,7 @@ function t1Save_(){ safeSet(TK1,JSON.stringify(t1students)); }
 function t1RenderList(){
   const c=document.getElementById('t1-student-list');
   if(!t1students.length){c.innerHTML='<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">👤</div>학생이 없습니다.<br>아래 버튼으로 추가하세요.</div>';return;}
-  c.innerHTML=t1students.map((s,i)=>`<div class="t-scard" onclick="t1OpenDetail(${i})"><div class="t-scavatar">${tEscH((s.name||'?').charAt(0))}</div><div style="flex:1;min-width:0"><div class="t-scname">${tEscH(s.name||'이름 없음')}</div><div class="t-scmeta">${tEscH([s.grade,s.subject,s.school].filter(Boolean).join(' · ')||'정보 없음')}</div></div><span style="color:#6d675e;font-size:.88rem">›</span></div>`).join('');
+  c.innerHTML=t1students.map((s,i)=>`<div class="t-scard" onclick="t1OpenDetail(${i})"><div class="t-scavatar">${tEscH((s.name||'?').charAt(0))}</div><div style="flex:1;min-width:0"><div class="t-scname">${tEscH(s.name||'이름 없음')}</div><div class="t-scmeta">${tEscH([s.grade,s.subject,s.school].filter(Boolean).join(' · ')||'정보 없음')}</div></div><span style="color:#777777;font-size:.88rem">›</span></div>`).join('');
 }
 function t1ShowList(){
   document.getElementById('t1-list-view').classList.add('active');
@@ -1777,7 +1785,7 @@ function t1DeleteCurrent(){
   if(t1currentIdx===null){tShowToast('❗ 먼저 저장하세요');return;}
   const name=t1students[t1currentIdx].name||'이 학생';
   if(!confirm(`"${name}"을(를) 삭제할까요?`))return;
-  t1students.splice(t1currentIdx,1); t1Save_(); t1ShowList(); tShowToast('🗑 삭제되었습니다'); tDashRefresh();
+  t1students.splice(t1currentIdx,1); t1Save_(); t1ShowList(); tShowToast('삭제되었습니다'); tDashRefresh();
 }
 
 /* ══ 탭2 - 자료 모음실 ══ */
@@ -1788,14 +1796,14 @@ function t2Save(){safeSet(TK2,JSON.stringify(t2folders));}
 function t2Render(){
   const c=document.getElementById('t2-folder-list');
   if(!t2folders.length){c.innerHTML='<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">📂</div>폴더가 없습니다</div>';return;}
-  c.innerHTML=t2folders.map((f,fi)=>`<div class="t-fwrap"><div class="t-fhdr" onclick="t2Toggle(${fi})"><span>${f.emoji}</span><input class="t-fname-input" value="${tEscH(f.name)}" onclick="event.stopPropagation()" onchange="t2Rename(${fi},this.value)" title="이름 수정"><span class="t-fcount">${f.files.length}개 파일</span><span class="t-fchev ${f.open?'open':''}">▶</span></div><div class="t-fbody ${f.open?'open':''}">${!f.files.length?'<div style="font-size:.76rem;color:#6d675e;padding:.28rem 0">파일 경로가 없습니다</div>':f.files.map((fl,fi2)=>`<div class="t-fitem"><span class="t-ficon">📄</span><span class="t-fname">${tEscH(fl.name)}</span><a class="t-fopen" href="${tEscH(fl.path)}" target="_blank">열기 ↗</a><button class="t-btn t-btn-d" onclick="t2RemoveFile(${fi},${fi2})">삭제</button><div class="t-fpath">${tEscH(fl.path)}</div></div>`).join('')}<div class="t-add-file-form" id="t2-add-form-${fi}"><div class="t-fr" style="margin-bottom:.65rem"><div class="t-fg"><label class="tl">파일 이름</label><input type="text" id="t2-fname-${fi}" placeholder="파일명.pdf"></div><div class="t-fg"><label class="tl">경로 또는 URL</label><input type="text" id="t2-fpath-${fi}" placeholder="C:\\...\\파일.pdf"></div></div><div style="display:flex;gap:7px"><button class="t-btn t-btn-p t-btn-sm" onclick="t2AddFile(${fi})">추가</button><button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleAddForm(${fi})">취소</button></div></div><div style="margin-top:.65rem;display:flex;gap:7px;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleAddForm(${fi})">+ 파일 추가</button><button class="t-btn t-btn-d" onclick="t2RemoveFolder(${fi})">폴더 삭제</button></div></div></div>`).join('');
+  c.innerHTML=t2folders.map((f,fi)=>`<div class="t-fwrap"><div class="t-fhdr" onclick="t2Toggle(${fi})"><span>${f.emoji}</span><input class="t-fname-input" value="${tEscH(f.name)}" onclick="event.stopPropagation()" onchange="t2Rename(${fi},this.value)" title="이름 수정"><span class="t-fcount">${f.files.length}개 파일</span><span class="t-fchev ${f.open?'open':''}">▶</span></div><div class="t-fbody ${f.open?'open':''}">${!f.files.length?'<div style="font-size:.76rem;color:#777777;padding:.28rem 0">파일 경로가 없습니다</div>':f.files.map((fl,fi2)=>`<div class="t-fitem"><span class="t-ficon">📄</span><span class="t-fname">${tEscH(fl.name)}</span><a class="t-fopen" href="${tEscH(fl.path)}" target="_blank">열기 ↗</a><button class="t-btn t-btn-d" onclick="t2RemoveFile(${fi},${fi2})">삭제</button><div class="t-fpath">${tEscH(fl.path)}</div></div>`).join('')}<div class="t-add-file-form" id="t2-add-form-${fi}"><div class="t-fr" style="margin-bottom:.65rem"><div class="t-fg"><label class="tl">파일 이름</label><input type="text" id="t2-fname-${fi}" placeholder="파일명.pdf"></div><div class="t-fg"><label class="tl">경로 또는 URL</label><input type="text" id="t2-fpath-${fi}" placeholder="C:\\...\\파일.pdf"></div></div><div style="display:flex;gap:7px"><button class="t-btn t-btn-p t-btn-sm" onclick="t2AddFile(${fi})">추가</button><button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleAddForm(${fi})">취소</button></div></div><div style="margin-top:.65rem;display:flex;gap:7px;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleAddForm(${fi})">+ 파일 추가</button><button class="t-btn t-btn-d" onclick="t2RemoveFolder(${fi})">폴더 삭제</button></div></div></div>`).join('');
 }
 function t2Toggle(i){t2folders[i].open=!t2folders[i].open;t2Save();t2Render();}
 function t2Rename(i,v){t2folders[i].name=v;t2Save();}
 function t2ToggleAddForm(i){const f=document.getElementById('t2-add-form-'+i);f.classList.toggle('open');}
 function t2AddFile(fi){const name=(document.getElementById('t2-fname-'+fi).value||'').trim(),path=(document.getElementById('t2-fpath-'+fi).value||'').trim();if(!name||!path){tShowToast('❗ 이름과 경로를 입력하세요');return;}t2folders[fi].files.push({name,path});t2Save();t2Render();tShowToast('✅ 파일이 추가되었습니다');}
-function t2RemoveFile(fi,fi2){if(!confirm('이 파일을 삭제할까요?'))return;t2folders[fi].files.splice(fi2,1);t2Save();t2Render();tShowToast('🗑 삭제되었습니다');}
-function t2RemoveFolder(fi){if(!confirm(`"${t2folders[fi].name}" 폴더를 삭제할까요?`))return;t2folders.splice(fi,1);t2Save();t2Render();tShowToast('🗑 폴더가 삭제되었습니다');}
+function t2RemoveFile(fi,fi2){if(!confirm('이 파일을 삭제할까요?'))return;t2folders[fi].files.splice(fi2,1);t2Save();t2Render();tShowToast('삭제되었습니다');}
+function t2RemoveFolder(fi){if(!confirm(`"${t2folders[fi].name}" 폴더를 삭제할까요?`))return;t2folders.splice(fi,1);t2Save();t2Render();tShowToast('폴더가 삭제되었습니다');}
 function t2ToggleNewFolder(){document.getElementById('t2-new-folder-form').classList.toggle('open');}
 function t2AddFolder(){const emoji=document.getElementById('t2-new-emoji').value,name=(document.getElementById('t2-new-name').value||'').trim();if(!name){tShowToast('❗ 폴더 이름을 입력하세요');return;}t2folders.push({id:'f'+Date.now(),emoji,name,files:[],open:false});t2Save();t2Render();document.getElementById('t2-new-folder-form').classList.remove('open');document.getElementById('t2-new-name').value='';tShowToast('✅ 폴더가 추가되었습니다');}
 
@@ -1826,10 +1834,10 @@ function tplSave(k,v){localStorage.setItem('tpl_'+k,(v||'').trim()||TPL_DEF[k]);
 function tplLoad(){const g=document.getElementById('tpl-greet'),c=document.getElementById('tpl-close');if(g)g.value=tplGet('greet');if(c)c.value=tplGet('close');}
 function t3BuildMsg(l,closing){let m=`${tplGet('greet')} 오늘 ${l.num}회차 수업 잘 마쳤습니다 😊\n\n📖 오늘 진도:\n${l.content}\n\n`;if(l.hw)m+=`📝 숙제 범위:\n${l.hw}\n\n`;if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{if(v)m+=`📌 ${k}: ${v}\n\n`;});if(closing&&closing.trim())m+=closing.trim()+'\n\n';m+=tplGet('close');return m.trim();}
 function t3UpdatePreview(){if(!t3curMsg)return;document.getElementById('t3-msg-preview').textContent=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);}
-function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
+function t3CopyMsg(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);navigator.clipboard.writeText(text).then(()=>tShowToast('복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('복사되었습니다');});}
 function t3SaveToTab4(){if(!t3curMsg)return;const text=t3BuildMsg(t3curMsg,document.getElementById('t3-closing').value);const m=JSON.parse(localStorage.getItem(TK4)||'[]');m.unshift({date:t3curMsg.date,text,id:Date.now()});safeSet(TK4,JSON.stringify(m));t4Load();tShowToast('✅ 탭4에 저장되었습니다');document.getElementById('t3-msg-card').style.display='none';}
 function t3Render(){t3RenderGrid();t3RenderList();t3RenderCal();}
-function t3RenderGrid(){const g=document.getElementById('t3-grid');if(!t3lessons.length){g.innerHTML='<div style="font-size:.74rem;color:#6d675e">아직 기록이 없습니다</div>';return;}g.innerHTML=t3lessons.map((l,i)=>{const d=l.date?l.date.slice(5).replace('-','/'):'';return`<div class="t-lbox done" onclick="t3ScrollTo(${i})" title="${l.date}"><span class="t-lnum">${l.num}</span><span class="t-ldate">${d}</span></div>`;}).join('');}
+function t3RenderGrid(){const g=document.getElementById('t3-grid');if(!t3lessons.length){g.innerHTML='<div style="font-size:.74rem;color:#777777">아직 기록이 없습니다</div>';return;}g.innerHTML=t3lessons.map((l,i)=>{const d=l.date?l.date.slice(5).replace('-','/'):'';return`<div class="t-lbox done" onclick="t3ScrollTo(${i})" title="${l.date}"><span class="t-lnum">${l.num}</span><span class="t-ldate">${d}</span></div>`;}).join('');}
 function t3ScrollTo(i){const el=document.getElementById('t3-rec-'+(t3lessons.length-1-i));if(el)el.scrollIntoView({behavior:'smooth'});}
 let t3CalMonth=null;
 function t3CalNav(delta){if(!t3CalMonth)t3CalMonth=new Date();t3CalMonth=new Date(t3CalMonth.getFullYear(),t3CalMonth.getMonth()+delta,1);t3RenderCal();}
@@ -1846,19 +1854,19 @@ function t3RenderCal(){
   const startDow=new Date(y,mo,1).getDay(),dim=new Date(y,mo+1,0).getDate();
   const td=new Date(),todStr=td.getFullYear()+'-'+String(td.getMonth()+1).padStart(2,'0')+'-'+String(td.getDate()).padStart(2,'0');
   const dn=['일','월','화','수','목','금','토'];
-  let head=dn.map((d,i)=>`<div style="text-align:center;font-size:.58rem;font-weight:700;color:${i===0?'#C0392B':i===6?'#4A4A4A':'#6d675e'};padding:3px 0">${d}</div>`).join('');
+  let head=dn.map((d,i)=>`<div style="text-align:center;font-size:.58rem;font-weight:700;color:${i===0?'#C0392B':i===6?'#4A4A4A':'#777777'};padding:3px 0">${d}</div>`).join('');
   let cells='';
   for(let i=0;i<startDow;i++)cells+='<div></div>';
   for(let day=1;day<=dim;day++){
     const ds=y+'-'+String(mo+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
     const ls=byDate[ds],isToday=ds===todStr;
-    const dow=new Date(y,mo,day).getDay(),dcol=dow===0?'#C0392B':dow===6?'#4A4A4A':'#1A1A1A';
+    const dow=new Date(y,mo,day).getDay(),dcol=dow===0?'#C0392B':dow===6?'#4A4A4A':'#222222';
     if(ls&&ls.length){
       const nums=ls.map(l=>l.num).sort((a,b)=>a-b),idx=t3lessons.indexOf(ls[0]);
       const badge=(nums.length===1?nums[0]:nums.join(','))+'회';
-      cells+=`<div onclick="t3ScrollTo(${idx})" title="${ds} · ${badge} 수업" style="cursor:pointer;border:1.5px solid #D4552A;background:#1A1A1A;border-radius:7px;min-height:42px;padding:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:.58rem;color:rgba(245,240,232,.6)">${day}</span><span style="font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;color:#E0764E">${badge}</span></div>`;
+      cells+=`<div onclick="t3ScrollTo(${idx})" title="${ds} · ${badge} 수업" style="cursor:pointer;border:1.5px solid #222222;background:#222222;border-radius:7px;min-height:42px;padding:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:.58rem;color:rgba(245,240,232,.6)">${day}</span><span style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:.62rem;font-weight:700;color:#000000">${badge}</span></div>`;
     }else{
-      cells+=`<div style="min-height:42px;padding:3px;border-radius:7px;border:1px solid rgba(26,35,64,.08);display:flex;align-items:flex-start;justify-content:center;${isToday?'background:#F5EFE2;':''}"><span style="font-size:.6rem;color:${dcol};${isToday?'font-weight:700':''}">${day}</span></div>`;
+      cells+=`<div style="min-height:42px;padding:3px;border-radius:7px;border:1px solid rgba(26,35,64,.08);display:flex;align-items:flex-start;justify-content:center;${isToday?'background:#F4F5F2;':''}"><span style="font-size:.6rem;color:${dcol};${isToday?'font-weight:700':''}">${day}</span></div>`;
     }
   }
   host.innerHTML=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">${head}${cells}</div>`;
@@ -1869,10 +1877,10 @@ function t3RenderList(){
   list.innerHTML=[...t3lessons].reverse().map((l,ri)=>{
     const i=t3lessons.length-1-ri;
     const exH=l.extras?Object.entries(l.extras).filter(([k])=>k).map(([k,v])=>`<div class="t-lf"><div class="t-lfl">${tEscH(k)}</div><div class="t-lfv">${tEscH(v||'-')}</div></div>`).join(''):'';
-    return`<div class="t-lrec" id="t3-rec-${ri}"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:.65rem"><span class="t-lbadge">${l.num}회차</span><span class="t-ldlbl">${(l.date||'').replace(/-/g,'.')}</span></div><div><div class="t-lf"><div class="t-lfl">진도 내용</div><div class="t-lfv">${tEscH(l.content)}</div></div><div class="t-lf"><div class="t-lfl">숙제 범위</div><div class="t-lfv t-hwv">${tEscH(l.hw||'—')}</div></div>${exH}</div><div style="display:flex;gap:5px;margin-top:.65rem;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t3OpenEditModal(${i})">수정</button><button class="t-btn t-btn-g t-btn-sm" onclick="t3GenMsg(${i})">💬 문자 생성</button><button class="t-btn t-btn-d" onclick="t3Delete(${i})">삭제</button></div></div>`;
+    return`<div class="t-lrec" id="t3-rec-${ri}"><div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:.65rem"><span class="t-lbadge">${l.num}회차</span><span class="t-ldlbl">${(l.date||'').replace(/-/g,'.')}</span></div><div><div class="t-lf"><div class="t-lfl">진도 내용</div><div class="t-lfv">${tEscH(l.content)}</div></div><div class="t-lf"><div class="t-lfl">숙제 범위</div><div class="t-lfv t-hwv">${tEscH(l.hw||'—')}</div></div>${exH}</div><div style="display:flex;gap:5px;margin-top:.65rem;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t3OpenEditModal(${i})">수정</button><button class="t-btn t-btn-g t-btn-sm" onclick="t3GenMsg(${i})">문자 생성</button><button class="t-btn t-btn-d" onclick="t3Delete(${i})">삭제</button></div></div>`;
   }).join('');
 }
-function t3Delete(i){if(!confirm(t3lessons[i].num+'회차 수업 기록을 삭제할까요?'))return;t3lessons.splice(i,1);t3lessons.forEach((l,idx)=>l.num=idx+1);t3Save_();t3Render();t3SetNext();tShowToast('🗑 삭제되었습니다');tDashRefresh();}
+function t3Delete(i){if(!confirm(t3lessons[i].num+'회차 수업 기록을 삭제할까요?'))return;t3lessons.splice(i,1);t3lessons.forEach((l,idx)=>l.num=idx+1);t3Save_();t3Render();t3SetNext();tShowToast('삭제되었습니다');tDashRefresh();}
 function t3GenMsg(i){t3curMsg=t3lessons[i];document.getElementById('t3-msg-card').style.display='block';document.getElementById('t3-closing').value='';t3UpdatePreview();document.getElementById('t3-msg-card').scrollIntoView({behavior:'smooth'});}
 function t3OpenEditModal(i){t3editIdx=i;const l=t3lessons[i];document.getElementById('t3e-date').value=l.date||'';document.getElementById('t3e-num').value=l.num;document.getElementById('t3e-content').value=l.content||'';document.getElementById('t3e-hw').value=l.hw||'';const ex=document.getElementById('t3e-extra');ex.innerHTML='';if(l.extras)Object.entries(l.extras).forEach(([k,v])=>{const d=document.createElement('div');d.className='t-exitem';d.innerHTML=`<input type="text" value="${tEscH(k)}" placeholder="항목명" class="t-exkey"><textarea style="min-height:48px" class="t-exval">${tEscH(v)}</textarea><button class="t-rmfbtn" onclick="this.parentElement.remove()">✕</button>`;ex.appendChild(d);});document.getElementById('t3-edit-modal').classList.add('open');}
 function t3CloseModal(){document.getElementById('t3-edit-modal').classList.remove('open');t3editIdx=null;}
@@ -1925,7 +1933,7 @@ function wzGo(d){
 }
 function wzCopy(){
   if(!wzFinalText)return;
-  navigator.clipboard.writeText(wzFinalText).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=wzFinalText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});
+  navigator.clipboard.writeText(wzFinalText).then(()=>tShowToast('복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=wzFinalText;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('복사되었습니다');});
 }
 (function(){
   const vp=document.getElementById('wz-vp');let wzSX=null;
@@ -1954,13 +1962,13 @@ function t4Render(){
     const dObj=d?new Date(d):null;
     const md=parts.length>=3?parts[1]+'.'+parts[2]:d,wd=(dObj&&!isNaN(dObj.getTime()))?['일','월','화','수','목','금','토'][dObj.getDay()]:'';
     const tH=q?tEscH(m.text).replace(new RegExp(tEscR(tEscH(q)),'gi'),s=>`<mark class="highlight">${s}</mark>`):tEscH(m.text);
-    return`<div class="t-mitem"><div class="t-mleft"><div class="t-mdn">${md}</div><div class="t-mdd">${wd}<br>${parts[0]||''}</div></div><div style="flex:1"><div class="t-mbubble" id="t4-bubble-${ri}">${tH}</div><div style="display:flex;gap:5px;margin-top:.55rem;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t4Copy(${ri})">📋 복사</button><button class="t-btn t-btn-g t-btn-sm" onclick="t4StartEdit(${ri})">수정</button><button class="t-btn t-btn-d" onclick="t4Delete(${ri})">삭제</button></div></div></div>`;
+    return`<div class="t-mitem"><div class="t-mleft"><div class="t-mdn">${md}</div><div class="t-mdd">${wd}<br>${parts[0]||''}</div></div><div style="flex:1"><div class="t-mbubble" id="t4-bubble-${ri}">${tH}</div><div style="display:flex;gap:5px;margin-top:.55rem;flex-wrap:wrap"><button class="t-btn t-btn-g t-btn-sm" onclick="t4Copy(${ri})">복사</button><button class="t-btn t-btn-g t-btn-sm" onclick="t4StartEdit(${ri})">수정</button><button class="t-btn t-btn-d" onclick="t4Delete(${ri})">삭제</button></div></div></div>`;
   }).join('');
 }
-function t4Copy(i){const text=t4msgs[i].text;navigator.clipboard.writeText(text).then(()=>tShowToast('📋 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('📋 복사되었습니다');});}
+function t4Copy(i){const text=t4msgs[i].text;navigator.clipboard.writeText(text).then(()=>tShowToast('복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);tShowToast('복사되었습니다');});}
 function t4StartEdit(i){const b=document.getElementById('t4-bubble-'+i);b.classList.add('editing');b.innerHTML=`<textarea id="t4-eta-${i}" style="min-height:95px">${tEscH(t4msgs[i].text)}</textarea><div style="padding:0 .9rem .75rem;display:flex;gap:5px"><button class="t-btn t-btn-p t-btn-sm" onclick="t4SaveEdit(${i})">저장</button><button class="t-btn t-btn-g t-btn-sm" onclick="t4Render()">취소</button></div>`;}
 function t4SaveEdit(i){const v=(document.getElementById('t4-eta-'+i).value||'').trim();if(!v){tShowToast('❗ 내용을 입력하세요');return;}t4msgs[i].text=v;t4Save_();t4Render();tShowToast('✅ 수정되었습니다');}
-function t4Delete(i){if(!confirm('이 문자 기록을 삭제할까요?'))return;t4msgs.splice(i,1);t4Save_();t4Render();tShowToast('🗑 삭제되었습니다');tDashRefresh();}
+function t4Delete(i){if(!confirm('이 문자 기록을 삭제할까요?'))return;t4msgs.splice(i,1);t4Save_();t4Render();tShowToast('삭제되었습니다');tDashRefresh();}
 
 /* ══ 탭5 - 약점 기록소 ══ */
 let t5items=[], t5editIdx=null, t5newPhotos=[], t5editPhotos=[], t5activeFilter=null;
@@ -1968,7 +1976,7 @@ function t5Load(){const r=localStorage.getItem(TK5);t5items=safeParse(r,[]);t5Re
 function t5Save_(){ safeSet(TK5,JSON.stringify(t5items)); }
 function t5UpdatePath(){
   const s=(document.getElementById('t5-subject').value||'').trim(),u1=(document.getElementById('t5-unit1').value||'').trim(),u2=(document.getElementById('t5-unit2').value||'').trim(),t=(document.getElementById('t5-type').value||'').trim(),parts=[s,u1,u2].filter(Boolean),prev=document.getElementById('t5-path-preview');
-  if(!parts.length&&!t){prev.innerHTML='<span style="color:#6d675e;font-size:.76rem">아래를 입력하면 경로가 표시됩니다</span>';return;}
+  if(!parts.length&&!t){prev.innerHTML='<span style="color:#777777;font-size:.76rem">아래를 입력하면 경로가 표시됩니다</span>';return;}
   let h=parts.map(p=>`<span class="t-pseg">${tEscH(p)}</span><span class="t-psep">›</span>`).join('');
   if(t)h+=`<span class="t-pleaf">${tEscH(t)}</span>`;
   prev.innerHTML=h;
@@ -1980,7 +1988,7 @@ function t5Add(){
   if(!subject){tShowToast('❗ 과목을 입력하세요');return;}if(!type){tShowToast('❗ 특정 유형을 입력하세요');return;}
   t5items.unshift({id:Date.now(),subject,unit1,unit2,type,memo,photos:[...t5newPhotos],date:tToday()});
   t5Save_();['t5-subject','t5-unit1','t5-unit2','t5-type','t5-memo'].forEach(id=>document.getElementById(id).value='');
-  t5newPhotos=[];t5RenderNewPrev();t5UpdatePath();t5Render();tShowToast('📌 약점이 기록되었습니다');tDashRefresh();
+  t5newPhotos=[];t5RenderNewPrev();t5UpdatePath();t5Render();tShowToast('약점이 기록되었습니다');tDashRefresh();
 }
 function t5Render(){
   const q=(document.getElementById('t5-search').value||'').toLowerCase();
@@ -1993,7 +2001,7 @@ function t5Render(){
   if(q)filtered=filtered.filter(w=>[w.subject,w.unit1,w.unit2,w.type,w.memo].join(' ').toLowerCase().includes(q));
   document.getElementById('t5-count').textContent=filtered.length+'건';
   const list=document.getElementById('t5-list');
-  if(!filtered.length){list.innerHTML=`<div class="t-empty"><div style="font-size:1.8rem;margin-bottom:.4rem">🎯</div>${q||t5activeFilter?'검색 결과 없음':'아직 기록이 없습니다'}</div>`;return;}
+  if(!filtered.length){list.innerHTML=`<div class="t-empty">${q||t5activeFilter?'검색 결과 없음':'아직 기록이 없습니다'}</div>`;return;}
   list.innerHTML=filtered.map(w=>{
     const ri=t5items.indexOf(w),parts=[w.subject,w.unit1,w.unit2].filter(Boolean);
     const photosH=w.photos&&w.photos.length?`<div class="t-wcphotos">${w.photos.map((src,pi)=>`<div class="t-wcphoto" onclick="tOpenLightbox('${src}')"><img src="${src}" alt="사진${pi+1}"></div>`).join('')}</div>`:'';
@@ -2008,7 +2016,7 @@ document.getElementById('t5-filters').addEventListener('click',function(e){
   t5SetFilter(chip.dataset.subject||null);
 });
 function t5SetFilter(v){t5activeFilter=v;t5Render();}
-function t5Delete(i){if(!confirm('이 약점 기록을 삭제할까요?'))return;t5items.splice(i,1);t5Save_();t5Render();tShowToast('🗑 삭제되었습니다');tDashRefresh();}
+function t5Delete(i){if(!confirm('이 약점 기록을 삭제할까요?'))return;t5items.splice(i,1);t5Save_();t5Render();tShowToast('삭제되었습니다');tDashRefresh();}
 function t5OpenEdit(i){t5editIdx=i;const w=t5items[i];document.getElementById('t5e-subject').value=w.subject||'';document.getElementById('t5e-unit1').value=w.unit1||'';document.getElementById('t5e-unit2').value=w.unit2||'';document.getElementById('t5e-type').value=w.type||'';document.getElementById('t5e-memo').value=w.memo||'';t5editPhotos=[...(w.photos||[])];t5RenderEditPrev();document.getElementById('t5-edit-modal').classList.add('open');}
 function t5CloseModal(){document.getElementById('t5-edit-modal').classList.remove('open');t5editIdx=null;t5editPhotos=[];}
 function t5HandleEditPhotos(input){Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{t5editPhotos.push(e.target.result);t5RenderEditPrev();};r.readAsDataURL(f);});input.value='';}
@@ -2363,7 +2371,7 @@ function v2SaveCfg(){
 function v2TogglePw(id,btn){
   const el=document.getElementById(id);
   el.type=el.type==='password'?'text':'password';
-  btn.textContent=el.type==='password'?'👁':'🙈';
+  btn.textContent=el.type==='password'?'보기':'가림';
 }
 function v2ModeChip(){
   const t=v2Demo()?'데모 모드':'Supabase 연결됨 · '+v2Pair();
@@ -2373,7 +2381,7 @@ function v2ModeChip(){
 function v2CopyConnect(){
   if(v2Demo()){tShowToast('❗ 먼저 위 칸에 URL·anon key를 넣어 "Supabase 연결됨"이 된 뒤에 복사하세요');return;}
   const code=btoa(JSON.stringify({u:v2Cfg('url'),k:v2Cfg('key'),p:v2Pair()}));
-  const done=()=>tShowToast('📲 연결 코드 복사됨 — 태블릿 student.html에 붙여넣기');
+  const done=()=>tShowToast('연결 코드 복사됨 — 태블릿 student.html에 붙여넣기');
   if(navigator.clipboard)navigator.clipboard.writeText(code).then(done).catch(()=>prompt('아래 코드를 복사하세요',code));
   else prompt('아래 코드를 복사하세요',code);
 }
@@ -2385,12 +2393,12 @@ async function v2Render(){
   box.innerHTML=v2rows.length?v2rows.map((w,i)=>{
     const sub=(w.submissions||[])[0];
     const st=w.status==='assigned'?'배정됨':w.status==='submitted'?'제출됨':'확인함';
-    return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #C9C2B4;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub(${i})"`:''}>
+    return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #D8DADF;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub(${i})"`:''}>
       <div style="flex:1;min-width:0"><b style="font-size:.8rem">${tEscH(w.title)}</b>
-      <div style="font-size:.7rem;color:#6d675e;font-family:'DM Mono',monospace">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
+      <div style="font-size:.7rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
       ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet(${i})">정답지</button>`:''}
-      <span class="t-lbadge" style="${w.status==='submitted'?'background:#D4552A;color:#fff':''}">${st}</span></div>`;
-  }).join(''):'<div style="font-size:.76rem;color:#6d675e">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
+      <span class="t-lbadge" style="${w.status==='submitted'?'background:#222222;color:#fff':''}">${st}</span></div>`;
+  }).join(''):'<div style="font-size:.76rem;color:#777777">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
 }
 function v2OpenNew(){document.getElementById('v2-new-modal').classList.add('open')}
 async function v2Send(){
@@ -2419,8 +2427,8 @@ async function v2OpenSub(i){
   v2cur=v2rows[i];const sub=(v2cur.submissions||[])[0];if(!sub)return;
   document.getElementById('v2s-title').textContent=v2cur.title;
   document.getElementById('v2s-score').textContent=sub.score||'';
-  document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>`<span style="border:1.2px solid ${m==='X'?'#D4552A':'#1A1A1A'};color:${m==='X'?'#D4552A':'#1A1A1A'};border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700">${j+1}번 ${m==='O'?'○':'✕'}</span>`).join('');
-  document.getElementById('v2s-photos').innerHTML=(sub.photo_paths||[]).map(p=>`<img src="${v2PhotoUrl(p)}" style="max-width:100%;border:1.5px solid #1A1A1A;border-radius:8px" loading="lazy">`).join('')||'<div style="font-size:.76rem;color:#6d675e">사진 없음</div>';
+  document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>`<span style="border:1.2px solid ${m==='X'?'#222222':'#222222'};color:${m==='X'?'#222222':'#222222'};border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700">${j+1}번 ${m==='O'?'○':'✕'}</span>`).join('');
+  document.getElementById('v2s-photos').innerHTML=(sub.photo_paths||[]).map(p=>`<img src="${v2PhotoUrl(p)}" style="max-width:100%;border:1.5px solid #222222;border-radius:8px" loading="lazy">`).join('')||'<div style="font-size:.76rem;color:#777777">사진 없음</div>';
   document.getElementById('v2-sub-modal').classList.add('open');
   if(v2cur.status==='submitted'){try{await v2Seen(v2cur.id);v2cur.status='seen';v2Render();v2DashAlert();}catch(e){}}
 }
@@ -2432,12 +2440,12 @@ async function v2DashAlert(){
   const un=rows.filter(w=>w.status==='submitted');
   const uq=qs.filter(q=>q.status==='open');
   let html='';
-  if(un.length)html+=`<div class="t-card" style="border-color:#D4552A;cursor:pointer;margin-bottom:.6rem" onclick="tShowGroup('sheets')">
-    <div style="font-size:.82rem;font-weight:700">📥 학생 제출물 ${un.length}건 — ${tEscH(un[0].title)}${un.length>1?' 외':''}</div>
-    <div style="font-size:.72rem;color:#6d675e">눌러서 확인 (자동 채점 완료 · 손풀이 사진 포함)</div></div>`;
-  if(uq.length)html+=`<div class="t-card" style="border-color:#D4552A;cursor:pointer;margin-bottom:0" onclick="v2OpenQuestions()">
-    <div style="font-size:.82rem;font-weight:700">🙋 윤서의 질문 ${uq.length}건</div>
-    <div style="font-size:.72rem;color:#6d675e">"${tEscH((uq[0].note||'').slice(0,42))}${(uq[0].note||'').length>42?'…':''}"</div></div>`;
+  if(un.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:.6rem" onclick="tShowGroup('sheets')">
+    <div style="font-size:.82rem;font-weight:700">제출물 ${un.length}건 — ${tEscH(un[0].title)}${un.length>1?' 외':''}</div>
+    <div style="font-size:.72rem;color:#777777">눌러서 확인 (자동 채점 완료 · 손풀이 사진 포함)</div></div>`;
+  if(uq.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:0" onclick="v2OpenQuestions()">
+    <div style="font-size:.82rem;font-weight:700">윤서의 질문 ${uq.length}건</div>
+    <div style="font-size:.72rem;color:#777777">"${tEscH((uq[0].note||'').slice(0,42))}${(uq[0].note||'').length>42?'…':''}"</div></div>`;
   el.innerHTML=html;
 }
 async function v2OpenQuestions(){
@@ -2454,14 +2462,14 @@ async function v2OpenQuestions(){
   document.getElementById('v2-q-list').innerHTML=qs.length?qs.map(function(q){
     const w=wmap[q.worksheet_id];
     const p=(w&&w.problems&&q.problem_index!=null)?w.problems[q.problem_index]:null;
-    const stBadge=q.status==='answered'?'<span class="t-lbadge" style="background:#3E7C4F;color:#fff">답변함</span>':(q.status==='seen'?'<span class="t-lbadge">확인함</span>':'<span class="t-lbadge" style="background:#D4552A;color:#fff">새 질문</span>');
+    const stBadge=q.status==='answered'?'<span class="t-lbadge" style="background:#3E7C4F;color:#fff">답변함</span>':(q.status==='seen'?'<span class="t-lbadge">확인함</span>':'<span class="t-lbadge" style="background:#222222;color:#fff">새 질문</span>');
     // 문항 원문 (선생님용 정답·풀이 포함)
-    const probBox=p?`<div style="border:1.5px solid #C9C2B4;border-radius:8px;background:#F5EFE2;padding:9px 11px;margin-top:6px;font-size:.8rem;line-height:1.6">
+    const probBox=p?`<div style="border:1.5px solid #D8DADF;border-radius:8px;background:#F4F5F2;padding:9px 11px;margin-top:6px;font-size:.8rem;line-height:1.6">
         <b>${q.problem_index+1}.</b> ${tEscH(p.q)}
-        ${p.choices?`<div style="color:#6d675e;font-size:.74rem;margin-top:3px">${p.choices.map(function(c,j){return C[j]+' '+tEscH(c)}).join('&nbsp;&nbsp;')}</div>`:''}
-        <div style="color:#D4552A;font-size:.74rem;margin-top:5px"><b>정답 ${tEscH(p.answer)}</b> · ${tEscH(p.solution||'')}</div>
+        ${p.choices?`<div style="color:#777777;font-size:.74rem;margin-top:3px">${p.choices.map(function(c,j){return C[j]+' '+tEscH(c)}).join('&nbsp;&nbsp;')}</div>`:''}
+        <div style="color:#222222;font-size:.74rem;margin-top:5px"><b>정답 ${tEscH(p.answer)}</b> · ${tEscH(p.solution||'')}</div>
       </div>`
-      :(q.worksheet_title?`<div style="font-size:.74rem;color:#6d675e;margin-top:4px">📄 ${tEscH(q.worksheet_title)}${q.problem_index!=null?' · '+(q.problem_index+1)+'번':''} — 파일 문제지 (아래 사진·정답지에서 확인)</div>`:'');
+      :(q.worksheet_title?`<div style="font-size:.74rem;color:#777777;margin-top:4px">${tEscH(q.worksheet_title)}${q.problem_index!=null?' · '+(q.problem_index+1)+'번':''} — 파일 문제지 (아래 사진·정답지에서 확인)</div>`:'');
     // 답변 영역
     const ansArea=q.answer
       ?`<div style="border-left:3px solid #3E7C4F;background:rgba(62,124,79,.06);padding:8px 11px;border-radius:0 6px 6px 0;margin-top:7px;font-size:.8rem;white-space:pre-line"><b>내 답변</b> — ${tEscH(q.answer)}</div>`
@@ -2469,20 +2477,20 @@ async function v2OpenQuestions(){
           <textarea id="v2-qa-${q.id}" placeholder="답변을 적으면 윤서의 질문하기 화면에 떠요" style="min-height:52px;font-size:.82rem"></textarea>
           <div style="display:flex;gap:6px;margin-top:5px;justify-content:flex-end">
             ${q.status==='open'?`<button class="t-btn t-btn-g t-btn-sm" onclick="v2QSeenClick('${q.id}')">답변 없이 확인만</button>`:''}
-            <button class="t-btn t-btn-p t-btn-sm" onclick="v2Answer('${q.id}')">💬 답변 보내기</button>
+            <button class="t-btn t-btn-p t-btn-sm" onclick="v2Answer('${q.id}')">답변 보내기</button>
           </div>
         </div>`;
-    return `<div style="border-bottom:1.5px dashed #C9C2B4;padding:11px 2px">
+    return `<div style="border-bottom:1.5px dashed #D8DADF;padding:11px 2px">
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <b style="font-size:.8rem">🙋 ${q.worksheet_title?tEscH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
-        <span style="font-size:.68rem;color:#6d675e;font-family:'DM Mono',monospace">${(q.created_at||'').slice(5,10).replace('-','.')}</span>
+        <b style="font-size:.8rem">${q.worksheet_title?tEscH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
+        <span style="font-size:.68rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(q.created_at||'').slice(5,10).replace('-','.')}</span>
         <div style="flex:1"></div>${stBadge}
       </div>
       <div style="font-size:.82rem;margin-top:5px;white-space:pre-line"><b>윤서:</b> ${tEscH(q.note)}</div>
       ${probBox}
-      ${(q.photo_paths||[]).map(function(pp){return `<img src="${v2PhotoUrl(pp)}" style="max-width:100%;border:1.5px solid #1A1A1A;border-radius:8px;margin-top:6px" loading="lazy">`}).join('')}
+      ${(q.photo_paths||[]).map(function(pp){return `<img src="${v2PhotoUrl(pp)}" style="max-width:100%;border:1.5px solid #222222;border-radius:8px;margin-top:6px" loading="lazy">`}).join('')}
       ${ansArea}
-    </div>`}).join(''):'<div style="font-size:.78rem;color:#6d675e">아직 질문이 없습니다</div>';
+    </div>`}).join(''):'<div style="font-size:.78rem;color:#777777">아직 질문이 없습니다</div>';
   document.getElementById('v2-q-modal').classList.add('open');
 }
 async function v2QSeenClick(id){try{await v2QSeen(id);v2OpenQuestions();v2DashAlert();}catch(e){tShowToast('❗ 처리 실패');}}
@@ -2513,7 +2521,7 @@ document.getElementById('v2-q-modal').addEventListener('click',function(e){if(e.
 document.getElementById('tutor-overlay').appendChild(document.getElementById('v2-q-modal'));
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='4.4';
+var APP_VER='5.0';
 /* 공통수학2 목차 (Dashboard/공통수학2-목차.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
@@ -2607,7 +2615,7 @@ async function v3GemGen(topic,n,diff,fmt,ref,unit){
     r=await call(used);
     if(r.status===503){await sleep(2500);r=await call(used);} // 과부하 — 같은 모델 한 번 더
     if(r.ok){
-      if(used!==cached){localStorage.setItem('yt_gem_model',used);tShowToast('🤖 모델: '+used);}
+      if(used!==cached){localStorage.setItem('yt_gem_model',used);tShowToast('모델: '+used);}
       break;
     }
     if(r.status===400||r.status===401||r.status===403)break; // 키 문제 — 다른 모델 시도 무의미
@@ -2616,7 +2624,7 @@ async function v3GemGen(topic,n,diff,fmt,ref,unit){
   if(!r)throw new Error('시도할 모델이 없습니다 — 설정의 [연결 테스트]를 눌러보세요');
   if(!r.ok){
     if(r.status===404)localStorage.removeItem('yt_gem_model');
-    if(r.status===503)throw new Error('503 — 구글 무료 서버가 지금 붐빕니다. 1~2분 뒤 [⚡ 문제 생성]만 다시 눌러주세요 (입력값 유지됨)');
+    if(r.status===503)throw new Error('503 — 구글 무료 서버가 지금 붐빕니다. 1~2분 뒤 [문제 생성]만 다시 눌러주세요 (입력값 유지됨)');
     if(r.status===429)throw new Error('429 — 무료 한도 잠시 초과. 1분 뒤 다시 눌러주세요');
     if(r.status===404)throw new Error('404 — 시도한 모델 전부 거부됨: '+cand.slice(0,5).join(', '));
     throw new Error('Gemini 오류 '+r.status+(r.status===400||r.status===403?' — API 키 확인':''));
@@ -2692,18 +2700,18 @@ async function v3Gen(){
     v3RenderPreview();
     document.getElementById('v3-preview-wrap').style.display='block';
   }catch(e){tShowToast('❗ '+e.message);}
-  btn.disabled=false;btn.textContent='⚡ 문제 생성';
+  btn.disabled=false;btn.textContent='문제 생성';
 }
 function v3RenderPreview(){
   const C=['①','②','③','④','⑤'];
   document.getElementById('v3-preview').innerHTML=(v3prob||[]).map(function(p,i){return ''
-    +'<div style="border-bottom:1.5px dashed #C9C2B4;padding:8px 2px">'
+    +'<div style="border-bottom:1.5px dashed #D8DADF;padding:8px 2px">'
     +'<div style="font-size:.8rem"><b>'+String(i+1).padStart(2,'0')+'.</b> '+tEscH(p.q)+'</div>'
-    +(p.choices?'<div style="font-size:.74rem;color:#6d675e;margin-top:2px">'+p.choices.map(function(c,j){return C[j]+' '+tEscH(c)}).join('&nbsp;&nbsp;')+'</div>':'')
+    +(p.choices?'<div style="font-size:.74rem;color:#777777;margin-top:2px">'+p.choices.map(function(c,j){return C[j]+' '+tEscH(c)}).join('&nbsp;&nbsp;')+'</div>':'')
     +'<div style="display:flex;gap:8px;align-items:center;margin-top:5px">'
-    +'<label style="font-size:.7rem;color:#6d675e">정답</label>'
+    +'<label style="font-size:.7rem;color:#777777">정답</label>'
     +'<input type="text" value="'+tEscH(p.answer)+'" oninput="v3prob['+i+'].answer=this.value" style="width:90px;padding:4px 8px;font-size:.8rem">'
-    +'<span style="font-size:.7rem;color:#6d675e;flex:1">'+tEscH(p.solution||'')+'</span>'
+    +'<span style="font-size:.7rem;color:#777777;flex:1">'+tEscH(p.solution||'')+'</span>'
     +'<button class="t-rmfbtn" title="문항 빼기" onclick="v3prob.splice('+i+',1);v3RenderPreview()">✕</button>'
     +'</div></div>'}).join('');
 }
@@ -2748,7 +2756,7 @@ function v3WrongToWeak(){
   const memo=wrong.map(function(i){return probs[i]?((i+1)+'번: '+probs[i].q):((i+1)+'번')}).join('\n');
   t5items.unshift({id:Date.now(),subject:'공통수학1',unit1:'',unit2:'',type:v2cur.title+' 오답',memo,photos:[],date:tToday()});
   t5Save_();t5Render();tDashRefresh();
-  tShowToast('🎯 오답 '+wrong.length+'문항이 약점 노트에 기록되었습니다');
+  tShowToast('오답 '+wrong.length+'문항이 약점 노트에 기록되었습니다');
 }
 function v3SimilarFromWrong(){
   if(!v2cur)return;const wrong=v3WrongIdx();const probs=v2cur.problems||[];

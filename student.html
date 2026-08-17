@@ -3,38 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>윤서의 공부방</title>
+<title>오늘학생</title>
 <link rel="icon" type="image/jpeg" href="icon.jpg">
 <link rel="apple-touch-icon" href="icon.jpg">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--paper:#FDFBF7;--card:#FFFEFB;--ink:#1A1A1A;--sub:#6d675e;--faint:#A39B8B;--dash:#C9C2B4;--accent:#D4552A;--deep:#F5EFE2;--ok:#3E7C4F;
---serif:'Gowun Batang',serif;--sans:'IBM Plex Sans KR',sans-serif;--mono:'DM Mono',monospace}
+
+:root{--paper:#FFFFFF;--card:#FFFFFF;--ink:#222222;--sub:#777777;--faint:#B9BCC2;--dash:#D8DADF;--accent:#222222;--hl:#B9F18D;--bad:#D14B3C;--deep:#F4F5F2;--ok:#2F7A4D;
+--serif:'Pretendard Variable',Pretendard,sans-serif;--sans:'Pretendard Variable',Pretendard,sans-serif;--mono:'Pretendard Variable',Pretendard,sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);display:flex;flex-direction:column;
-background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.028 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+background-image:linear-gradient(#F0F1F3 1px,transparent 1px),linear-gradient(90deg,#F0F1F3 1px,transparent 1px);background-size:22px 22px}
 .appbar{display:flex;align-items:center;gap:10px;padding:14px 20px 10px;border-bottom:1.5px solid var(--ink);margin:0 14px}
 .appbar h1{font-family:var(--serif);font-size:1.1rem}
 .appbar small{margin-left:auto;color:var(--sub);font-family:var(--mono);font-size:.7rem}
 .body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;max-width:1080px;margin:0 auto;width:100%}
-.card{border:1.5px solid var(--ink);border-radius:8px;padding:13px 14px;background:var(--card)}
+.card{border:1.5px solid var(--ink);border-radius:10px;padding:13px 14px;background:var(--card);box-shadow:2.5px 2.5px 0 var(--ink)}
 .card h3{font-family:var(--serif);font-size:.95rem;margin-bottom:5px}
 .muted{color:var(--sub);font-size:.78rem;line-height:1.55}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.note{border:1.5px dashed var(--faint);color:var(--sub);font-size:.78rem;padding:8px 11px;border-radius:8px;background:rgba(245,239,226,.5);line-height:1.5}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 14px;font-size:.87rem;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.note{border:1.5px dashed var(--faint);color:var(--sub);font-size:.78rem;padding:8px 11px;border-radius:8px;background:rgba(244,245,242,.6);line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 14px;font-size:.87rem;font-weight:700;cursor:pointer;font-family:var(--sans);box-shadow:1.5px 1.5px 0 var(--ink)}
+.btn:active{transform:translate(1.5px,1.5px);box-shadow:none}
 .btn.pri{background:var(--ink);color:var(--paper)}
-.btn.pri:active{background:var(--accent)}
+.btn.pri:active{background:#000}
 .btn.big{width:auto;min-width:200px;padding:11px 26px;font-size:.92rem}
 .btn.sm{padding:5px 10px;font-size:.75rem;border-width:1.2px}
 .btn:disabled{border-color:var(--faint);color:var(--faint);background:transparent}
 input[type=text],textarea{width:100%;border:1.5px solid var(--faint);border-radius:6px;padding:9px 11px;font-size:.9rem;background:var(--card);font-family:var(--sans);color:var(--ink)}
 input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .chip{display:inline-block;border:1.2px solid var(--ink);border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700;background:var(--deep)}
-.chip.acc{border-color:var(--accent);color:var(--accent);background:transparent}
-.chip.ok{border-color:var(--ok);color:var(--ok);background:transparent}
-.badge-new{background:var(--accent);color:#fff;border-radius:4px;font-size:.6rem;font-weight:900;padding:2px 5px;vertical-align:2px}
+.chip.acc{border-color:var(--ink);color:var(--ink);background:linear-gradient(transparent 55%, var(--hl) 55%)}
+.chip.ok{border-color:var(--faint);color:var(--sub);background:transparent}
+.badge-new{background:var(--ink);color:var(--hl);border-radius:4px;font-size:.6rem;font-weight:900;padding:2px 5px;vertical-align:2px}
 .dashlist>*{border-bottom:1.5px dashed var(--dash);padding:10px 4px}
 .dashlist>*:last-child{border-bottom:none}
 .row{display:flex;align-items:center;gap:10px}
@@ -48,10 +50,15 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:20px;font-size:.84rem;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:60}
 .toast.show{opacity:1}
 /* 홈 4구역 */
-.home-grid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:12px;max-width:860px;width:100%;margin:4vh auto 0}
-.home-cell{border:1.5px solid var(--ink);border-radius:10px;background:var(--card);padding:18px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center;min-height:132px}
-.home-cell:active{background:var(--deep)}
-.home-cell .t{font-family:var(--serif);font-size:1rem;font-weight:700}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.home-cell{border:1.5px solid var(--ink);border-radius:10px;background:var(--card);padding:18px 16px;display:flex;flex-direction:column;gap:5px;cursor:pointer;min-height:104px;box-shadow:2.5px 2.5px 0 var(--ink)}
+.home-cell:active{transform:translate(2px,2px);box-shadow:none}
+.home-todo-line{display:flex;align-items:center;gap:9px;padding:8px 2px;font-size:.9rem;border-bottom:1.5px dashed var(--dash)}
+.home-todo-line .bx{width:17px;height:17px;border:1.8px solid var(--ink);border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900}
+.home-todo-line.done .bx{background:var(--ink);color:var(--hl)}
+.home-todo-line.done span{color:var(--sub);text-decoration:line-through}
+
+.home-cell .t{font-size:1rem;font-weight:800}
 .home-mid{display:flex;flex-direction:column;gap:12px}
 .home-mid .home-cell{flex:1}
 /* PDF 뷰어 */
@@ -76,14 +83,14 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .tog{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:.8rem;font-weight:700}
 .tog .tr{width:38px;height:20px;border:1.5px solid var(--ink);border-radius:12px;position:relative;background:var(--card);transition:background .15s}
 .tog .tr::after{content:"";position:absolute;top:1.5px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--ink);transition:left .15s}
-.tog.on .tr{background:var(--accent)}
-.tog.on .tr::after{left:19px;background:#fff}
-.sol{border-left:3px solid var(--accent);background:rgba(212,85,42,.05);padding:10px 12px;border-radius:0 6px 6px 0;font-size:.84rem;line-height:1.6;white-space:pre-line}
+.tog.on .tr{background:var(--hl)}
+.tog.on .tr::after{left:19px;background:var(--ink)}
+.sol{border-left:3px solid var(--hl);background:rgba(185,241,141,.14);padding:10px 12px;border-radius:0 6px 6px 0;font-size:.84rem;line-height:1.6;white-space:pre-line}
 .qbox{border:1.5px solid var(--dash);border-radius:8px;background:var(--deep);padding:14px;font-size:.92rem;line-height:1.7;white-space:pre-line;min-height:130px}
 /* 도장 오버레이 */
 .stamp-ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(26,26,26,.25);z-index:55}
 .stamp-ov.show{display:flex}
-.stamp{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:4px double var(--accent);border-radius:50%;color:var(--accent);font-family:var(--serif);font-weight:700;font-size:1.35rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);background:rgba(253,251,247,.92);line-height:1.35;text-align:center}
+.stamp{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:4px double #C43E2F;border-radius:50%;color:#C43E2F;font-family:var(--serif);font-weight:700;font-size:1.35rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);background:rgba(253,251,247,.92);line-height:1.35;text-align:center}
 @keyframes stampin{0%{transform:rotate(-35deg) scale(2.4);opacity:0}55%{transform:rotate(-9deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
 @media(max-width:760px){.home-grid{grid-template-columns:1fr}.split{flex-direction:column}.split>*{width:100%}}
 </style>
@@ -91,7 +98,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <body>
 <div class="appbar">
   <button class="btn sm" id="back-btn" style="display:none" onclick="goHome()">← 홈</button>
-  <h1 id="bar-title">윤서의 공부방</h1>
+  <h1 id="bar-title">오늘<span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 2px">학생</span></h1>
   <small id="mode-chip" class="num" style="cursor:pointer;text-decoration:underline dotted" onclick="rePair()" title="눌러서 다시 연결"></small>
 </div>
 
@@ -110,27 +117,18 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <!-- 홈 4구역 -->
 <div class="screen" id="sc-home">
   <div class="body">
-    <div class="home-grid">
-      <div class="home-cell" onclick="openNewList()">
-        <div style="font-size:1.6rem">✏️</div><div class="t">새로운 문제</div>
-        <div class="muted" id="home-new-cnt"> </div>
+    <div style="max-width:640px;width:100%;margin:3vh auto 0">
+      <div class="muted num" id="home-date" style="font-weight:600"></div>
+      <div style="font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px">윤서의 <span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 3px">오늘 계획</span></div>
+      <div id="home-todo" style="margin-bottom:18px"></div>
+      <div class="home-grid">
+        <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
+        <div class="home-cell" onclick="openSent()"><div class="t">보낸 문제</div><div class="muted" id="home-sent-cnt"> </div></div>
+        <div class="home-cell" onclick="showScreen('wrongsel','오답모음')"><div class="t">오답모음</div><div class="muted" id="home-wrong-cnt"> </div></div>
+        <div class="home-cell" onclick="openAsk()"><div class="t">질문하기</div><div class="muted" id="home-ask-cnt">막힌 문제를 쌤에게</div></div>
       </div>
-      <div class="home-mid">
-        <div class="home-cell" onclick="openSent()">
-          <div style="font-size:1.4rem">📤</div><div class="t">쌤에게 보낸 문제</div>
-          <div class="muted" id="home-sent-cnt"> </div>
-        </div>
-        <div class="home-cell" onclick="showScreen('wrongsel','오답모음')">
-          <div style="font-size:1.4rem">📕</div><div class="t">오답모음</div>
-          <div class="muted" id="home-wrong-cnt"> </div>
-        </div>
-      </div>
-      <div class="home-cell" onclick="openAsk()">
-        <div style="font-size:1.6rem">🙋</div><div class="t">질문하기</div>
-        <div class="muted" id="home-ask-cnt">막힌 문제를 쌤에게</div>
-      </div>
+      <div class="muted" id="home-err" style="text-align:center;margin-top:10px"></div>
     </div>
-    <div class="muted" id="home-err" style="text-align:center"></div>
   </div>
 </div>
 
@@ -145,7 +143,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
       <div style="flex:1.2" id="preview-wrap" hidden>
         <div class="sec-t">문제 미리보기창</div>
         <div style="margin-top:6px">
-          <div class="pdfbar">📄 <span id="pv-fname" class="num"></span></div>
+          <div class="pdfbar"><span id="pv-fname" class="num"></span></div>
           <div class="pdfwrap" id="pv-view" style="height:300px;padding:10px"></div>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:10px">
@@ -161,7 +159,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
   <div class="body">
     <div class="split">
       <div style="flex:1.6;width:100%">
-        <div class="pdfbar">📄 <span id="sv-fname" class="num"></span>
+        <div class="pdfbar"><span id="sv-fname" class="num"></span>
           <div class="grow"></div>
           <button class="zbtn" onclick="svZoom(-1)">−</button>
           <span class="num" id="sv-zoomlbl" style="min-width:42px;text-align:center">100%</span>
@@ -183,7 +181,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
         </div>
         <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
           <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotos(this.files)">
-          <button class="btn" onclick="document.getElementById('photo-input').click()">📷 풀이 사진 첨부</button>
+          <button class="btn" onclick="document.getElementById('photo-input').click()">풀이 사진 첨부</button>
           <span id="sv-photos" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px">
@@ -209,10 +207,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
   <div class="body" style="justify-content:center">
     <div class="split" style="max-width:620px;margin:0 auto;width:100%">
       <div class="home-cell" style="flex:1;min-height:160px" onclick="openWrong1()">
-        <div style="font-size:1.5rem">🗂</div><div class="t">한 번에<br>모아보기</div>
+        <div style="font-size:1.5rem"><div class="t">한 번에<br>모아보기</div>
       </div>
       <div class="home-cell" style="flex:1;min-height:160px" onclick="openWrong2()">
-        <div style="font-size:1.5rem">📚</div><div class="t">단원별로<br>모아보기</div>
+        <div style="font-size:1.5rem"><div class="t">단원별로<br>모아보기</div>
       </div>
     </div>
     <div class="note" style="max-width:620px;margin:12px auto 0">오답은 선생님이 제출물을 확인한 문제지부터 이 방에 모여요.</div>
@@ -276,7 +274,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
         <div class="sec-t" style="margin-top:12px">교재 사진</div>
         <input type="file" id="ask-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onAskPhotos(this.files)">
         <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:8px">
-          <button class="btn" onclick="document.getElementById('ask-photo-input').click()">📷 사진 첨부</button>
+          <button class="btn" onclick="document.getElementById('ask-photo-input').click()">사진 첨부</button>
           <span id="ask-photos" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
         </div>
       </div>
@@ -290,7 +288,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
         </div>
       </div>
     </div>
-    <div class="sec-t" style="margin-top:6px">📬 내 질문과 쌤의 답변</div>
+    <div class="sec-t" style="margin-top:6px">내 질문과 쌤의 답변</div>
     <div class="card" style="padding:4px 12px"><div class="dashlist" id="myq-list"><div class="muted" style="padding:10px 4px">불러오는 중…</div></div></div>
   </div>
 </div>
@@ -301,7 +299,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='4.2';
+var APP_VER='5.0';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -407,11 +405,12 @@ async function sendQuestion(wSheet,probIdx,note,photoBlobs,photoDataUrls){
 }
 
 /* ═══ 화면 전환 ═══ */
-const TITLES={home:'윤서의 공부방',newlist:'새로운 문제',solve:'문제 화면',sent:'쌤에게 보낸 문제',wrongsel:'오답모음',wrong1:'오답 — 한 번에 모아보기',wrong2:'오답 — 단원별로 모아보기',wrongview:'틀렸던 문제',ask:'질문하기',pair:'선생님과 연결'}
+const TITLES={home:'오늘학생',newlist:'새로운 문제',solve:'문제 화면',sent:'쌤에게 보낸 문제',wrongsel:'오답모음',wrong1:'오답 — 한 번에 모아보기',wrong2:'오답 — 단원별로 모아보기',wrongview:'틀렸던 문제',ask:'질문하기',pair:'선생님과 연결'}
 function showScreen(sc,title){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   $('sc-'+sc).classList.add('on');
-  $('bar-title').textContent=title||TITLES[sc]||'';
+  if(sc==='home'||sc==='pair'){$('bar-title').innerHTML='오늘<span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 2px">학생</span>';}
+  else{$('bar-title').textContent=title||TITLES[sc]||'';}
   $('back-btn').style.display=(sc==='home'||sc==='pair')?'none':'inline-flex';
 }
 function goHome(){renderHome();showScreen('home')}
@@ -436,6 +435,14 @@ function wrongProbs(){
 async function renderHome(){
   try{
     rows=await listSheets();$('home-err').textContent='';
+    const W=['일','월','화','수','목','금','토'];const nd=new Date();
+    $('home-date').textContent=(nd.getMonth()+1)+'월 '+nd.getDate()+'일 '+W[nd.getDay()]+'요일';
+    const todo=rows.filter(w=>w.status==='assigned').length;
+    const doneToday=rows.filter(w=>w.status!=='assigned'&&(latestSub(w)||{}).created_at&&String((latestSub(w)||{}).created_at).slice(0,10)===nd.toISOString().slice(0,10)).length;
+    $('home-todo').innerHTML=
+      (doneToday?`<div class="home-todo-line done"><span class="bx">✓</span><span>문제지 ${doneToday}개 제출 완료</span></div>`:'')
+      +(todo?`<div class="home-todo-line"><span class="bx"></span><span>새 문제지 ${todo}개 풀기</span></div>`
+             :`<div class="home-todo-line done"><span class="bx">✓</span><span>오늘 몫은 끝! 오답 복습 어때요</span></div>`);
     $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned').length+'개';
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
@@ -443,7 +450,7 @@ async function renderHome(){
   try{
     const qs=await listQuestions();
     const a=qs.filter(q=>q.status==='answered').length;
-    $('home-ask-cnt').textContent=a?('💬 쌤 답변 '+a+'개'):'막힌 문제를 쌤에게';
+    $('home-ask-cnt').textContent=a?('쌤 답변 '+a+'개'):'막힌 문제를 쌤에게';
   }catch(e){}
 }
 
@@ -607,7 +614,7 @@ function compress(file,maxW,q){
 async function onPhotos(files){
   for(const f of files){const r=await compress(f);sv.photos.push(r.blob);sv.photoUrls.push(r.dataUrl)}
   $('photo-input').value='';
-  $('sv-photos').innerHTML=sv.photos.map((_,i)=>`<span class="photo-chip">✍️ 사진 ${i+1}</span>`).join('');
+  $('sv-photos').innerHTML=sv.photos.map((_,i)=>`<span class="photo-chip">사진 ${i+1}</span>`).join('');
   $('submit-note').style.display='none';
 }
 async function submitSolve(){
@@ -693,7 +700,7 @@ function wvToggle(){wv.solOn=!wv.solOn;$('wv-tog').classList.toggle('on',wv.solO
 let u={u1:null,u2:null,u3:null};
 function uItem(level,name,count){
   return count
-    ?`<div class="it pick" onclick="pickU(${level},'${escH(name)}',this)">${escH(name)} <span class="num" style="color:var(--accent);font-weight:700">(${count})</span></div>`
+    ?`<div class="it pick" onclick="pickU(${level},'${escH(name)}',this)">${escH(name)} <span class="num" style="color:var(--ink);font-weight:800;background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 2px">(${count})</span></div>`
     :`<div class="it" style="color:var(--faint)">${escH(name)} <span class="num">(0)</span></div>`;
 }
 function openWrong2(){
@@ -738,7 +745,7 @@ async function renderMyQuestions(){
   try{qs=await listQuestions()}catch(e){$('myq-list').innerHTML='<div class="muted" style="padding:10px 4px">불러오기 실패</div>';return}
   $('myq-list').innerHTML=qs.length?qs.map(q=>{
     const st=q.status==='answered'
-      ?'<span class="chip ok">💬 답변 옴</span>'
+      ?'<span class="chip ok">답변 옴</span>'
       :(q.status==='seen'?'<span class="chip">쌤이 확인함</span>':'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">쌤이 볼 차례</span>');
     return `<div>
       <div class="row"><div class="grow" style="font-size:.84rem"><b>${q.worksheet_title?escH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
@@ -763,7 +770,7 @@ function askPickProb(i,el){
 async function onAskPhotos(files){
   for(const f of files){const r=await compress(f,1200,0.7);ask.photos.push(r.blob);ask.photoUrls.push(r.dataUrl)}
   $('ask-photo-input').value='';
-  $('ask-photos').innerHTML=ask.photos.map((_,i)=>`<span class="photo-chip">📖 교재 ${i+1}</span>`).join('');
+  $('ask-photos').innerHTML=ask.photos.map((_,i)=>`<span class="photo-chip">교재 ${i+1}</span>`).join('');
 }
 async function sendAsk(){
   const note=$('ask-note').value.trim();
