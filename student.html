@@ -131,6 +131,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
         <div style="font-size:1.02rem;font-weight:800" id="mini-btn-t">오늘의 미모</div>
         <div class="muted" id="mini-btn-s" style="color:#3f5c2a"></div>
       </button>
+      <button id="mini-back" onclick="openBacklog()" style="display:none;width:100%;border:1.5px dashed var(--faint);border-radius:8px;background:transparent;color:var(--sub);padding:8px 12px;margin:-8px 0 16px;cursor:pointer;font-family:var(--sans);font-size:.76rem;text-align:left"></button>
       <div class="home-grid">
         <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
         <div class="home-cell" onclick="openSent()"><div class="t">보낸 문제</div><div class="muted" id="home-sent-cnt"> </div></div>
@@ -309,7 +310,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.1';
+var APP_VER='6.2';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -549,18 +550,23 @@ function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.get
 function miniToday(){
   const t=todayStr();
   const mini=rows.filter(w=>w.kind==='mini').sort((a,b)=>String(a.serve_date||'').localeCompare(String(b.serve_date||'')));
-  const due=mini.filter(w=>w.status==='assigned'&&String(w.serve_date||'')<=t);
-  const doneToday=mini.find(w=>String(w.serve_date||'')===t&&w.status!=='assigned');
+  const todaySet=mini.find(w=>String(w.serve_date||'')===t);
+  const backlog=mini.filter(w=>w.status==='assigned'&&String(w.serve_date||'')<t);   // 지난 날짜 미제출
   const next=mini.find(w=>w.status==='assigned'&&String(w.serve_date||'')>t);
-  return {due:due[0]||null, backlog:due.length, doneToday:doneToday||null, next:next||null};
+  return {
+    due: (todaySet&&todaySet.status==='assigned')?todaySet:null,   // 오늘 것만
+    doneToday: (todaySet&&todaySet.status!=='assigned')?todaySet:null,
+    backlog: backlog, next: next||null
+  };
 }
 function renderMiniBtn(){
   const b=$('mini-btn'); if(!b)return;
   const m=miniToday();
+  const n=(m.due&&(m.due.answer_key||[]).length)||10;
   if(m.due){
     b.style.display='block'; b.style.background='var(--hl)';
-    $('mini-btn-t').textContent='오늘의 미모 · 10문제';
-    $('mini-btn-s').textContent=m.backlog>1?('밀린 미모 '+m.backlog+'개 — 오래된 것부터'):'진도 나간 범위 복습이에요';
+    $('mini-btn-t').textContent='오늘의 미모 · '+n+'문제';
+    $('mini-btn-s').textContent='진도 나간 범위 복습이에요';
   }else if(m.doneToday){
     const sub=latestSub(m.doneToday);
     b.style.display='block'; b.style.background='var(--card)';
@@ -569,14 +575,28 @@ function renderMiniBtn(){
   }else if(m.next){
     b.style.display='block'; b.style.background='var(--card)';
     $('mini-btn-t').textContent='미모 준비됨';
-    $('mini-btn-s').textContent=m.next.serve_date+'부터 열려요';
+    $('mini-btn-s').textContent=m.next.serve_date.slice(5).replace('-','/')+'부터 열려요';
   }else{ b.style.display='none'; }
+  // 밀린 미모는 보조로만 (오늘 것을 가리지 않는다)
+  const bl=$('mini-back');
+  if(bl){
+    if(m.backlog.length){
+      bl.style.display='block';
+      bl.textContent='밀린 미모 '+m.backlog.length+'개 ('+m.backlog[0].serve_date.slice(5).replace('-','/')+'부터) — 눌러서 풀기';
+    }else bl.style.display='none';
+  }
 }
 function openMini(){
   const m=miniToday();
   if(m.due){ startSolve(m.due); return; }
   if(m.doneToday){ toast('오늘 미모는 이미 제출했어요'); return; }
+  if(m.backlog.length){ startSolve(m.backlog[0]); return; }
   toast('아직 준비된 미모가 없어요');
+}
+function openBacklog(){
+  const m=miniToday();
+  if(m.backlog.length){ startSolve(m.backlog[0]); return; }
+  toast('밀린 미모가 없어요');
 }
 function openNewList(){
   const items=rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').slice().reverse(); // 아래가 최신
