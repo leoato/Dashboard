@@ -79,16 +79,18 @@ async function sendPush(sub, dataObj, vapid){
     },
     body
   });
-  return { ok: res.ok, status: res.status, gone: res.status===404||res.status===410 };
+  const body = res.ok ? '' : await res.text().catch(()=> '');
+  return { ok: res.ok, status: res.status, body, gone: res.status===404||res.status===410 };
 }
 
 /* ═══════════════════ 오늘선생·오늘학생 알림 발송 ═══════════════════ */
 const SUPA = Deno.env.get('SUPABASE_URL');
 const SRV  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+const env = k => (Deno.env.get(k) || '').trim();     // 붙여넣을 때 딸려온 공백·줄바꿈 제거
 const VAPID = {
-  pub: Deno.env.get('VAPID_PUBLIC'),
-  priv: Deno.env.get('VAPID_PRIVATE'),
-  subject: Deno.env.get('VAPID_SUBJECT') || 'mailto:farohance@gmail.com'
+  pub: env('VAPID_PUBLIC'),
+  priv: env('VAPID_PRIVATE'),
+  subject: env('VAPID_SUBJECT') || 'mailto:farohance@gmail.com'
 };
 const CORS = {
   'Access-Control-Allow-Origin':'*',
@@ -118,15 +120,16 @@ async function fanout(pair, role, data){
     icon: role==='teacher' ? './icon-teacher.png' : './icon-student.png',
     url:  role==='teacher' ? './index.html'       : './student.html'
   };
-  let sent=0, dead=0;
+  let sent=0, dead=0; const errs=[];
   for (const s of subs){
     try{
       const r = await sendPush(s, payload, VAPID);
       if (r.ok){ sent++; await rest(`push_subs?endpoint=eq.${encodeURIComponent(s.endpoint)}`, {method:'PATCH', body: JSON.stringify({last_ok:new Date().toISOString()})}); }
       else if (r.gone){ dead++; await rest(`push_subs?endpoint=eq.${encodeURIComponent(s.endpoint)}`, {method:'DELETE'}); }
-    }catch(e){ /* 한 기기 실패가 나머지를 막지 않는다 */ }
+      else errs.push(`${s.label||s.role}: HTTP ${r.status} ${String(r.body||'').slice(0,160)}`);
+    }catch(e){ errs.push(`${s.label||s.role}: ${String(e && e.stack || e).slice(0,300)}`); }   // 한 기기 실패가 나머지를 막지 않되, 원인은 남긴다
   }
-  return { sent, dead, total: subs.length };
+  return { sent, dead, total: subs.length, ...(errs.length ? { errs } : {}) };
 }
 
 /* 미모 리마인더 — 매시 깨어나서 '지금 보낼 때인가'만 판단한다 */
@@ -163,6 +166,12 @@ Deno.serve(async req => {
   try{
     if (!VAPID.pub || !VAPID.priv) return new Response(JSON.stringify({error:'VAPID 키 미설정'}), {status:500, headers:CORS});
     const o = await req.json().catch(() => ({}));
+
+    if (o.kind === 'diag') return new Response(JSON.stringify({
+      pub_len: VAPID.pub.length, pub_head: VAPID.pub.slice(0,6), pub_ok: VAPID.pub.length===87,
+      priv_len: VAPID.priv.length, priv_ok: VAPID.priv.length===43,
+      subject: VAPID.subject, deno: typeof Deno, hkdf: typeof crypto?.subtle?.deriveBits
+    }), { headers: CORS });
 
     if (o.kind === 'mini_reminder') return new Response(JSON.stringify(await miniReminder()), { headers: CORS });
 
