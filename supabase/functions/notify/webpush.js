@@ -79,5 +79,6 @@ export async function sendPush(sub, dataObj, vapid){
     },
     body
   });
-  return { ok: res.ok, status: res.status, gone: res.status===404||res.status===410 };
+  const errBody = res.ok ? '' : await res.text().catch(()=> '');
+  return { ok: res.ok, status: res.status, body: errBody, gone: res.status===404||res.status===410 };
 }

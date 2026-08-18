@@ -79,8 +79,8 @@ async function sendPush(sub, dataObj, vapid){
     },
     body
   });
-  const body = res.ok ? '' : await res.text().catch(()=> '');
-  return { ok: res.ok, status: res.status, body, gone: res.status===404||res.status===410 };
+  const errBody = res.ok ? '' : await res.text().catch(()=> '');
+  return { ok: res.ok, status: res.status, body: errBody, gone: res.status===404||res.status===410 };
 }
 
 /* ═══════════════════ 오늘선생·오늘학생 알림 발송 ═══════════════════ */
