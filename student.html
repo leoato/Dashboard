@@ -141,6 +141,7 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div class="muted" id="mini-btn-s" style="color:#3f5c2a"></div>
       </button>
       <button id="mini-back" onclick="openBacklog()" style="display:none;width:100%;border:1.5px dashed var(--faint);border-radius:8px;background:transparent;color:var(--sub);padding:8px 12px;margin:-8px 0 16px;cursor:pointer;font-family:var(--sans);font-size:.76rem;text-align:left"></button>
+      <button id="push-btn" onclick="pushBtnClick()" style="display:none;width:100%;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;color:var(--ink);padding:9px 12px;margin:0 0 16px;cursor:pointer;font-family:var(--sans);font-size:.78rem;font-weight:600;text-align:left"></button>
       <div class="home-grid">
         <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
         <div class="home-cell" onclick="openSent()"><div class="t">보낸 문제</div><div class="muted" id="home-sent-cnt"> </div></div>
@@ -319,7 +320,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.3';
+var APP_VER='6.4';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -480,7 +481,7 @@ async function renderHome(){
       +(todo?`<div class="home-todo-line"><span class="bx"></span><span>새 문제지 ${todo}개 풀기</span></div>`
              :`<div class="home-todo-line done"><span class="bx">✓</span><span>오늘 몫은 끝! 오답 복습 어때요</span></div>`);
     $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').length+'개';
-    renderMiniBtn();
+    renderMiniBtn();renderPushBtn();
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
   }catch(e){$('home-err').textContent='불러오기 실패 — 인터넷 확인 후 홈에서 새로고침';}
@@ -752,6 +753,7 @@ async function submitSolve(){
     await renderHome();
     openSent();
     toast('쌤에게 제출했어요 ✓ '+score);
+    pushNotify('submitted',{who:studentCall()||'학생',sheet:w.title,score:score});
     if(ratio>=0.8){
       $('stamp-txt').textContent=ratio===1?'참 잘했어요!':'잘했어요';
       $('stamp-ov').classList.add('show');
@@ -900,10 +902,49 @@ async function sendAsk(){
   try{
     await sendQuestion(ask.sheet,ask.prob,note,ask.photos,ask.photoUrls);
     toast('질문이 쌤에게 전송됐어요 ✓');
+    pushNotify('question',{who:studentCall()||'학생',sheet:(ask.sheet&&ask.sheet.title)||'',q:note});
     goHome();
   }catch(e){toast('전송 실패 — 인터넷 확인 후 다시')}
   btn.disabled=false;btn.textContent='질문 보내기';
 }
+
+/* ═══ 실제 휴대폰 알림 (Web Push) ═══ */
+var VAPID_PUB='BDVTAWoa-BmeFW5goUTvOKHhThjtAtynE0US4VcVcvrKLFSBveKYw6SUH6MsIgWXZKyGX8hvRFtkC2hV6UnTKg0';
+function pushSupported(){return ('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window)}
+function pushGranted(){return pushSupported()&&Notification.permission==='granted'}
+function _b64u8(b64){var s=b64.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
+async function pushOn(role,label){
+  if(!pushSupported()){ toast('이 기기는 알림을 지원하지 않아요 — 아이패드는 홈 화면에 추가한 앱에서만 됩니다',4000); return false }
+  try{
+    var perm=await Notification.requestPermission();
+    if(perm!=='granted'){ toast('알림이 허용되지 않았어요 — 기기 설정에서 다시 켤 수 있어요',3500); return false }
+    var reg=await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_b64u8(VAPID_PUB)});
+    var j=sub.toJSON(), U=cfg('url'), K=cfg('key');
+    if(!U||!K){ toast('연결 설정이 없어 알림을 켤 수 없어요'); return false }
+    var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
+      body:JSON.stringify({endpoint:j.endpoint,pair_code:pairCode(),role:role,p256dh:j.keys.p256dh,auth:j.keys.auth,label:label||''})});
+    if(!r.ok)throw new Error(await r.text());
+    toast('알림을 켰어요 ✓ 미모 시간에 알려드릴게요',3000); return true;
+  }catch(e){ toast('알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
+}
+async function pushNotify(kind,extra){
+  try{
+    var U=cfg('url'), K=cfg('key'); if(!U||!K)return;
+    var b=Object.assign({kind:kind,pair:pairCode()},extra||{});
+    await fetch(U+'/functions/v1/notify',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify(b)});
+  }catch(e){}
+}
+
+function renderPushBtn(){
+  var b=document.getElementById('push-btn'); if(!b)return;
+  if(isViewer()||!pushSupported()||pushGranted()){b.style.display='none';return}
+  b.style.display='block';
+  b.textContent='휴대폰 알림 켜기 — 미모 시간에 알려드려요';
+}
+async function pushBtnClick(){ if(await pushOn('student','학생 태블릿')) renderPushBtn(); }
 
 boot();
 </script>

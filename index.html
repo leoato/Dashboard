@@ -1241,6 +1241,22 @@ input, select, textarea { font-size: max(16px, 1em); }
       </div>
 
       <div class="t-card">
+        <div class="t-ctitle">휴대폰 알림</div>
+        <div id="push-state" style="font-size:.74rem;line-height:1.7;margin-bottom:.6rem"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+          <button class="t-btn t-btn-p" onclick="pushBtnClickT()">이 기기 알림 켜기</button>
+          <button class="t-btn t-btn-g" onclick="pushTest()">테스트 알림</button>
+          <label class="tl" style="margin-left:.4rem">미모 알림 시각</label>
+          <select id="push-hour" onchange="pushSaveHour()" style="padding:5px 8px;border:1.5px solid #222222;border-radius:7px;font-family:inherit">
+            <option value="15">오후 3시</option><option value="16">오후 4시</option>
+            <option value="17" selected>오후 5시</option><option value="18">오후 6시</option>
+            <option value="19">오후 7시</option><option value="20">오후 8시</option>
+          </select>
+        </div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">학생 제출·질문이 오면 <b>선생님 기기</b>로, 평일 정한 시각에 오늘 미모가 남아 있으면 <b>학생 태블릿</b>으로 알림이 갑니다. 기기마다 한 번씩 켜야 하고, 아이폰·아이패드는 <b>홈 화면에 추가한 앱</b>에서만 됩니다. (supabase-v8.sql 실행 필요)</div>
+      </div>
+
+      <div class="t-card">
         <div class="t-ctitle">문제 생성 (Gemini)</div>
         <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">Gemini API 키</label>
           <div style="display:flex;gap:6px;align-items:center">
@@ -1730,7 +1746,7 @@ function tShowGroup(g){
   if(g==='today') tDashRefresh();
   if(g==='today'){ try{v2DashAlert()}catch(e){} try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){} }
   if(g==='sheets') try{v2Render();miniRenderUnits();miniRefresh();}catch(e){}
-  if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} }
+  if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} try{pushRenderT();pushLoadHour()}catch(e){} }
   if(g==='student') t7Render();
   const area=document.querySelector('#tutor-overlay .t-area');if(area)area.scrollTop=0;
 }
@@ -2468,6 +2484,61 @@ async function v2PushPublic(){
 }
 function v2Cfg(k){return localStorage.getItem('yt_'+k)||''}
 function v2Set(k,v){localStorage.setItem('yt_'+k,(v||'').trim())}
+/* ═══ 실제 휴대폰 알림 (Web Push) ═══ */
+var VAPID_PUB='BDVTAWoa-BmeFW5goUTvOKHhThjtAtynE0US4VcVcvrKLFSBveKYw6SUH6MsIgWXZKyGX8hvRFtkC2hV6UnTKg0';
+function pushSupported(){return ('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window)}
+function pushGranted(){return pushSupported()&&Notification.permission==='granted'}
+function _b64u8(b64){var s=b64.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';var r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
+async function pushOn(role,label){
+  if(!pushSupported()){ tShowToast('❗ 이 기기는 알림을 지원하지 않아요 — 아이폰은 홈 화면에 추가한 앱에서만 됩니다',4500); return false }
+  try{
+    var perm=await Notification.requestPermission();
+    if(perm!=='granted'){ tShowToast('❗ 알림이 허용되지 않았어요 — 기기 설정에서 다시 켤 수 있어요',4000); return false }
+    var reg=await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_b64u8(VAPID_PUB)});
+    var j=sub.toJSON(), U=v2Cfg('url'), K=v2Cfg('key');
+    if(!U||!K){ tShowToast('❗ 연동 URL·키를 먼저 저장해 주세요'); return false }
+    var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
+      body:JSON.stringify({endpoint:j.endpoint,pair_code:v2Pair(),role:role,p256dh:j.keys.p256dh,auth:j.keys.auth,label:label||''})});
+    if(!r.ok)throw new Error(await r.text());
+    tShowToast('✅ 이 기기 알림을 켰어요 — 제출·질문이 오면 알려드립니다',3500); return true;
+  }catch(e){ tShowToast('❗ 알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
+}
+async function pushNotify(kind,extra){
+  try{
+    var U=v2Cfg('url'), K=v2Cfg('key'); if(!U||!K)return;
+    var b=Object.assign({kind:kind,pair:v2Pair()},extra||{});
+    await fetch(U+'/functions/v1/notify',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:JSON.stringify(b)});
+  }catch(e){}
+}
+
+async function pushBtnClickT(){ if(await pushOn('teacher','선생님 기기')) pushRenderT(); }
+function pushRenderT(){
+  var el=document.getElementById('push-state'); if(!el)return;
+  el.innerHTML = !pushSupported() ? '이 브라우저는 알림 미지원 — 아이폰은 <b>홈 화면에 추가</b>한 오늘선생에서 켜주세요.'
+    : (pushGranted() ? '<b>이 기기 알림 켜짐</b> — 제출·질문이 오면 휴대폰에 뜹니다.' : '아직 꺼져 있어요 — 아래 버튼을 눌러 켜주세요.');
+}
+async function pushTest(){ await pushNotify('test',{role:'teacher'}); tShowToast('테스트 알림을 보냈어요 — 잠시 후 확인해 주세요',3500); }
+async function pushLoadHour(){
+  var U=v2Cfg('url'),K=v2Cfg('key'),sel=document.getElementById('push-hour'); if(!U||!K||!sel)return;
+  try{
+    var r=await fetch(U+'/rest/v1/app_state?pair_code=eq.'+encodeURIComponent(v2Pair()+':push')+'&select=data',{headers:{apikey:K,Authorization:'Bearer '+K}});
+    var j=await r.json(); var h=j&&j[0]&&j[0].data&&j[0].data.hour;
+    if(h!=null)sel.value=String(h);
+  }catch(e){}
+}
+async function pushSaveHour(){
+  var h=parseInt((document.getElementById('push-hour')||{}).value,10); if(isNaN(h))return;
+  var U=v2Cfg('url'),K=v2Cfg('key'); if(!U||!K){tShowToast('❗ 연동 설정 먼저');return}
+  try{
+    await fetch(U+'/rest/v1/app_state',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
+      body:JSON.stringify({pair_code:v2Pair()+':push',data:{hour:h},updated_at:new Date().toISOString()})});
+    tShowToast('✅ 미모 알림 시각을 '+h+'시로 저장했어요');
+  }catch(e){tShowToast('❗ 저장 실패')}
+}
+
 function v2Pair(){return v2Cfg('pair')||'YUN-4821'}
 function v2Demo(){return !(v2Cfg('url')&&v2Cfg('key'))}
 let v2sb=null;
@@ -2621,6 +2692,7 @@ async function v2Send(){
     document.getElementById('v2-new-modal').classList.remove('open');
     document.getElementById('v2-title').value='';document.getElementById('v2-answers').value='';document.getElementById('v2-file').value='';
     v2Render();tShowToast('✅ 전송 완료 — 학생 태블릿 문제지함에 도착');
+    pushNotify('sheet',{sheet:title});
   }catch(e){tShowToast('❗ 전송 실패 — 연동 설정/인터넷 확인');}
   btn.disabled=false;btn.textContent='학생 태블릿으로 전송';
 }
@@ -2710,6 +2782,7 @@ async function v2Answer(id){
       v2StoreSave(s);
     }
     tShowToast('답변 전송 — 학생 앱 질문하기 화면에 표시됩니다');
+    pushNotify('answered',{});
     v2OpenQuestions();v2DashAlert();
   }catch(e){
     const msg=String(e&&e.message||'');
@@ -3051,7 +3124,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.3';
+var APP_VER='6.4';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
