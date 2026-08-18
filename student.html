@@ -100,6 +100,16 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 /* 도장 오버레이 */
 .stamp-ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(26,26,26,.25);z-index:55}
 .stamp-ov.show{display:flex}
+/* 제출이 막혔을 때 — 인라인 안내는 놓치기 쉬워서 화면 한가운데로 */
+.need-ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(26,26,26,.45);z-index:60;padding:20px}
+.need-ov.show{display:flex}
+.need-box{background:var(--paper,#fff);border:2px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:22px 20px;max-width:340px;width:100%;text-align:center;animation:needin .28s cubic-bezier(.2,1.3,.4,1)}
+@keyframes needin{0%{transform:scale(.86);opacity:0}100%{transform:scale(1);opacity:1}}
+.need-box h3{font-size:1.15rem;font-weight:800;margin:0 0 8px}
+.need-box p{font-size:.88rem;color:var(--sub);line-height:1.6;margin:0 0 16px}
+.need-box .btn{width:100%;margin-bottom:8px;padding:12px;font-size:.95rem;font-weight:700}
+.need-hi{animation:needshake .45s;outline:3px solid var(--hl);outline-offset:3px;border-radius:8px}
+@keyframes needshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .stamp{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:4px double #C43E2F;border-radius:50%;color:#C43E2F;font-family:var(--serif);font-weight:700;font-size:1.35rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);background:rgba(253,251,247,.92);line-height:1.35;text-align:center}
 @keyframes stampin{0%{transform:rotate(-35deg) scale(2.4);opacity:0}55%{transform:rotate(-9deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
 @media(max-width:760px){.home-grid{grid-template-columns:1fr}.split{flex-direction:column}.split>*{width:100%}}
@@ -319,12 +329,20 @@ input, select, textarea { font-size: max(16px, 1em); }
 </div>
 
 <div class="stamp-ov" id="stamp-ov"><span class="stamp" id="stamp-txt"></span></div>
+<div class="need-ov" id="need-ov" onclick="if(event.target===this)closeNeedPhoto()">
+  <div class="need-box">
+    <h3>사진을 먼저 찍어 주세요</h3>
+    <p>답은 잘 적었어요.<br>풀이 과정을 <b>1장 이상</b> 찍어야 쌤에게 제출돼요.</p>
+    <button class="btn pri" onclick="needTakePhoto()">지금 사진 찍기</button>
+    <button class="btn" onclick="closeNeedPhoto()">나중에</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.6';
+var APP_VER='6.7';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -727,6 +745,17 @@ function compress(file,maxW,q){
     img.src=URL.createObjectURL(file);
   });
 }
+function showNeedPhoto(){
+  $('submit-note').style.display='block';
+  $('need-ov').classList.add('show');
+  try{ if(navigator.vibrate)navigator.vibrate([40,60,40]); }catch(e){}
+}
+function closeNeedPhoto(){
+  $('need-ov').classList.remove('show');
+  const b=document.querySelector('#sc-solve .btn[onclick*="photo-input"]');
+  if(b){ b.scrollIntoView({block:'center',behavior:'smooth'}); b.classList.add('need-hi'); setTimeout(function(){b.classList.remove('need-hi')},1400); }
+}
+function needTakePhoto(){ $('need-ov').classList.remove('show'); $('photo-input').click(); }
 async function onPhotos(files){
   for(const f of files){const r=await compress(f);sv.photos.push(r.blob);sv.photoUrls.push(r.dataUrl)}
   $('photo-input').value='';
@@ -741,7 +770,7 @@ async function submitSolve(){
     toast('미리보기 채점 '+ok+' / '+key.length+' — 제출되지 않았습니다',3200);
     return;
   }
-  if(sv.photos.length===0){$('submit-note').style.display='block';return}
+  if(sv.photos.length===0){ showNeedPhoto(); return }
   const empty=key.map((k,i)=>norm(($('ans-'+i)||{}).value)===''?(i+1):null).filter(x=>x!==null);
   if(empty.length&&!confirm(empty.join(', ')+'번이 비어 있어요.\n그래도 제출할까요?'))return;
   let ok=0;
