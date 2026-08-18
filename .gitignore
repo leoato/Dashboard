@@ -19,3 +19,9 @@ ios/*/ios/App/build/
 ios/*/ios/DerivedData/
 ios/*/ios/App/.swiftpm/
 *.xcarchive
+
+# 코드서명 비밀키·인증서 — 절대 커밋 금지
+ios/signing/*.key
+ios/signing/*.p12
+ios/signing/*.cer
+ios/signing/*.mobileprovision
