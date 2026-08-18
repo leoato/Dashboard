@@ -1738,6 +1738,7 @@ function chM(which,delta){ const c=calM[which]; calM[which]=new Date(c.getFullYe
 
 /* ── 탭 전환 ── */
 let tCurrentTab='dashboard';
+let tCurGroup='today';
 /* v1.5: 9탭 → 5그룹. 한 그룹 = 기존 패널 여러 개를 세로로 쌓아 보여준다 */
 const TGROUPS={today:['dashboard','prep'],rec:['tab3','tab4'],sheets:['tab2'],student:['tab1','tab7','tab5'],settings:['tab6']};
 const TID2G={dashboard:'today',prep:'today',tab1:'student',tab2:'sheets',tab3:'rec',tab4:'rec',tab5:'student',tab6:'settings',tab7:'student'};
@@ -1747,7 +1748,7 @@ function tShowGroup(g){
   document.querySelectorAll('.t-tab-btn').forEach(b=>b.classList.remove('active'));
   TGROUPS[g].forEach(id=>{const p=document.getElementById('t-panel-'+id);if(p)p.classList.add('active');});
   const b=document.querySelector(`[data-tgroup="${g}"]`);if(b)b.classList.add('active');
-  tCurrentTab=TGROUPS[g][0];
+  tCurrentTab=TGROUPS[g][0]; tCurGroup=g;
   if(g==='today') tDashRefresh();
   if(g==='today'){ try{v2DashAlert()}catch(e){} try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){} }
   if(g==='sheets') try{v2Render();miniRenderUnits();miniRefresh();}catch(e){}
@@ -2670,10 +2671,10 @@ async function v2Render(){
   box.innerHTML=v2rows.length?v2rows.map((w,i)=>{
     const sub=(w.submissions||[])[0];
     const st=w.status==='assigned'?'배정됨':w.status==='submitted'?'제출됨':'확인함';
-    return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #D8DADF;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub(${i})"`:''}>
+    return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #D8DADF;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub('${w.id}')"`:''}>
       <div style="flex:1;min-width:0"><b style="font-size:.8rem">${tEscH(w.title)}</b>
       <div style="font-size:.7rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
-      ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet(${i})">정답지</button>`:''}
+      ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet('${w.id}')">정답지</button>`:''}
       <span class="t-lbadge" style="${w.status==='submitted'?'background:#222222;color:#fff':''}">${st}</span></div>`;
   }).join(''):'<div style="font-size:.76rem;color:#777777">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
 }
@@ -2701,8 +2702,11 @@ async function v2Send(){
   }catch(e){tShowToast('❗ 전송 실패 — 연동 설정/인터넷 확인');}
   btn.disabled=false;btn.textContent='학생 태블릿으로 전송';
 }
-async function v2OpenSub(i){
-  v2cur=(v2rows.filter(function(w){return w.kind!=='mini'}))[i]||v2rows[i];const sub=(v2cur.submissions||[])[0];if(!sub)return;
+async function v2OpenSub(i){   /* i = worksheet id */
+  let _w=(v2rows||[]).find(function(x){return String(x.id)===String(i)});
+  if(!_w){ try{ v2rows=await v2List(); }catch(e){} _w=(v2rows||[]).find(function(x){return String(x.id)===String(i)}); }
+  if(!_w)return;
+  v2cur=_w;const sub=(v2cur.submissions||[])[0];if(!sub)return;
   document.getElementById('v2s-title').textContent=v2cur.title;
   document.getElementById('v2s-score').textContent=sub.score||'';
   document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>`<span style="border:1.2px solid ${m==='X'?'#222222':'#222222'};color:${m==='X'?'#222222':'#222222'};border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700">${j+1}번 ${m==='O'?'○':'✕'}</span>`).join('');
@@ -2713,19 +2717,54 @@ async function v2OpenSub(i){
 async function v2DashAlert(){
   const el=document.getElementById('v2-dash-alert');if(!el)return;
   let rows=[],qs=[];
-  try{rows=await v2List()}catch(e){}
+  try{rows=await v2List();v2rows=rows;}catch(e){}
   try{qs=await v2ListQuestions()}catch(e){}
   const un=rows.filter(w=>w.status==='submitted');
   const uq=qs.filter(q=>q.status==='open');
   let html='';
-  if(un.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:.6rem" onclick="tShowGroup('sheets')">
-    <div style="font-size:.82rem;font-weight:700">제출물 ${un.length}건 — ${tEscH(un[0].title)}${un.length>1?' 외':''}</div>
-    <div style="font-size:.72rem;color:#777777">눌러서 확인 (자동 채점 완료 · 손풀이 사진 포함)</div></div>`;
+  if(un.length){
+    html+=un.slice(0,4).map(function(w){
+      const sb=(w.submissions||[])[0]||{};
+      const tag=w.kind==='mini'?'미모':'문제지';
+      const when=String(sb.created_at||'').slice(11,16);
+      return `<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:.6rem" onclick="v2OpenSub('${w.id}')">
+        <div style="font-size:.82rem;font-weight:700">${tag} 제출 — ${tEscH(w.title)}</div>
+        <div style="font-size:.72rem;color:#777777">${sb.score?'점수 '+tEscH(sb.score)+' · ':''}손풀이 ${(sb.photo_paths||[]).length}장${when?' · '+when:''} — 눌러서 채점 결과 보기</div></div>`;
+    }).join('');
+    if(un.length>4)html+=`<div style="font-size:.72rem;color:#777777;margin-bottom:.6rem">외 ${un.length-4}건은 문제지·자료 탭에서</div>`;
+  }
   if(uq.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:0" onclick="v2OpenQuestions()">
     <div style="font-size:.82rem;font-weight:700">${tStudentCall()}의 질문 ${uq.length}건</div>
     <div style="font-size:.72rem;color:#777777">"${tEscH((uq[0].note||'').slice(0,42))}${(uq[0].note||'').length>42?'…':''}"</div></div>`;
   el.innerHTML=html;
 }
+/* 학생이 보내면 대시보드에 바로 뜨게 — 앱이 열려 있는 동안 주기 확인 + 앱으로 돌아올 때 즉시 */
+let _dashSeen=null, _dashTimer=null;
+async function dashPoll(){
+  if(document.hidden)return;
+  try{
+    await v2DashAlert();
+    const submitted=(v2rows||[]).filter(function(w){return w.status==='submitted'});
+    const now=new Set(submitted.map(function(w){return String(w.id)}));
+    if(_dashSeen){
+      const fresh=submitted.filter(function(w){return !_dashSeen.has(String(w.id))});
+      if(fresh.length){
+        const w=fresh[0], sb=(w.submissions||[])[0]||{};
+        tShowToast((w.kind==='mini'?'미모':'문제지')+' 제출 도착 — '+w.title+(sb.score?' · '+sb.score:''), 5000);
+        try{ if(tCurGroup==='sheets'){v2Render();miniRefresh();} }catch(e){}
+      }
+    }
+    _dashSeen=now;
+  }catch(e){}
+}
+function dashAutoStart(){
+  if(_dashTimer)return;
+  _dashTimer=setInterval(dashPoll, 25000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) dashPoll(); });
+  window.addEventListener('focus', function(){ dashPoll(); });
+  dashPoll();
+}
+
 async function v2OpenQuestions(){
   let qs=[],ws=[];
   try{qs=await v2ListQuestions()}
@@ -3129,7 +3168,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.6';
+var APP_VER='6.8';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
@@ -3331,8 +3370,8 @@ function v3OpenPrint(){
   const t=document.getElementById('v3-title').value||v3title;
   v3ViewHTML(t+' — 정답지',v3BuildSheetHTML(t,v3prob,true));
 }
-function v3AnswerSheet(i){
-  const w=v2rows[i];
+function v3AnswerSheet(i){   /* i = worksheet id */
+  const w=(v2rows||[]).find(function(x){return String(x.id)===String(i)});
   if(!w||!w.problems||!w.problems.length){tShowToast('이 문제지는 문항 데이터가 없어요 — supabase-v3.sql 실행 후 생성한 것만 가능');return;}
   v3ViewHTML(w.title+' — 정답지',v3BuildSheetHTML(w.title,w.problems,true));
 }
@@ -3372,7 +3411,7 @@ function v3SimilarFromWrong(){
 }
 
 // v2 초기화 — 모든 선언이 끝난 스크립트 최하단에서 실행 (TDZ 회피)
-try{v2LoadCfg();v2Render();v2DashAlert();updateCloudStatus(syncAvailable()?'idle':'nourl');}catch(e){}
+try{v2LoadCfg();v2Render();v2DashAlert();dashAutoStart();updateCloudStatus(syncAvailable()?'idle':'nourl');}catch(e){}
 </script>
 
 
