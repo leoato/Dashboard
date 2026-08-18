@@ -181,7 +181,7 @@ textarea { resize: vertical; min-height: 42px; }
 .crow.done .lbl { text-decoration: line-through; color: var(--muted); }
 .crow.done .dday { opacity: .35; }
 input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink: 0; accent-color: var(--btn-acc); }
-.ilbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ilbl { flex: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.45; }   /* 좁은 화면에서 잘리지 않게 — 말줄임 대신 줄바꿈 */
 .lbl  { flex: 1; min-width: 0; }
 .stag { font-size: .56rem; padding: 1px 4px; background: var(--tag-bg); color: var(--muted); border: 1px solid var(--border-soft); flex-shrink: 0; white-space: nowrap; border-radius: var(--r); }
 
@@ -543,6 +543,11 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .legacy-wrap .card-head { font-family:'Nanum Myeongjo',serif; font-size:.9rem; font-weight:700; color:#222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:6px; }
 #tutor-overlay .legacy-wrap .slist { max-height:none; }
+/* 어떤 폭에서도 카드가 화면을 밀어내지 않게 — 그리드 아이템의 자동 최소폭(min-content) 차단 */
+#tutor-overlay .legacy-wrap > *, #tutor-overlay .t-fr > *, #tutor-overlay .t-2col > *, #tutor-overlay .t-sacts > *, #tutor-overlay .t-dsum > * { min-width:0; }
+#tutor-overlay .irow, #tutor-overlay .crow, #tutor-overlay .erow { min-width:0; flex-wrap:wrap; }
+#tutor-overlay .t-card, #tutor-overlay .legacy-wrap .card { overflow-wrap:anywhere; }
+
 @media(max-width:600px){
   #tutor-overlay .legacy-wrap { grid-template-columns:1fr; }
   #tutor-overlay .t-tc{padding:.9rem;}
@@ -3124,7 +3129,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.4';
+var APP_VER='6.6';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
