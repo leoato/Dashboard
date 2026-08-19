@@ -109,7 +109,8 @@ const MSG = {
   submitted: o => ({ to:'teacher', title:'제출 도착', body:[o.who||'학생', o.sheet, o.score].filter(Boolean).join(' · ') }),
   question:  o => ({ to:'teacher', title:'질문이 왔어요', body:[o.who||'학생', o.sheet, o.q].filter(Boolean).join(' · ').slice(0,120) }),
   sheet:     o => ({ to:'student', title:'새 문제지', body:(o.sheet||'문제지') + ' 도착했어요' }),
-  answered:  o => ({ to:'student', title:'쌤 답변', body:'질문에 답변이 달렸어요' }),
+  answered:  o => ({ to:'student', title:'쌤 답장', body:'질문에 답장이 왔어요' }),
+  comment:   o => ({ to:'student', title:'쌤 한마디', body:(o.sheet||'문제지')+' 틀린 문제에 쌤이 한마디 남겼어요' }),
   test:      o => ({ to:o.role==='teacher'?'teacher':'student', title:'알림 테스트', body:'이렇게 뜨면 성공이에요' })
 };
 

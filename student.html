@@ -292,6 +292,7 @@ input, select, textarea { font-size: max(16px, 1em); }
       <div style="flex:1;width:100%">
         <div class="muted num" id="wv-meta" style="margin-bottom:6px"></div>
         <div class="muted num" id="wv-my" style="margin-bottom:6px"></div>
+        <div id="wv-com" style="display:none;margin-top:8px;border:1.5px solid var(--ink);border-left-width:5px;border-radius:0 8px 8px 0;background:var(--hl);padding:9px 12px;font-size:.85rem;line-height:1.6"></div>
         <div class="sol" id="wv-sol" style="display:none"></div>
         <div class="muted" id="wv-sol-hint">해설 토글을 켜면 정답과 풀이가 보여요</div>
       </div>
@@ -342,7 +343,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.7';
+var APP_VER='6.9';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -484,7 +485,7 @@ function wrongProbs(){
   rows.filter(w=>w.status==='seen'&&w.problems&&w.problems.length).forEach(w=>{
     const sub=latestSub(w);if(!sub||!sub.marks)return;
     sub.marks.forEach((m,i)=>{
-      if(m==='X'&&w.problems[i])out.push({...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i});
+      if(m==='X'&&w.problems[i])out.push({...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i,tcom:((sub.comments||[])[i]||'')});
     });
   });
   return out;
@@ -843,6 +844,11 @@ function wvRender(){
   $('wv-q').textContent=(p.idx+1)+'. '+p.q+(p.choices?'\n\n'+p.choices.map((c,j)=>C[j]+' '+c).join('   '):'');
   $('wv-meta').textContent=(p.sheet||'')+(p.unit?'  ·  '+(p.unit[1]||'')+' > '+(p.unit[2]||''):'');
   $('wv-my').textContent='내 답: '+(p.my||'—');
+  const cm=$('wv-com');
+  if(cm){
+    if(p.tcom){ cm.style.display='block'; cm.innerHTML='<b>쌤 한마디</b><br>'+escH(p.tcom); }
+    else cm.style.display='none';
+  }
   $('wv-sol').textContent='정답: '+p.answer+'\n풀이 — '+(p.solution||p.sol||'해설 없음');
   $('wv-sol').style.display=wv.solOn?'block':'none';
   $('wv-sol-hint').style.display=wv.solOn?'none':'block';
@@ -898,17 +904,67 @@ async function renderMyQuestions(){
   let qs=[];
   try{qs=await listQuestions()}catch(e){$('myq-list').innerHTML='<div class="muted" style="padding:10px 4px">불러오기 실패</div>';return}
   $('myq-list').innerHTML=qs.length?qs.map(q=>{
-    const st=q.status==='answered'
-      ?'<span class="chip ok">답변 옴</span>'
-      :(q.status==='seen'?'<span class="chip">쌤이 확인함</span>':'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">쌤이 볼 차례</span>');
-    return `<div>
+    const _t=qThread(q), _last=_t.length?_t[_t.length-1].who:'s';
+    const st=_last==='t'
+      ?'<span class="chip ok">쌤 답장 옴</span>'
+      :'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">쌤이 볼 차례</span>';
+    const th=qThread(q);
+    const bubbles=th.map(function(m){
+      const mine=m.who==='s';
+      return `<div style="display:flex;justify-content:${mine?'flex-end':'flex-start'};margin-top:6px">
+        <div style="max-width:80%;border:1.5px solid var(--ink);border-radius:10px;padding:7px 10px;font-size:.84rem;line-height:1.6;white-space:pre-line;background:${mine?'var(--hl)':'var(--paper)'}">
+          <div class="muted" style="font-size:.66rem;font-weight:700;margin-bottom:2px">${mine?'나':'쌤'}</div>${escH(m.text||'')}
+          ${(m.photos||[]).map(function(pp){return `<img src="${photoUrl(pp)}" style="max-width:100%;border:1.5px solid var(--ink);border-radius:6px;margin-top:5px" loading="lazy">`}).join('')}
+        </div></div>`;
+    }).join('');
+    return `<div style="border-bottom:1.5px dashed var(--dash);padding-bottom:10px;margin-bottom:10px">
       <div class="row"><div class="grow" style="font-size:.84rem"><b>${q.worksheet_title?escH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
       <span class="muted num" style="margin-left:6px">${(q.created_at||'').slice(5,10).replace('-','.')}</span></div>${st}</div>
-      <div class="muted" style="margin-top:3px;white-space:pre-line">나: ${escH(q.note)}</div>
-      ${q.answer?`<div class="sol" style="margin-top:6px;border-left-color:var(--ok);background:rgba(62,124,79,.06)"><b>쌤</b> — ${escH(q.answer)}</div>`:''}
+      ${bubbles}
+      <div style="margin-top:8px">
+        <textarea id="qr-${q.id}" placeholder="답을 보고 또 막히면 여기에 이어서 물어봐요" style="min-height:44px;font-size:.84rem;width:100%"></textarea>
+        <div class="row" style="justify-content:flex-end;margin-top:5px">
+          <button class="btn" id="qrb-${q.id}" onclick="qReply('${q.id}')">이어서 물어보기</button>
+        </div>
+      </div>
     </div>`;
   }).join(''):'<div class="muted" style="padding:10px 4px">아직 보낸 질문이 없어요</div>';
 }
+/* 질문 스레드 — thread가 비면 기존 note/answer를 첫 두 메시지로 (예전 질문 보존) */
+function photoUrl(p){
+  if(!p)return '';
+  if(/^https?:|^data:/.test(p))return p;
+  try{ if(sbc()){ const {data}=sb.storage.from('handwriting').getPublicUrl(p); return (data&&data.publicUrl)||p; } }catch(e){}
+  return p;
+}
+function qThread(q){
+  if(q&&q.thread&&q.thread.length)return q.thread.slice();
+  const out=[];
+  if(q&&q.note)out.push({who:'s',text:q.note,photos:q.photo_paths||[],ts:q.created_at});
+  if(q&&q.answer)out.push({who:'t',text:q.answer,photos:[],ts:q.answered_at||q.created_at});
+  return out;
+}
+async function qReply(id){
+  if(isViewer()){ toast('미리보기 모드에서는 보낼 수 없어요'); return; }
+  const ta=$('qr-'+id); const txt=((ta&&ta.value)||'').trim();
+  if(!txt){ toast('물어볼 내용을 적어주세요'); return; }
+  const btn=$('qrb-'+id); if(btn){btn.disabled=true;btn.textContent='보내는 중…'}
+  try{
+    const now=new Date().toISOString();
+    if(sbc()){
+      const {data:cur}=await sb.from('questions').select('*').eq('id',id).maybeSingle();
+      const th=qThread(cur||{}); th.push({who:'s',text:txt,photos:[],ts:now});
+      const {error}=await sb.from('questions').update({thread:th,status:'open'}).eq('id',id);
+      if(error)throw error;
+    }
+    if(ta)ta.value='';
+    toast('보냈어요 ✓ 쌤이 답장하면 여기 떠요');
+    pushNotify('question',{who:studentCall()||'학생',q:txt});
+    await renderMyQuestions();
+  }catch(e){ toast('전송 실패 — 인터넷 확인 후 다시'); }
+  if(btn){btn.disabled=false;btn.textContent='이어서 물어보기'}
+}
+
 function askPickSheet(id,el){
   ask.sheet=rows.find(w=>w.id===id);ask.prob=null;
   document.querySelectorAll('#ask-sheets > div').forEach(r=>r.classList.remove('sel'));el.classList.add('sel');
