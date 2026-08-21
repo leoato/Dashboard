@@ -2716,15 +2716,23 @@ async function v2OpenSub(i){   /* i = worksheet id */
   v2cur=_w;const sub=(v2cur.submissions||[])[0];if(!sub)return;
   document.getElementById('v2s-title').textContent=v2cur.title;
   document.getElementById('v2s-score').textContent=sub.score||'';
-  const _cm=sub.comments||[];
-  const _probs=v2cur.problems||[];
+  const _cm=sub.comments||[], _ans=sub.answers||[];
+  const _probs=v2cur.problems||[], _key=v2cur.answer_key||[];
+  const _hl='background:linear-gradient(transparent 55%,#B9F18D 55%);padding:0 2px';
   document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>{
     const wrong=m==='X';
-    return `<div style="display:flex;gap:7px;align-items:center;width:100%;padding:4px 0;border-bottom:1px dashed #D8DADF">
-      <span style="border:1.5px solid #222222;border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700;flex-shrink:0;${wrong?'background:#222222;color:#fff':''}">${j+1}번 ${wrong?'✕':'○'}</span>
-      ${_probs[j]?`<span style="font-size:.68rem;color:#777777;flex-shrink:0">정답 ${tEscH(_probs[j].answer)}</span>`:''}
+    const correct=(_probs[j]&&_probs[j].answer)||_key[j]||'';
+    const mine=String(_ans[j]==null?'':_ans[j]).trim();
+    /* 맞은 문항은 번호만 — 틀린 문항만 '뭐라고 적었는지'를 보여준다 */
+    const detail=wrong?`<span style="font-size:.76rem">적은 답 <b>${mine?tEscH(mine):'(빈칸)'}</b></span>
+        ${correct?`<span style="font-size:.76rem;color:#4A4A4A">정답 <b style="${_hl}">${tEscH(correct)}</b></span>`:''}`:'';
+    return `<div style="padding:6px 0;border-bottom:1px dashed #D8DADF">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="border:1.5px solid #222222;border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700;flex-shrink:0;${wrong?'background:#222222;color:#fff':''}">${j+1}번 ${wrong?'✕':'○'}</span>
+        ${detail}
+      </div>
       <input type="text" id="v2cm-${j}" value="${tEscH(_cm[j]||'')}" placeholder="${wrong?'여기 이렇게 풀어봐 — 학생 오답 화면에 떠요':'한마디 (선택)'}"
-        style="flex:1;min-width:0;padding:5px 8px;font-size:.76rem;border:1.5px solid ${wrong?'#222222':'#D8DADF'};border-radius:6px">
+        style="width:100%;margin-top:5px;padding:5px 8px;font-size:.76rem;border:1.5px solid ${wrong?'#222222':'#D8DADF'};border-radius:6px">
     </div>`;
   }).join('');
   document.getElementById('v2s-photos').innerHTML=(sub.photo_paths||[]).map(p=>`<img src="${v2PhotoUrl(p)}" style="max-width:100%;border:1.5px solid #222222;border-radius:8px" loading="lazy">`).join('')||'<div style="font-size:.76rem;color:#777777">사진 없음</div>';
@@ -3231,7 +3239,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.9';
+var APP_VER='7.0';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
