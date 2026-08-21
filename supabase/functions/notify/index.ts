@@ -136,9 +136,10 @@ async function fanout(pair, role, data){
 /* 미모 리마인더 — 매시 깨어나서 '지금 보낼 때인가'만 판단한다 */
 async function miniReminder(){
   const kst = new Date(Date.now() + 9*3600*1000);          // UTC → KST
-  const dow = kst.getUTCDay(), hour = kst.getUTCHours();
+  const hour = kst.getUTCHours();
   const today = kst.toISOString().slice(0,10);
-  if (dow===0 || dow===6) return { skipped:'주말' };        // 금~월은 교재 숙제 기간
+  /* 요일로 막지 않는다 — '오늘 날짜의 미모가 배정돼 있는가'가 유일한 조건.
+     선생님이 주말에 미모를 내주면 주말에도 알림이 가고, 안 내주면 아무 일도 없다. */
 
   const subs = await rest('push_subs?role=eq.student&select=pair_code') || [];
   const pairs = [...new Set(subs.map(s => s.pair_code))];
