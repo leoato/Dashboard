@@ -343,7 +343,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.9';
+var APP_VER='7.1';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -593,12 +593,16 @@ function miniToday(){
   const mini=rows.filter(w=>w.kind==='mini').sort((a,b)=>String(a.serve_date||'').localeCompare(String(b.serve_date||'')));
   const todaySet=mini.find(w=>String(w.serve_date||'')===t);
   const backlog=mini.filter(w=>{const d=String(w.serve_date||'');return w.status==='assigned'&&d<t&&d>=wk;});  // 이번 주 미제출만
+  // 쌤이 기한을 늘려둔 지난 미모 (open_until이 오늘 이후)
+  const extended=mini.filter(w=>{const d=String(w.serve_date||'');return w.status==='assigned'&&d<t&&String(w.open_until||'')>=t;});
   const next=mini.find(w=>w.status==='assigned'&&String(w.serve_date||'')>t);
   return {
     due: (todaySet&&todaySet.status==='assigned')?todaySet:null,   // 오늘 것만
     doneToday: (todaySet&&todaySet.status!=='assigned')?todaySet:null,
     backlog: backlog,
-    backlogOpen: dow===5,          // 금요일에만 개방
+    extended: extended,
+    openList: dow===5 ? backlog : extended,   // 금요일이면 이번 주 전부, 아니면 연장된 것만
+    byFriday: dow===5,
     weekend: (dow===0||dow===6),
     next: next||null
   };
@@ -625,18 +629,19 @@ function renderMiniBtn(){
     $('mini-btn-t').textContent='미모 준비됨';
     $('mini-btn-s').textContent=m.next.serve_date.slice(5).replace('-','/')+'부터 열려요';
   }else{ b.style.display='none'; }
-  // 밀린 미모 — 평소엔 잠금, 금요일에만 열림. 주말엔 표시 안 함.
+  // 밀린 미모 — 평소엔 잠금. 금요일이거나, 쌤이 기한을 늘려둔 것만 열린다.
   const bl=$('mini-back');
   if(bl){
-    if(m.backlog.length&&!m.weekend){
+    if(m.openList.length){
       bl.style.display='block';
-      if(m.backlogOpen){
-        bl.style.borderColor='var(--ink)'; bl.style.color='var(--ink)'; bl.style.cursor='pointer';
-        bl.textContent='이번 주 밀린 미모 '+m.backlog.length+'개 — 금요일이라 열렸어요, 눌러서 풀기';
-      }else{
-        bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
-        bl.textContent='밀린 미모 '+m.backlog.length+'개 — 금요일에 열려요';
-      }
+      bl.style.borderColor='var(--ink)'; bl.style.color='var(--ink)'; bl.style.cursor='pointer';
+      bl.textContent=m.byFriday
+        ? '이번 주 밀린 미모 '+m.openList.length+'개 — 금요일이라 열렸어요, 눌러서 풀기'
+        : '쌤이 더 열어준 미모 ('+m.openList[0].serve_date.slice(5).replace('-','/')+')'+(m.openList.length>1?' 외 '+(m.openList.length-1)+'개':'')+' — 눌러서 풀기';
+    }else if(m.backlog.length&&!m.weekend){
+      bl.style.display='block';
+      bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
+      bl.textContent='밀린 미모 '+m.backlog.length+'개 — 금요일에 열려요';
     }else bl.style.display='none';
   }
 }
@@ -649,9 +654,9 @@ function openMini(){
 }
 function openBacklog(){
   const m=miniToday();
+  if(m.openList.length){ startSolve(m.openList[0]); return; }
   if(!m.backlog.length){ toast('밀린 미모가 없어요'); return; }
-  if(!m.backlogOpen){ toast('지난 미모는 금요일에 열려요 — 오늘은 오늘 것만',3000); return; }
-  startSolve(m.backlog[0]);
+  toast('지난 미모는 금요일에 열려요 — 오늘은 오늘 것만',3000);
 }
 function openNewList(){
   const items=rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').slice().reverse(); // 아래가 최신

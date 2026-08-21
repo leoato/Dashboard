@@ -8,3 +8,7 @@ alter table questions   add column if not exists thread   jsonb not null default
 
 -- 제출물 문항별 코멘트: 문항 번호(0부터) 기준 문자열 배열
 alter table submissions add column if not exists comments jsonb not null default '[]'::jsonb;
+
+-- ③ 미모 기한 연장: 이 날짜까지는 지난 미모도 열린다.
+--    비어 있으면 기존 규칙 그대로 (밀린 미모는 금요일에만 개방)
+alter table worksheets add column if not exists open_until date;
