@@ -357,7 +357,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.3';
+var APP_VER='7.4';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -518,7 +518,7 @@ async function renderHome(){
       +(todo?`<div class="home-todo-line"><span class="bx"></span><span>새 문제지 ${todo}개 풀기</span></div>`
              :`<div class="home-todo-line done"><span class="bx">✓</span><span>오늘 몫은 끝! 오답 복습 어때요</span></div>`);
     $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').length+'개';
-    renderMiniBtn();renderPushBtn();
+    renderMiniBtn();renderPushBtn();pushEnsure();
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
   }catch(e){$('home-err').textContent='불러오기 실패 — 인터넷 확인 후 홈에서 새로고침';}
@@ -1090,8 +1090,9 @@ async function pushOn(role,label){
     var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
       body:JSON.stringify({endpoint:j.endpoint,pair_code:pairCode(),role:role,p256dh:j.keys.p256dh,auth:j.keys.auth,label:label||''})});
     if(!r.ok)throw new Error(await r.text());
+    setCfg('push','1');
     toast('알림을 켰어요 ✓ 미모 시간에 알려드릴게요',3000); return true;
-  }catch(e){ toast('알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
+  }catch(e){ setCfg('push',''); toast('알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
 }
 async function pushNotify(kind,extra){
   try{
@@ -1103,11 +1104,34 @@ async function pushNotify(kind,extra){
 
 function renderPushBtn(){
   var b=document.getElementById('push-btn'); if(!b)return;
-  if(isViewer()||!pushSupported()||pushGranted()){b.style.display='none';return}
+  /* 권한만 보고 숨기면 안 된다 — 권한은 허용됐는데 서버 등록이 안 된 상태에서
+     버튼이 사라져 다시 켤 방법이 없어지는 함정이 있었다. 기준은 '서버에 등록됐는가'. */
+  if(isViewer()||!pushSupported()||cfg('push')==='1'){b.style.display='none';return}
   b.style.display='block';
-  b.textContent='휴대폰 알림 켜기 — 미모 시간에 알려드려요';
+  b.textContent = pushGranted()
+    ? '알림 등록이 안 됐어요 — 눌러서 다시 연결'
+    : '휴대폰 알림 켜기 — 미모 시간에 알려드려요';
 }
 async function pushBtnClick(){ if(await pushOn('student','학생 태블릿')) renderPushBtn(); }
+
+/* 앱을 열 때마다 조용히 재등록 — 권한이 이미 있으면 사용자 조작 없이도 구독을 다시 올릴 수 있다.
+   죽은 구독이 서버에서 정리됐거나 저장이 한 번 실패했어도 다음 실행에서 저절로 복구된다. */
+async function pushEnsure(){
+  if(isViewer()||!pushSupported())return;
+  if(Notification.permission!=='granted')return;
+  var U=cfg('url'), K=cfg('key'); if(!U||!K)return;
+  try{
+    var reg=await navigator.serviceWorker.register('./sw.js');
+    await navigator.serviceWorker.ready;
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_b64u8(VAPID_PUB)});
+    var j=sub.toJSON();
+    var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
+      body:JSON.stringify({endpoint:j.endpoint,pair_code:pairCode(),role:'student',p256dh:j.keys.p256dh,auth:j.keys.auth,label:'학생 태블릿'})});
+    setCfg('push', r.ok?'1':'');
+  }catch(e){ setCfg('push',''); }
+  renderPushBtn();
+}
 
 boot();
 </script>
