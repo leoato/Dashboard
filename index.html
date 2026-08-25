@@ -590,8 +590,8 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   #sol-top .sol-primary{padding:9px 13px;font-size:.78rem}
   #sol-top .sol-titles #sol-state{display:none}
 }
-#left{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;position:relative;touch-action:pan-x pan-y;background:#8b877e}
-#sol-canvaswrap{padding:20px;display:inline-block;min-width:100%;box-sizing:border-box}
+#left{flex:1;overflow:auto;position:relative;touch-action:none;background:#8b877e;overscroll-behavior:contain}
+#sol-canvaswrap{padding:20px;display:inline-block;min-width:100%;box-sizing:border-box;transform-origin:0 0}
 #sol-ov .pdf-page{position:relative;background:#fff;box-shadow:0 3px 16px rgba(0,0,0,.35);line-height:0}
 #sol-ov .pdf-page canvas{display:block}
 #annotBar .sol-hide{display:none !important}
@@ -3281,14 +3281,25 @@ function solQueueRerender(){
 /* ── 줌·팬 (리프 viewer.js 대체) ───────────────────────────── */
 /* transform 으로 늘리면 레이어가 통째로 래스터돼 필기(SVG)가 픽셀로 쪼개진다.
    레이아웃 크기 자체를 바꿔 SVG·캔버스가 그 크기로 다시 그려지게 한다. */
+/* 확대는 두 단계다.
+   · 제스처 중  : wrap 에 transform 만 걸어 가볍게 미리보기 (리플로우·필기 재렌더 없음)
+   · 손을 뗀 뒤 : 레이아웃 크기를 실제로 바꿔 확정 → SVG·PDF 가 그 크기로 다시 그려져 선명
+   레이아웃을 매 프레임 바꾸면 큰 요소가 계속 리플로우돼 뚝뚝 끊긴다. */
+function solPreview(k, tx, ty){
+  var wrap=document.getElementById('sol-canvaswrap');
+  wrap.style.transform='translate('+tx+'px,'+ty+'px) scale('+k+')';
+  document.getElementById('sol-zoom').textContent=Math.round(SOL.scale*k/SOL.base*100)+'%';
+}
 function solApply(){
   var pg=document.getElementById('sol-page'), c=document.getElementById('sol-pdfcanvas');
+  var wrap=document.getElementById('sol-canvaswrap');
+  wrap.style.transform='none';
   var w=Math.round(SOL.cssW*SOL.scale), h=Math.round(SOL.cssH*SOL.scale);
   pg.style.width=w+'px'; pg.style.height=h+'px';
   if(c){ c.style.width=w+'px'; c.style.height=h+'px'; }
   window.__pdfZoom=SOL.scale;
   document.getElementById('sol-zoom').textContent=Math.round(SOL.scale/SOL.base*100)+'%';
-  try{ Annot.invalidateLayout(); Annot.refresh(); }catch(e){}
+  try{ Annot.invalidateLayout(); }catch(e){}
   solQueueRerender();
 }
 function _solFitTo(mode){
@@ -3300,6 +3311,7 @@ function _solFitTo(mode){
   SOL.scale=(mode==='width')?fitW:fitP;
   solApply();
   box.scrollTop=0; box.scrollLeft=Math.max(0,(box.scrollWidth-box.clientWidth)/2);
+  try{ Annot.refresh(); }catch(e){}
 }
 function solFit(){ _solFitTo('page'); }         // 전체 맞춤
 function solFitWidth(){ _solFitTo('width'); }   // 폭 맞춤 — 문제 글씨가 커져 바로 풀기 좋다
@@ -3313,46 +3325,77 @@ function solZoomTo(next, fx, fy){
   /* 손가락(또는 화면 중앙)이 짚고 있던 지점을 그대로 붙잡아 둔다 */
   box.scrollLeft=(sx+fx)*k-fx;
   box.scrollTop =(sy+fy)*k-fy;
+  try{ Annot.refresh(); }catch(e){}
 }
 function solZoom(dir){ solZoomTo(SOL.scale*(dir>0?1.25:0.8)); }
 (function solGestures(){
-  var box=null, pts=new Map(), st=null;
+  var box=null, pts=new Map(), G=null;
   function ready(){ if(!box){ box=document.getElementById('left'); if(box) bind(); } }
+  function drawing(){ try{ return Annot.isEnabled(); }catch(e){ return false; } }
+  function focal(){
+    var a=[...pts.values()], r=box.getBoundingClientRect();
+    if(a.length>=2) return { x:(a[0].x+a[1].x)/2-r.left, y:(a[0].y+a[1].y)/2-r.top,
+                             d:Math.hypot(a[0].x-a[1].x, a[0].y-a[1].y) };
+    return { x:a[0].x-r.left, y:a[0].y-r.top, d:0 };
+  }
   function bind(){
     box.addEventListener('pointerdown', function(e){
       if(e.pointerType!=='touch')return;
       pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size===1 && !drawing()){                 // 필기 꺼짐 = 한 손가락으로 밀기
+        var f=focal();
+        G={mode:'pan', sx:box.scrollLeft, sy:box.scrollTop, fx:f.x, fy:f.y};
+      }
       if(pts.size===2){
         window.__pdfPinching=true;
-        try{ Annot.abortStroke(); }catch(err){}      // 두 번째 손가락 = 그리던 획 취소하고 줌으로 양보
-        var a=[...pts.values()], r=box.getBoundingClientRect();
-        st={ d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y), s:SOL.scale,
-             fx:(a[0].x+a[1].x)/2-r.left, fy:(a[0].y+a[1].y)/2-r.top };
+        try{ Annot.abortStroke(); }catch(err){}        // 두 번째 손가락 = 그리던 획 취소
+        var f2=focal();
+        G={mode:'pinch', d0:f2.d||1, sx:box.scrollLeft, sy:box.scrollTop, fx:f2.x, fy:f2.y, k:1, tx:0, ty:0};
       }
     }, true);
+
     box.addEventListener('pointermove', function(e){
-      if(!pts.has(e.pointerId))return;
+      if(!pts.has(e.pointerId)||!G)return;
       pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(pts.size===2&&st){
-        var a=[...pts.values()];
-        var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
-        solZoomTo(st.s*(d/st.d), st.fx, st.fy);
+      var f=focal();
+      if(G.mode==='pan'&&pts.size===1){
+        box.scrollLeft=G.sx+(G.fx-f.x); box.scrollTop=G.sy+(G.fy-f.y);
+        e.preventDefault(); return;
+      }
+      if(G.mode==='pinch'&&pts.size>=2){
+        var raw=(f.d||1)/G.d0;
+        var lo=(SOL.base*0.5)/SOL.scale, hi=(SOL.base*6)/SOL.scale;
+        G.k=Math.max(lo, Math.min(hi, raw));
+        /* 잡고 있던 지점을 화면에 붙들어 둔다 (origin 0 0 기준) */
+        G.tx=f.x+G.sx-G.k*(G.sx+G.fx);
+        G.ty=f.y+G.sy-G.k*(G.sy+G.fy);
+        solPreview(G.k, G.tx, G.ty);
         e.preventDefault();
       }
     }, {capture:true, passive:false});
+
     function up(e){
       pts.delete(e.pointerId);
-      if(pts.size<2){ st=null; window.__pdfPinching=false; }
+      if(pts.size>=1 || !G) { if(pts.size<2) window.__pdfPinching=false; if(pts.size===0)G=null; return; }
+      if(G.mode==='pinch'){
+        /* 미리보기를 실제 크기로 확정 — 여기서 한 번만 리플로우·재렌더 */
+        var k=G.k, sx=G.sx, sy=G.sy, fx=G.fx, fy=G.fy;
+        SOL.scale=Math.max(SOL.base*0.5, Math.min(SOL.base*6, SOL.scale*k));
+        solApply();
+        box.scrollLeft=k*(sx+fx)-fx;
+        box.scrollTop =k*(sy+fy)-fy;
+        try{ Annot.refresh(); }catch(err){}
+      }
+      window.__pdfPinching=false; G=null;
     }
     box.addEventListener('pointerup',up,true);
     box.addEventListener('pointercancel',up,true);
-    /* 트랙패드·마우스 휠 = 줌 (아이패드 외 환경 확인용) */
+
     box.addEventListener('wheel', function(e){
       if(!document.getElementById('sol-ov').classList.contains('open'))return;
-      if(!(e.ctrlKey||e.metaKey))return;             // 그냥 휠은 스크롤 그대로
-      e.preventDefault();
       var r=box.getBoundingClientRect();
-      solZoomTo(SOL.scale*(e.deltaY<0?1.12:0.9), e.clientX-r.left, e.clientY-r.top);
+      if(e.ctrlKey||e.metaKey){ e.preventDefault(); solZoomTo(SOL.scale*(e.deltaY<0?1.12:0.9), e.clientX-r.left, e.clientY-r.top); }
+      else { e.preventDefault(); box.scrollLeft+=e.deltaX; box.scrollTop+=e.deltaY; }
     }, {passive:false});
   }
   document.addEventListener('pointerdown', ready, true);
@@ -3614,7 +3657,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='7.8';
+var APP_VER='7.9';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
