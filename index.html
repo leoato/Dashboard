@@ -589,9 +589,11 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   #sol-top .sol-ghost{padding:8px 11px;font-size:.76rem}
   #sol-top .sol-primary{padding:9px 13px;font-size:.78rem}
   #sol-top .sol-titles #sol-state{display:none}
+  #sol-top .sol-titles #sol-ver{display:inline}
 }
 #left{flex:1;overflow:auto;position:relative;touch-action:none;background:#8b877e;overscroll-behavior:contain}
-#sol-canvaswrap{padding:20px;display:inline-block;min-width:100%;box-sizing:border-box;transform-origin:0 0}
+#sol-canvaswrap{padding:20px;display:block;width:max-content;min-width:100%;box-sizing:border-box;transform-origin:0 0}
+#sol-ov .pdf-page{margin:0 auto}   /* 화면보다 작을 땐 가운데, 클 땐 스크롤 */
 #sol-ov .pdf-page{position:relative;background:#fff;box-shadow:0 3px 16px rgba(0,0,0,.35);line-height:0}
 #sol-ov .pdf-page canvas{display:block}
 #annotBar .sol-hide{display:none !important}
@@ -1384,6 +1386,7 @@ input, select, textarea { font-size: max(16px, 1em); }
     <div class="sol-titles">
       <b id="sol-title"></b>
       <span id="sol-state"></span>
+      <span id="sol-ver" style="font-size:.62rem;color:#9AA0A6"></span>
     </div>
     <div class="sol-seg">
       <button onclick="solZoom(-1)" title="축소">−</button>
@@ -3206,6 +3209,7 @@ async function solOpen(id){
   if(!w.html_path||!/\.pdf$/i.test(w.html_path)){ tShowToast('❗ PDF 문제지가 있는 미모에서만 됩니다',4000); return; }
   SOL.w=w; SOL.dirty=false;
   document.getElementById('sol-title').textContent=w.title+' — 손풀이';
+  var vv=document.getElementById('sol-ver'); if(vv)vv.textContent='v'+APP_VER;
   document.getElementById('sol-state').textContent='불러오는 중…';
   document.getElementById('sol-ov').classList.add('open');
   try{
@@ -3683,7 +3687,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='8.2';
+var APP_VER='8.3';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
