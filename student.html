@@ -343,7 +343,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.1';
+var APP_VER='7.2';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -847,7 +847,8 @@ function wvRender(){
   $('wv-pos').textContent=(wv.idx+1)+' / '+wv.list.length;
   const C=['①','②','③','④','⑤'];
   $('wv-q').textContent=(p.idx+1)+'. '+p.q+(p.choices?'\n\n'+p.choices.map((c,j)=>C[j]+' '+c).join('   '):'');
-  $('wv-meta').textContent=(p.sheet||'')+(p.unit?'  ·  '+(p.unit[1]||'')+' > '+(p.unit[2]||''):'');
+  const _u=(p.unit||[]).slice(1).filter(Boolean).join(' > ');   // 소단원이 없으면 화살표도 빼고
+  $('wv-meta').textContent=(p.sheet||'')+(_u?'  ·  '+_u:'');
   $('wv-my').textContent='내 답: '+(p.my||'—');
   const cm=$('wv-com');
   if(cm){
