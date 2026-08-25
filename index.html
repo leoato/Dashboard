@@ -3347,14 +3347,24 @@ async function miniExtend(id){
   }
 }
 
+var MINI_ALL=false;
+function miniToggleAll(){ MINI_ALL=!MINI_ALL; miniRefresh(); }
+
 async function miniRefresh(){
   const box=document.getElementById('mini-list'); if(!box)return;
   let rows=[]; try{ rows=await v2List(); }catch(e){ box.innerHTML='<div style="font-size:.76rem;color:#777777">불러올 수 없습니다</div>'; return; }
   const today=_ymd(new Date());
   const mini=rows.filter(function(w){return w.kind==='mini'}).sort(function(a,b){return String(a.serve_date||'').localeCompare(String(b.serve_date||''))});
   const left=mini.filter(function(w){return w.status==='assigned'&&String(w.serve_date||'')>=today});
-  box.innerHTML=mini.length?('<div style="font-size:.74rem;color:#4A4A4A;margin-bottom:.4rem">준비된 미모 <b>'+left.length+'일치</b> (오늘 이후) · 전체 '+mini.length+'개</div>'
-    +mini.slice(-7).map(function(w){
+  /* 오늘 것부터는 무조건 다 보인다 — 예전엔 마지막 7개만 잘라 보여서
+     오늘 회차가 목록 밖으로 밀려나 손풀이를 못 여는 일이 있었다. */
+  const shown = MINI_ALL ? mini : mini.filter(function(w){ return String(w.serve_date||'') >= today; });
+  const hidden = mini.length - shown.length;
+  box.innerHTML=mini.length?('<div style="display:flex;align-items:center;gap:8px;font-size:.74rem;color:#4A4A4A;margin-bottom:.4rem">'
+    +'<span>준비된 미모 <b>'+left.length+'일치</b> (오늘 이후) · 전체 '+mini.length+'개</span>'
+    +(hidden>0||MINI_ALL?'<button class="t-btn t-btn-g t-btn-sm" onclick="miniToggleAll()">'+(MINI_ALL?'지난 회차 접기':'지난 회차 '+hidden+'개 보기')+'</button>':'')
+    +'</div>'
+    +shown.map(function(w){
       const sub=(w.submissions||[])[0];
       const past=w.status==='assigned'&&String(w.serve_date||'')<today;
       const openTil=String(w.open_until||'');
@@ -3370,7 +3380,9 @@ async function miniRefresh(){
       return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1.5px dashed #D8DADF;padding:6px 2px;font-size:.76rem">'
         +'<span style="font-variant-numeric:tabular-nums;color:#777777">'+(w.serve_date||'')+'</span>'
         +'<span style="flex:1;min-width:120px">'+tEscH(w.title)+'</span>'+sol+ext+'<span class="t-lbadge">'+st+'</span></div>';
-    }).join('')):'<div style="font-size:.76rem;color:#777777">아직 만든 미모가 없습니다</div>';
+    }).join('')
+    +(shown.length?'':'<div style="font-size:.76rem;color:#777777">오늘 이후 예정된 미모가 없습니다 — [지난 회차 보기]로 이전 것을 볼 수 있어요</div>')
+    ):'<div style="font-size:.76rem;color:#777777">아직 만든 미모가 없습니다</div>';
 }
 
 /* ══ 수업 로드맵 (AI 조교) — 계산은 코드가, 배분은 AI가 ══ */
@@ -3522,7 +3534,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='7.4';
+var APP_VER='7.5';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
