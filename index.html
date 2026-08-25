@@ -3290,10 +3290,20 @@ function solPreview(k, tx, ty){
   wrap.style.transform='translate('+tx+'px,'+ty+'px) scale('+k+')';
   document.getElementById('sol-zoom').textContent=Math.round(SOL.scale*k/SOL.base*100)+'%';
 }
+/* iOS Safari 는 transform 을 none 으로 되돌릴 때 합성 레이어를 버리지 않아
+   예전 필기가 잔상으로 남는다. 항등 변환으로 두어 레이어를 유지시키고,
+   확정 직후 SVG 를 한 번 강제로 다시 그리게 한다. */
+function solRepaintInk(){
+  var svg=document.querySelector('#sol-page .annot-svg'); if(!svg)return;
+  var prev=svg.style.display;
+  svg.style.display='none';
+  void svg.getBoundingClientRect().width;   // 강제 리플로우 — 이 줄이 잔상을 지운다
+  svg.style.display=prev||'';
+}
 function solApply(){
   var pg=document.getElementById('sol-page'), c=document.getElementById('sol-pdfcanvas');
   var wrap=document.getElementById('sol-canvaswrap');
-  wrap.style.transform='none';
+  wrap.style.transform='translate(0px,0px) scale(1)';
   var w=Math.round(SOL.cssW*SOL.scale), h=Math.round(SOL.cssH*SOL.scale);
   pg.style.width=w+'px'; pg.style.height=h+'px';
   if(c){ c.style.width=w+'px'; c.style.height=h+'px'; }
@@ -3312,6 +3322,7 @@ function _solFitTo(mode){
   solApply();
   box.scrollTop=0; box.scrollLeft=Math.max(0,(box.scrollWidth-box.clientWidth)/2);
   try{ Annot.refresh(); }catch(e){}
+  solRepaintInk();
 }
 function solFit(){ _solFitTo('page'); }         // 전체 맞춤
 function solFitWidth(){ _solFitTo('width'); }   // 폭 맞춤 — 문제 글씨가 커져 바로 풀기 좋다
@@ -3326,6 +3337,7 @@ function solZoomTo(next, fx, fy){
   box.scrollLeft=(sx+fx)*k-fx;
   box.scrollTop =(sy+fy)*k-fy;
   try{ Annot.refresh(); }catch(e){}
+  solRepaintInk();
 }
 function solZoom(dir){ solZoomTo(SOL.scale*(dir>0?1.25:0.8)); }
 (function solGestures(){
@@ -3385,6 +3397,7 @@ function solZoom(dir){ solZoomTo(SOL.scale*(dir>0?1.25:0.8)); }
         box.scrollLeft=k*(sx+fx)-fx;
         box.scrollTop =k*(sy+fy)-fy;
         try{ Annot.refresh(); }catch(err){}
+        solRepaintInk();
       }
       window.__pdfPinching=false; G=null;
     }
@@ -3657,7 +3670,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='7.9';
+var APP_VER='8.0';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
