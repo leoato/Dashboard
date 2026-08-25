@@ -338,12 +338,26 @@ input, select, textarea { font-size: max(16px, 1em); }
     <button class="btn" onclick="closeNeedPhoto()">나중에</button>
   </div>
 </div>
+<div class="need-ov" id="solv-ov" style="padding:0;align-items:stretch">
+  <div style="display:flex;flex-direction:column;width:100%;height:100%;background:var(--paper)">
+    <div class="row" style="padding:10px 14px;border-bottom:1.5px solid var(--ink);gap:8px">
+      <b id="solv-title" style="font-size:.9rem"></b><div class="grow"></div>
+      <button class="btn sm" onclick="solvZoom(-1)">－</button>
+      <button class="btn sm" onclick="solvZoom(1)">＋</button>
+      <button class="btn sm" onclick="solvFit()">맞춤</button>
+      <button class="btn" onclick="closeSolution()">닫기</button>
+    </div>
+    <div id="solv-stage" style="flex:1;overflow:hidden;position:relative;touch-action:none;background:#8b877e">
+      <img id="solv-img" style="position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;box-shadow:0 3px 16px rgba(0,0,0,.35)" alt="쌤 풀이">
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.2';
+var APP_VER='7.3';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -810,11 +824,65 @@ function openSent(){
     const sub=latestSub(w);
     return `<div class="row"><div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b>${latest?' <span class="badge-new">최신</span>':''}
       <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${sub&&sub.score?' · '+sub.score:''}${w.status==='submitted'?' · 선생님 확인 중':''}</div></div>
+      ${w.solution_path?`<button class="btn sm pri" onclick="openSolution('${w.id}')">쌤 풀이</button>`:''}
       <button class="btn sm" onclick="reSolve('${w.id}')">↺ 다시 풀기</button></div>`;
   }).join(''):'<div class="muted" style="padding:12px 4px">아직 보낸 문제가 없어요</div>';
   showScreen('sent');
 }
 function reSolve(id){const w=rows.find(x=>x.id===id);if(w)startSolve(w)}
+
+/* 쌤이 보내준 손풀이 — 문제지+필기가 합쳐진 이미지 한 장 */
+let solV={s:1,tx:0,ty:0,base:1};
+function openSolution(id){
+  const w=rows.find(x=>x.id===id);
+  if(!w||!w.solution_path){toast('아직 쌤 풀이가 없어요');return}
+  let url=w.solution_path;
+  try{ if(sbc()){ const {data}=sb.storage.from('worksheets').getPublicUrl(w.solution_path); url=data.publicUrl; } }catch(e){}
+  $('solv-title').textContent=w.title+' — 쌤 풀이';
+  const img=$('solv-img');
+  img.onload=function(){ solvFit(); };
+  img.src=url;
+  $('solv-ov').classList.add('show');
+}
+function closeSolution(){ $('solv-ov').classList.remove('show'); $('solv-img').src=''; }
+function solvApply(){
+  $('solv-img').style.transform='translate('+solV.tx+'px,'+solV.ty+'px) scale('+solV.s+')';
+}
+function solvFit(){
+  const img=$('solv-img'), box=$('solv-stage');
+  if(!img.naturalWidth)return;
+  solV.base=Math.min(box.clientWidth/img.naturalWidth, box.clientHeight/img.naturalHeight);
+  solV.s=solV.base; solV.tx=(box.clientWidth-img.naturalWidth*solV.s)/2; solV.ty=(box.clientHeight-img.naturalHeight*solV.s)/2;
+  solvApply();
+}
+function solvZoom(d){
+  const box=$('solv-stage'), cx=box.clientWidth/2, cy=box.clientHeight/2;
+  const n=Math.max(solV.base*0.6, Math.min(solV.base*6, solV.s*(d>0?1.3:0.77)));
+  const k=n/solV.s;
+  solV.tx=cx-(cx-solV.tx)*k; solV.ty=cy-(cy-solV.ty)*k; solV.s=n; solvApply();
+}
+(function solvGestures(){
+  const pts=new Map(); let st=null, box=null;
+  function bind(){
+    box=$('solv-stage'); if(!box)return;
+    box.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size===1)st={one:true,x:e.clientX,y:e.clientY,tx:solV.tx,ty:solV.ty};
+      if(pts.size===2){const a=[...pts.values()];
+        st={d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),s:solV.s,mx:(a[0].x+a[1].x)/2,my:(a[0].y+a[1].y)/2,tx:solV.tx,ty:solV.ty};}});
+    box.addEventListener('pointermove',e=>{ if(!pts.has(e.pointerId)||!st)return;
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const a=[...pts.values()];
+      if(pts.size===1&&st.one){ solV.tx=st.tx+(e.clientX-st.x); solV.ty=st.ty+(e.clientY-st.y); solvApply(); }
+      else if(pts.size===2&&st.d){ const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+        const n=Math.max(solV.base*0.6,Math.min(solV.base*6,st.s*(d/st.d))), k=n/st.s;
+        const mx=(a[0].x+a[1].x)/2,my=(a[0].y+a[1].y)/2;
+        solV.s=n; solV.tx=mx-(st.mx-st.tx)*k; solV.ty=my-(st.my-st.ty)*k; solvApply(); }
+      e.preventDefault(); },{passive:false});
+    const up=e=>{pts.delete(e.pointerId); st=pts.size===1?{one:true,x:[...pts.values()][0].x,y:[...pts.values()][0].y,tx:solV.tx,ty:solV.ty}:null;};
+    box.addEventListener('pointerup',up); box.addEventListener('pointercancel',up);
+  }
+  if(document.readyState!=='loading')bind(); else document.addEventListener('DOMContentLoaded',bind);
+})();
 
 /* ═══ ③ 오답모음 ═══ */
 let wv={list:[],idx:0,solOn:false};

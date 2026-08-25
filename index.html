@@ -557,6 +557,18 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   #tutor-overlay .t-sacts{grid-template-columns:1fr;}
 }
 
+
+/* ═══ 미모 손풀이 (리프 annotation.js) ═══ */
+#sol-ov{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#EEEFF1;
+  --bd:#D8DADF; --bd2:#C7CAD1; --ac:#222222;}
+#sol-ov.open{display:flex}
+#sol-top{display:flex;align-items:center;gap:7px;padding:8px 12px;background:#FFFFFF;border-bottom:1.5px solid #222222;flex-wrap:wrap}
+#left{flex:1;overflow:hidden;position:relative;touch-action:none;background:#8b877e}
+#sol-canvaswrap{transform-origin:0 0;will-change:transform;padding:20px;display:inline-block}
+#sol-ov .pdf-page{position:relative;background:#fff;box-shadow:0 3px 16px rgba(0,0,0,.35);line-height:0}
+#sol-ov .pdf-page canvas{display:block}
+#annotBar .sol-hide{display:none !important}
+
 /* ── v5.0 오늘선생 플래너 스킨 (kill-ai-slop: 포인트 1색=형광연두 하이라이트, 위계는 크기·여백) ── */
 #tutor-overlay { font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif; background-image:linear-gradient(#F0F1F3 1px,transparent 1px),linear-gradient(90deg,#F0F1F3 1px,transparent 1px); background-size:22px 22px; background-color:#FFFFFF; }
 #tutor-overlay .t-ptitle, #tutor-overlay .t-ctitle, #tutor-overlay .card-head span, #tutor-overlay .t-import-card h3 { font-family:inherit; font-weight:800; letter-spacing:-.01em; }
@@ -1337,6 +1349,23 @@ input, select, textarea { font-size: max(16px, 1em); }
   <!-- toast -->
   <div id="t-toast"></div>
 </div><!-- /tutor-overlay -->
+
+<!-- ═══ 미모 손풀이 (리프 annotation.js 이식) ═══ -->
+<div id="sol-ov">
+  <div id="sol-top">
+    <b id="sol-title" style="font-size:.86rem"></b>
+    <span id="sol-state" style="font-size:.7rem;color:#777777"></span>
+    <div style="flex:1"></div>
+    <button class="t-btn t-btn-g t-btn-sm" onclick="solZoom(-1)">－</button>
+    <span id="sol-zoom" style="font-size:.72rem;min-width:46px;text-align:center;font-variant-numeric:tabular-nums">100%</span>
+    <button class="t-btn t-btn-g t-btn-sm" onclick="solZoom(1)">＋</button>
+    <button class="t-btn t-btn-g t-btn-sm" onclick="solFit()">맞춤</button>
+    <button class="t-btn t-btn-p t-btn-sm" id="sol-send" onclick="solSend()">윤서에게 보내기</button>
+    <button class="t-btn t-btn-g t-btn-sm" onclick="solClose()">닫기</button>
+  </div>
+  <div id="left"><div id="sol-canvaswrap"><div class="pdf-page" id="sol-page"></div></div></div>
+</div>
+
 <!-- TRASH -->
 <div id="trash-panel">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding-bottom:8px;border-bottom:2px solid var(--border)">
@@ -3074,6 +3103,208 @@ async function miniCreate(){
   btn.disabled=false; btn.textContent='미모 만들기';
   if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); v2Render(); miniRefresh(); }
 }
+
+/* ═══════════ 미모 손풀이 — 리프 annotation.js 이식 ═══════════
+   · 필기 엔진은 vendor/annotation.js 를 그대로 쓴다 (CSS·perfect-freehand 내장, 드롭인).
+   · 리프 서버(/api/ink)는 S.doc 이 null 이면 호출 자체가 없다 → loadInk 를 부르지 않는 것으로 차단.
+   · 줌/팬은 리프 viewer.js 대신 여기서 새로 쓴다 (그쪽은 리프 뷰어 DOM에 얽혀 있음).
+     annotation.js 는 window.__pdfZoom / __pdfPinching 숫자만 읽으므로 그 값만 채워주면 맞물린다. */
+var SOL = { w:null, scale:1, tx:0, ty:0, base:1, loaded:false, dirty:false };
+
+function solLoadScript(src){
+  return new Promise(function(res,rej){
+    if(document.querySelector('script[data-src="'+src+'"]'))return res();
+    var el=document.createElement('script'); el.src=src; el.setAttribute('data-src',src);
+    el.onload=res; el.onerror=function(){rej(new Error(src+' 로드 실패'))};
+    document.head.appendChild(el);
+  });
+}
+/* 툴바를 펜 3색 + 지우개 + 되돌리기로 줄인다 — 프리셋을 미리 심고, 남는 버튼은 감춘다 */
+function solPrepareTools(){
+  try{
+    localStorage.setItem('annot-presets-v1', JSON.stringify([
+      { id:'pen-black', tool:'pen', color:'#1e2320', width:3, opacity:1, label:'검정 펜', straight:false },
+      { id:'pen-red',   tool:'pen', color:'#d94c4c', width:3, opacity:1, label:'빨강 펜', straight:false },
+      { id:'pen-blue',  tool:'pen', color:'#3169d8', width:3, opacity:1, label:'파랑 펜', straight:false }
+    ]));
+  }catch(e){}
+}
+function solTrimToolbar(){
+  var bar=document.getElementById('annotBar'); if(!bar)return;
+  /* 접힌 상태면 펼친다 — 접혀 있으면 되돌리기/다시가 숨겨진다 */
+  var exp=bar.querySelector('.annot-expand');
+  if(exp && exp.offsetParent!==null){ exp.click(); }
+  /* 펜 프리셋 제목이 "검정 펜 · 다시 탭하면 굵기/색…" 이라 '굵기'로 거르면 펜까지 사라진다 */
+  var drop=/텍스트 메모|올가미|사진|AI에게|묻기|프리셋으로 추가/;
+  [].forEach.call(bar.querySelectorAll('button'), function(b){
+    var t=(b.getAttribute('title')||'')+' '+(b.textContent||'');
+    if(drop.test(t)) b.classList.add('sol-hide'); else b.classList.remove('sol-hide');
+  });
+}
+
+async function solOpen(id){
+  var w=(v2rows||[]).find(function(x){return String(x.id)===String(id)});
+  if(!w){ try{ v2rows=await v2List(); }catch(e){} w=(v2rows||[]).find(function(x){return String(x.id)===String(id)}); }
+  if(!w){ tShowToast('❗ 미모를 찾을 수 없어요'); return; }
+  if(!w.html_path||!/\.pdf$/i.test(w.html_path)){ tShowToast('❗ PDF 문제지가 있는 미모에서만 됩니다',4000); return; }
+  SOL.w=w; SOL.dirty=false;
+  document.getElementById('sol-title').textContent=w.title+' — 손풀이';
+  document.getElementById('sol-state').textContent='불러오는 중…';
+  document.getElementById('sol-ov').classList.add('open');
+  try{
+    solPrepareTools();
+    await solLoadScript('vendor/pdf.min.js');
+    await solLoadScript('vendor/annotation.js');
+    await solRenderPdf(w);
+    Annot.ensureOverlay(document.getElementById('sol-page'), 1, true);
+    Annot.setEnabled(true); Annot.setTool('pen');
+    solTrimToolbar();
+    setTimeout(solTrimToolbar, 350);   // 펼침이 반영된 뒤 한 번 더 (되돌리기 버튼이 그때 생긴다)
+    /* 전에 그려둔 필기가 있으면 되살린다 */
+    if(w.solution_ink && w.solution_ink.length){
+      Annot.commitPage(1, w.solution_ink, {snapshot:false});
+      Annot.refresh();
+      document.getElementById('sol-state').textContent='전에 그린 풀이를 불러왔어요';
+    }else{
+      document.getElementById('sol-state').textContent = w.solution_path ? '이미 보낸 풀이가 있어요' : '';
+    }
+    solFit();
+  }catch(e){
+    document.getElementById('sol-state').textContent='';
+    tShowToast('❗ 손풀이 화면을 열지 못했어요 — '+String(e&&e.message||e).slice(0,60), 5000);
+  }
+}
+async function solRenderPdf(w){
+  var lib=window.pdfjsLib||window['pdfjs-dist/build/pdf'];
+  lib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js';
+  var url=v2sb.storage.from('worksheets').getPublicUrl(w.html_path).data.publicUrl;
+  var doc=await lib.getDocument({url:url}).promise;
+  var page=await doc.getPage(1);
+  var vp=page.getViewport({scale:2});                 // 필기 위에 얹을 바탕이므로 넉넉히
+  var pg=document.getElementById('sol-page');
+  pg.innerHTML='';
+  var c=document.createElement('canvas');
+  c.width=vp.width; c.height=vp.height;
+  c.style.width=(vp.width/2)+'px'; c.style.height=(vp.height/2)+'px';
+  pg.style.width=(vp.width/2)+'px'; pg.style.height=(vp.height/2)+'px';
+  pg.appendChild(c);
+  await page.render({canvasContext:c.getContext('2d'), viewport:vp}).promise;
+  SOL.loaded=true;
+}
+
+/* ── 줌·팬 (리프 viewer.js 대체) ───────────────────────────── */
+function solApply(){
+  var wrap=document.getElementById('sol-canvaswrap');
+  wrap.style.transform='translate('+SOL.tx+'px,'+SOL.ty+'px) scale('+SOL.scale+')';
+  window.__pdfZoom=SOL.scale;
+  document.getElementById('sol-zoom').textContent=Math.round(SOL.scale/SOL.base*100)+'%';
+  try{ Annot.invalidateLayout(); }catch(e){}
+}
+function solFit(){
+  var pg=document.getElementById('sol-page'), box=document.getElementById('left');
+  if(!pg.offsetWidth)return;
+  SOL.base=Math.min((box.clientWidth-40)/pg.offsetWidth, (box.clientHeight-40)/pg.offsetHeight);
+  SOL.scale=SOL.base;
+  var w=(pg.offsetWidth+40)*SOL.scale, h=(pg.offsetHeight+40)*SOL.scale;   // wrap 여백 20×2 포함
+  SOL.tx=Math.max(0,(box.clientWidth-w)/2);
+  SOL.ty=Math.max(0,(box.clientHeight-h)/2);
+  solApply();
+}
+function solZoom(dir){
+  var box=document.getElementById('left');
+  var cx=box.clientWidth/2, cy=box.clientHeight/2;
+  var next=Math.max(SOL.base*0.5, Math.min(SOL.base*6, SOL.scale*(dir>0?1.25:0.8)));
+  var k=next/SOL.scale;
+  SOL.tx=cx-(cx-SOL.tx)*k; SOL.ty=cy-(cy-SOL.ty)*k;   // 화면 중앙을 기준으로 확대
+  SOL.scale=next; solApply();
+}
+(function solGestures(){
+  var box=null, pts=new Map(), start=null;
+  function ready(){ if(!box){ box=document.getElementById('left'); if(box) bind(); } }
+  function bind(){
+    box.addEventListener('pointerdown', function(e){
+      if(e.pointerType!=='touch')return;
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size===2){
+        window.__pdfPinching=true;
+        try{ Annot.abortStroke(); }catch(err){}      // 두 번째 손가락 = 그리던 획 취소하고 줌으로 양보
+        var a=[...pts.values()];
+        start={d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y), s:SOL.scale,
+               mx:(a[0].x+a[1].x)/2, my:(a[0].y+a[1].y)/2, tx:SOL.tx, ty:SOL.ty};
+      }
+    }, true);
+    box.addEventListener('pointermove', function(e){
+      if(!pts.has(e.pointerId))return;
+      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size===2&&start){
+        var a=[...pts.values()];
+        var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+        var next=Math.max(SOL.base*0.5, Math.min(SOL.base*6, start.s*(d/start.d)));
+        var k=next/start.s;
+        var mx=(a[0].x+a[1].x)/2, my=(a[0].y+a[1].y)/2;
+        SOL.scale=next;
+        SOL.tx=mx-(start.mx-start.tx)*k;              // 두 손가락 중점을 붙잡고 확대·이동
+        SOL.ty=my-(start.my-start.ty)*k;
+        solApply(); e.preventDefault();
+      }
+    }, {capture:true, passive:false});
+    function up(e){
+      pts.delete(e.pointerId);
+      if(pts.size<2){ start=null; window.__pdfPinching=false; }
+    }
+    box.addEventListener('pointerup',up,true);
+    box.addEventListener('pointercancel',up,true);
+    /* 트랙패드·마우스 휠 = 줌 (아이패드 외 환경에서 확인용) */
+    box.addEventListener('wheel', function(e){
+      if(!document.getElementById('sol-ov').classList.contains('open'))return;
+      e.preventDefault(); solZoom(e.deltaY<0?1:-1);
+    }, {passive:false});
+  }
+  document.addEventListener('pointerdown', ready, true);
+  setTimeout(ready, 1200);
+})();
+
+function solClose(){
+  document.getElementById('sol-ov').classList.remove('open');
+  try{ Annot.setEnabled(false); Annot.setToolbarHidden(true); }catch(e){}
+}
+
+/* ── 합성 → 업로드 → 전송 ─────────────────────────────────── */
+async function solSend(){
+  if(!SOL.w){return}
+  var pg=document.getElementById('sol-page'), src=pg.querySelector('canvas');
+  if(!src){ tShowToast('❗ 문제지가 아직 안 떴어요'); return; }
+  var ink=(Annot.getPages()[1]||[]);
+  if(!ink.length && !confirm('아직 아무것도 안 쓰셨어요. 그래도 보낼까요?')) return;
+  var btn=document.getElementById('sol-send'); btn.disabled=true; btn.textContent='보내는 중…';
+  try{
+    /* 문제지 + 필기를 한 장으로 합성 (Annot.renderPageToCanvas 가 정규화 좌표를 픽셀로 그려준다) */
+    var out=document.createElement('canvas');
+    out.width=src.width; out.height=src.height;
+    var ctx=out.getContext('2d');
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,out.width,out.height);
+    ctx.drawImage(src,0,0,out.width,out.height);
+    Annot.renderPageToCanvas(1, ctx, out.width, out.height);
+    var blob=await new Promise(function(r){ out.toBlob(r,'image/jpeg',0.88); });
+    var path=v2Pair()+'/solution_'+(SOL.w.serve_date||SOL.w.id)+'_'+Date.now()+'.jpg';
+    var up=await v2sb.storage.from('worksheets').upload(path, blob, {contentType:'image/jpeg', upsert:true});
+    if(up.error)throw up.error;
+    var r=await v2sb.from('worksheets').update({
+      solution_path:path, solution_ink:ink, solution_at:new Date().toISOString()
+    }).eq('id', SOL.w.id);
+    if(r.error)throw r.error;
+    SOL.w.solution_path=path; SOL.w.solution_ink=ink;
+    tShowToast('✅ 보냈어요 — 윤서 제출함에 [쌤 풀이]로 뜹니다', 4000);
+    pushNotify('solution',{sheet:SOL.w.title});
+    document.getElementById('sol-state').textContent='보냄 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    try{ miniRefresh(); }catch(e){}
+  }catch(e){
+    var msg=String(e&&e.message||'');
+    tShowToast(/solution_|column/i.test(msg)?'❗ solution 컬럼이 없습니다 — supabase-v10.sql을 실행해주세요':'❗ 전송 실패 — '+msg.slice(0,50), 5000);
+  }
+  btn.disabled=false; btn.textContent='윤서에게 보내기';
+}
+
 /* 미모 기한 연장 — 처음 누르면 오늘까지, 다시 누르면 하루씩 더 */
 async function miniExtend(id){
   try{
@@ -3118,9 +3349,12 @@ async function miniRefresh(){
         ? '<span class="t-lbadge" style="background:#B9F18D">'+openTil.slice(5).replace('-','/')+'까지 열림</span>'
           +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniExtend(\''+w.id+'\')">하루 더</button>'
         : '<button class="t-btn t-btn-g t-btn-sm" onclick="miniExtend(\''+w.id+'\')">지금 열기</button>'):'';
+      const hasPdf=/\.pdf$/i.test(String(w.html_path||''));
+      const sol=hasPdf?('<button class="t-btn '+(w.solution_path?'t-btn-p':'t-btn-g')+' t-btn-sm" onclick="solOpen(\''+w.id+'\')">'
+        +(w.solution_path?'손풀이 수정':'손풀이')+'</button>'):'';
       return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1.5px dashed #D8DADF;padding:6px 2px;font-size:.76rem">'
         +'<span style="font-variant-numeric:tabular-nums;color:#777777">'+(w.serve_date||'')+'</span>'
-        +'<span style="flex:1;min-width:120px">'+tEscH(w.title)+'</span>'+ext+'<span class="t-lbadge">'+st+'</span></div>';
+        +'<span style="flex:1;min-width:120px">'+tEscH(w.title)+'</span>'+sol+ext+'<span class="t-lbadge">'+st+'</span></div>';
     }).join('')):'<div style="font-size:.76rem;color:#777777">아직 만든 미모가 없습니다</div>';
 }
 
@@ -3273,7 +3507,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='7.1';
+var APP_VER='7.3';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
