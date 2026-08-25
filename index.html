@@ -3341,68 +3341,81 @@ function solZoomTo(next, fx, fy){
 }
 function solZoom(dir){ solZoomTo(SOL.scale*(dir>0?1.25:0.8)); }
 (function solGestures(){
-  var box=null, pts=new Map(), G=null;
+  var box=null, pts=new Map(), G=null, lastTouch=0;
   function ready(){ if(!box){ box=document.getElementById('left'); if(box) bind(); } }
   function drawing(){ try{ return Annot.isEnabled(); }catch(e){ return false; } }
   function focal(){
     var a=[...pts.values()], r=box.getBoundingClientRect();
+    if(!a.length) return null;
     if(a.length>=2) return { x:(a[0].x+a[1].x)/2-r.left, y:(a[0].y+a[1].y)/2-r.top,
                              d:Math.hypot(a[0].x-a[1].x, a[0].y-a[1].y) };
     return { x:a[0].x-r.left, y:a[0].y-r.top, d:0 };
   }
+  /* 확대는 손가락이 둘 미만이 되는 즉시 확정한다.
+     두 손가락이 모두 떨어질 때까지 기다리면, 아이패드에서 두 번째 pointerup 을
+     놓쳤을 때 미리보기만 걸렸다 풀려 "확대가 자꾸 원래대로 돌아가는" 증상이 된다. */
+  function commit(){
+    if(!G || G.mode!=='pinch'){ G=null; window.__pdfPinching=false; return; }
+    var k=G.k, sx=G.sx, sy=G.sy, fx=G.fx, fy=G.fy;
+    G=null; window.__pdfPinching=false;
+    if(!(k>0) || Math.abs(k-1)<0.005){ solApply(); return; }   // 사실상 안 움직였으면 원복만
+    SOL.scale=Math.max(SOL.base*0.5, Math.min(SOL.base*6, SOL.scale*k));
+    solApply();
+    box.scrollLeft=k*(sx+fx)-fx;
+    box.scrollTop =k*(sy+fy)-fy;
+    try{ Annot.refresh(); }catch(err){}
+    solRepaintInk();
+  }
   function bind(){
     box.addEventListener('pointerdown', function(e){
       if(e.pointerType!=='touch')return;
+      /* 떼는 이벤트를 놓쳐 남은 손가락은 다음 터치 때 정리한다 (아이패드에서 종종 유실된다) */
+      var now=(window.performance&&performance.now())?performance.now():Date.now();
+      if(pts.size && now-(lastTouch||0)>1200){ pts.clear(); G=null; window.__pdfPinching=false; }
+      lastTouch=now;
+      if(pts.size===0) G=null;
       pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(pts.size===1 && !drawing()){                 // 필기 꺼짐 = 한 손가락으로 밀기
-        var f=focal();
+      var f=focal(); if(!f)return;
+      if(pts.size===1 && !drawing()){                // 필기 꺼짐 = 한 손가락으로 밀기
         G={mode:'pan', sx:box.scrollLeft, sy:box.scrollTop, fx:f.x, fy:f.y};
       }
       if(pts.size===2){
         window.__pdfPinching=true;
-        try{ Annot.abortStroke(); }catch(err){}        // 두 번째 손가락 = 그리던 획 취소
-        var f2=focal();
-        G={mode:'pinch', d0:f2.d||1, sx:box.scrollLeft, sy:box.scrollTop, fx:f2.x, fy:f2.y, k:1, tx:0, ty:0};
+        try{ Annot.abortStroke(); }catch(err){}       // 두 번째 손가락 = 그리던 획 취소
+        G={mode:'pinch', d0:f.d||1, sx:box.scrollLeft, sy:box.scrollTop, fx:f.x, fy:f.y, k:1};
       }
     }, true);
 
     box.addEventListener('pointermove', function(e){
       if(!pts.has(e.pointerId)||!G)return;
       pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      var f=focal();
+      lastTouch=(window.performance&&performance.now())?performance.now():Date.now();
+      var f=focal(); if(!f)return;
       if(G.mode==='pan'&&pts.size===1){
         box.scrollLeft=G.sx+(G.fx-f.x); box.scrollTop=G.sy+(G.fy-f.y);
         e.preventDefault(); return;
       }
       if(G.mode==='pinch'&&pts.size>=2){
-        var raw=(f.d||1)/G.d0;
         var lo=(SOL.base*0.5)/SOL.scale, hi=(SOL.base*6)/SOL.scale;
-        G.k=Math.max(lo, Math.min(hi, raw));
+        G.k=Math.max(lo, Math.min(hi, (f.d||1)/G.d0));
         /* 잡고 있던 지점을 화면에 붙들어 둔다 (origin 0 0 기준) */
-        G.tx=f.x+G.sx-G.k*(G.sx+G.fx);
-        G.ty=f.y+G.sy-G.k*(G.sy+G.fy);
-        solPreview(G.k, G.tx, G.ty);
+        solPreview(G.k, f.x+G.sx-G.k*(G.sx+G.fx), f.y+G.sy-G.k*(G.sy+G.fy));
         e.preventDefault();
       }
     }, {capture:true, passive:false});
 
     function up(e){
       pts.delete(e.pointerId);
-      if(pts.size>=1 || !G) { if(pts.size<2) window.__pdfPinching=false; if(pts.size===0)G=null; return; }
-      if(G.mode==='pinch'){
-        /* 미리보기를 실제 크기로 확정 — 여기서 한 번만 리플로우·재렌더 */
-        var k=G.k, sx=G.sx, sy=G.sy, fx=G.fx, fy=G.fy;
-        SOL.scale=Math.max(SOL.base*0.5, Math.min(SOL.base*6, SOL.scale*k));
-        solApply();
-        box.scrollLeft=k*(sx+fx)-fx;
-        box.scrollTop =k*(sy+fy)-fy;
-        try{ Annot.refresh(); }catch(err){}
-        solRepaintInk();
-      }
-      window.__pdfPinching=false; G=null;
+      if(!G){ if(pts.size===0) window.__pdfPinching=false; return; }
+      if(pts.size>=2) return;                        // 아직 두 손가락 이상이면 계속
+      if(G.mode==='pinch') commit(); else { G=null; window.__pdfPinching=false; }
     }
     box.addEventListener('pointerup',up,true);
     box.addEventListener('pointercancel',up,true);
+    /* 손가락이 컨테이너 밖에서 떨어져도 놓치지 않게 문서 단위로도 받는다 */
+    document.addEventListener('pointerup',up,true);
+    document.addEventListener('pointercancel',up,true);
+    window.addEventListener('blur', function(){ pts.clear(); if(G&&G.mode==='pinch')commit(); else {G=null;window.__pdfPinching=false;} });
 
     box.addEventListener('wheel', function(e){
       if(!document.getElementById('sol-ov').classList.contains('open'))return;
@@ -3670,7 +3683,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='8.0';
+var APP_VER='8.2';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
