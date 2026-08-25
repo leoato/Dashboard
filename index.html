@@ -562,7 +562,31 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #sol-ov{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#EEEFF1;
   --bd:#D8DADF; --bd2:#C7CAD1; --ac:#222222;}
 #sol-ov.open{display:flex}
-#sol-top{display:flex;align-items:center;gap:7px;padding:8px 12px;background:#FFFFFF;border-bottom:1.5px solid #222222;flex-wrap:wrap}
+#sol-top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#FFFFFF;border-bottom:1.5px solid #222222}
+#sol-top .sol-titles{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.25}
+#sol-top .sol-titles b{font-size:.9rem;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sol-top #sol-state{font-size:.68rem;color:#777777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sol-top button{font-family:inherit;cursor:pointer;border-radius:9px;font-weight:700;transition:transform .06s}
+#sol-top button:active{transform:translate(1.5px,1.5px)}
+#sol-top .sol-ghost{border:1.5px solid #222222;background:#FFFFFF;color:#222222;box-shadow:1.5px 1.5px 0 #222222;
+  padding:9px 14px;font-size:.8rem;white-space:nowrap;flex-shrink:0}
+#sol-top .sol-ghost:active{box-shadow:0 0 0 #222222}
+#sol-top .sol-primary{border:1.5px solid #222222;background:#B9F18D;color:#222222;box-shadow:2.5px 2.5px 0 #222222;
+  padding:10px 18px;font-size:.84rem;white-space:nowrap;flex-shrink:0}
+#sol-top .sol-primary:active{box-shadow:0 0 0 #222222}
+#sol-top .sol-primary:disabled{background:#EDEFF2;color:#9AA0A6;box-shadow:none}
+#sol-top .sol-seg{display:flex;align-items:center;border:1.5px solid #222222;border-radius:9px;overflow:hidden;
+  box-shadow:1.5px 1.5px 0 #222222;flex-shrink:0}
+#sol-top .sol-seg button{border:none;border-radius:0;background:#FFFFFF;box-shadow:none;padding:9px 15px;font-size:1rem;line-height:1}
+#sol-top .sol-seg button:first-child{border-right:1.5px solid #222222}
+#sol-top .sol-seg button:last-child{border-left:1.5px solid #222222}
+#sol-top .sol-seg #sol-zoom{font-size:.76rem;min-width:56px;text-align:center;font-variant-numeric:tabular-nums;padding:0 4px}
+@media(max-width:820px){
+  #sol-top{gap:7px;padding:8px 10px}
+  #sol-top .sol-ghost{padding:8px 11px;font-size:.76rem}
+  #sol-top .sol-primary{padding:9px 13px;font-size:.78rem}
+  #sol-top .sol-titles #sol-state{display:none}
+}
 #left{flex:1;overflow:hidden;position:relative;touch-action:none;background:#8b877e}
 #sol-canvaswrap{transform-origin:0 0;will-change:transform;padding:20px;display:inline-block}
 #sol-ov .pdf-page{position:relative;background:#fff;box-shadow:0 3px 16px rgba(0,0,0,.35);line-height:0}
@@ -1353,15 +1377,19 @@ input, select, textarea { font-size: max(16px, 1em); }
 <!-- ═══ 미모 손풀이 (리프 annotation.js 이식) ═══ -->
 <div id="sol-ov">
   <div id="sol-top">
-    <b id="sol-title" style="font-size:.86rem"></b>
-    <span id="sol-state" style="font-size:.7rem;color:#777777"></span>
-    <div style="flex:1"></div>
-    <button class="t-btn t-btn-g t-btn-sm" onclick="solZoom(-1)">－</button>
-    <span id="sol-zoom" style="font-size:.72rem;min-width:46px;text-align:center;font-variant-numeric:tabular-nums">100%</span>
-    <button class="t-btn t-btn-g t-btn-sm" onclick="solZoom(1)">＋</button>
-    <button class="t-btn t-btn-g t-btn-sm" onclick="solFit()">맞춤</button>
-    <button class="t-btn t-btn-p t-btn-sm" id="sol-send" onclick="solSend()">윤서에게 보내기</button>
-    <button class="t-btn t-btn-g t-btn-sm" onclick="solClose()">닫기</button>
+    <button class="sol-ghost" onclick="solClose()" title="닫기">← 닫기</button>
+    <div class="sol-titles">
+      <b id="sol-title"></b>
+      <span id="sol-state"></span>
+    </div>
+    <div class="sol-seg">
+      <button onclick="solZoom(-1)" title="축소">−</button>
+      <span id="sol-zoom">100%</span>
+      <button onclick="solZoom(1)" title="확대">+</button>
+    </div>
+    <button class="sol-ghost" onclick="solFitWidth()" title="문제지 폭을 화면에 맞춤">폭 맞춤</button>
+    <button class="sol-ghost" onclick="solFit()" title="문제지 전체를 화면에 맞춤">전체</button>
+    <button class="sol-primary" id="sol-send" onclick="solSend()">윤서에게 보내기</button>
   </div>
   <div id="left"><div id="sol-canvaswrap"><div class="pdf-page" id="sol-page"></div></div></div>
 </div>
@@ -3183,7 +3211,7 @@ async function solOpen(id){
     }else{
       document.getElementById('sol-state').textContent = w.solution_path ? '이미 보낸 풀이가 있어요' : '';
     }
-    solFit();
+    solFit(); solFitWidth();   // 100% 기준을 잡은 뒤 폭 맞춤으로 시작
   }catch(e){
     document.getElementById('sol-state').textContent='';
     tShowToast('❗ 손풀이 화면을 열지 못했어요 — '+String(e&&e.message||e).slice(0,60), 5000);
@@ -3194,17 +3222,46 @@ async function solRenderPdf(w){
   lib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js';
   var url=v2sb.storage.from('worksheets').getPublicUrl(w.html_path).data.publicUrl;
   var doc=await lib.getDocument({url:url}).promise;
-  var page=await doc.getPage(1);
-  var vp=page.getViewport({scale:2});                 // 필기 위에 얹을 바탕이므로 넉넉히
+  SOL.page=await doc.getPage(1);
+  var base=SOL.page.getViewport({scale:1});
+  SOL.cssW=Math.round(base.width); SOL.cssH=Math.round(base.height);   // 레이아웃 크기는 고정 (필기 좌표의 기준)
   var pg=document.getElementById('sol-page');
   pg.innerHTML='';
   var c=document.createElement('canvas');
-  c.width=vp.width; c.height=vp.height;
-  c.style.width=(vp.width/2)+'px'; c.style.height=(vp.height/2)+'px';
-  pg.style.width=(vp.width/2)+'px'; pg.style.height=(vp.height/2)+'px';
+  c.id='sol-pdfcanvas';
+  c.style.width=SOL.cssW+'px'; c.style.height=SOL.cssH+'px';
+  pg.style.width=SOL.cssW+'px'; pg.style.height=SOL.cssH+'px';
   pg.appendChild(c);
-  await page.render({canvasContext:c.getContext('2d'), viewport:vp}).promise;
+  await solRenderAt(2);
   SOL.loaded=true;
+}
+/* 확대하면 픽셀이 늘어나 뭉개진다 — 보이는 배율에 맞춰 PDF를 다시 그린다.
+   캔버스의 CSS 크기(레이아웃)는 그대로 두고 뒷면 해상도만 올리므로 필기 좌표는 영향 없음. */
+var SOL_MAXPX = 12e6;   // iPad Safari 캔버스 상한(≈16.7M) 아래로 — 넘기면 캔버스가 통째로 빈다
+async function solRenderAt(q){
+  if(!SOL.page)return;
+  var qMax = Math.sqrt(SOL_MAXPX/Math.max(1, SOL.cssW*SOL.cssH));
+  q=Math.max(1.5, Math.min(qMax, q));
+  if(SOL.renderQ && Math.abs(SOL.renderQ-q)<0.25)return;   // 미세한 변화로는 다시 안 그린다
+  if(SOL.rendering)return;
+  SOL.rendering=true;
+  try{
+    var c=document.getElementById('sol-pdfcanvas'); if(!c)return;
+    var vp=SOL.page.getViewport({scale:q});
+    c.width=Math.round(vp.width); c.height=Math.round(vp.height);
+    c.style.width=SOL.cssW+'px'; c.style.height=SOL.cssH+'px';
+    await SOL.page.render({canvasContext:c.getContext('2d'), viewport:vp}).promise;
+    SOL.renderQ=q;
+  }catch(e){}finally{ SOL.rendering=false; }
+}
+var _solRQ=null;
+function solQueueRerender(){
+  if(_solRQ)clearTimeout(_solRQ);
+  _solRQ=setTimeout(function(){
+    _solRQ=null;
+    var dpr=Math.min(2, window.devicePixelRatio||1);
+    solRenderAt(SOL.scale*dpr);
+  }, 260);                        // 줌이 멈춘 뒤에 한 번만
 }
 
 /* ── 줌·팬 (리프 viewer.js 대체) ───────────────────────────── */
@@ -3214,17 +3271,22 @@ function solApply(){
   window.__pdfZoom=SOL.scale;
   document.getElementById('sol-zoom').textContent=Math.round(SOL.scale/SOL.base*100)+'%';
   try{ Annot.invalidateLayout(); }catch(e){}
+  solQueueRerender();
 }
-function solFit(){
+function _solFitTo(mode){
   var pg=document.getElementById('sol-page'), box=document.getElementById('left');
   if(!pg.offsetWidth)return;
-  SOL.base=Math.min((box.clientWidth-40)/pg.offsetWidth, (box.clientHeight-40)/pg.offsetHeight);
-  SOL.scale=SOL.base;
+  var fitW=(box.clientWidth-40)/pg.offsetWidth;
+  var fitP=Math.min(fitW, (box.clientHeight-40)/pg.offsetHeight);
+  if(!SOL.base)SOL.base=fitP;                       // 100% 표기 기준은 '전체 맞춤'으로 고정
+  SOL.scale = (mode==='width') ? fitW : fitP;
   var w=(pg.offsetWidth+40)*SOL.scale, h=(pg.offsetHeight+40)*SOL.scale;   // wrap 여백 20×2 포함
   SOL.tx=Math.max(0,(box.clientWidth-w)/2);
-  SOL.ty=Math.max(0,(box.clientHeight-h)/2);
+  SOL.ty=(mode==='width') ? 0 : Math.max(0,(box.clientHeight-h)/2);        // 폭 맞춤이면 맨 위부터
   solApply();
 }
+function solFit(){ _solFitTo('page'); }         // 전체 맞춤
+function solFitWidth(){ _solFitTo('width'); }   // 폭 맞춤 — 문제 글씨가 커져 바로 풀기 좋다
 function solZoom(dir){
   var box=document.getElementById('left');
   var cx=box.clientWidth/2, cy=box.clientHeight/2;
@@ -3240,6 +3302,10 @@ function solZoom(dir){
     box.addEventListener('pointerdown', function(e){
       if(e.pointerType!=='touch')return;
       pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pts.size===1){
+        var drawing=false; try{ drawing=Annot.isEnabled(); }catch(err){}
+        if(!drawing) start={one:true,x:e.clientX,y:e.clientY,tx:SOL.tx,ty:SOL.ty};   // 필기 끈 상태 = 한 손가락 이동
+      }
       if(pts.size===2){
         window.__pdfPinching=true;
         try{ Annot.abortStroke(); }catch(err){}      // 두 번째 손가락 = 그리던 획 취소하고 줌으로 양보
@@ -3251,7 +3317,11 @@ function solZoom(dir){
     box.addEventListener('pointermove', function(e){
       if(!pts.has(e.pointerId))return;
       pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(pts.size===2&&start){
+      if(pts.size===1&&start&&start.one){
+        SOL.tx=start.tx+(e.clientX-start.x); SOL.ty=start.ty+(e.clientY-start.y);
+        solApply(); e.preventDefault(); return;
+      }
+      if(pts.size===2&&start&&!start.one){
         var a=[...pts.values()];
         var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
         var next=Math.max(SOL.base*0.5, Math.min(SOL.base*6, start.s*(d/start.d)));
@@ -3534,7 +3604,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='7.5';
+var APP_VER='7.6';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
