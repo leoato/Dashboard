@@ -120,7 +120,8 @@ async function fanout(pair, role, data){
   const payload = {
     ...data,
     icon: role==='teacher' ? './icon-teacher.png' : './icon-student.png',
-    url:  role==='teacher' ? './index.html'       : './student.html'
+    /* v10: 딥링크 — data.link('?open=…')가 있으면 알림 탭 시 그 화면으로 직행 */
+    url:  (role==='teacher' ? './index.html' : './student.html') + (data.link || '')
   };
   let sent=0, dead=0; const errs=[];
   for (const s of subs){
@@ -183,7 +184,11 @@ Deno.serve(async req => {
     if (!o.pair) return new Response(JSON.stringify({error:'pair 없음'}), {status:400, headers:CORS});
 
     const m = make(o);
-    const r = await fanout(o.pair, m.to, { title:m.title, body:m.body, tag:o.kind });
+    /* v10 딥링크: 질문→질문함, 제출→wid가 오면 그 제출 상세 (학생 앱이 wid를 보내는 날부터 자동 작동) */
+    const link = m.to==='teacher'
+      ? (o.wid ? ('?open='+encodeURIComponent(o.wid)) : (o.kind==='question' ? '?open=q' : ''))
+      : '';
+    const r = await fanout(o.pair, m.to, { title:m.title, body:m.body, tag:o.kind, link });
     return new Response(JSON.stringify(r), { headers: CORS });
   }catch(e){
     return new Response(JSON.stringify({error:String(e)}), { status:500, headers:CORS });
