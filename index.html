@@ -631,6 +631,20 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 /* AI 조교 채팅 */
 #tutor-overlay #ai-fab{position:fixed;right:18px;bottom:18px;z-index:60;background:#222222;color:#B9F18D;border:1.5px solid #222222;border-radius:99px;padding:.7rem 1.15rem;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;box-shadow:3px 3px 0 rgba(34,34,34,.25)}
 #tutor-overlay #ai-fab:active{transform:translate(2px,2px);box-shadow:none}
+/* v10: AI 조교는 서랍행이 유일한 입구 — FAB 은퇴 (게이트 결정 ②) */
+#tutor-overlay #ai-fab{display:none}
+/* ── v10: 홈 대형 버튼 · 서랍 목록 ── */
+#tutor-overlay .h-big{display:block;width:100%;text-align:left;border:2px solid #222222;background:#FFFFFF;border-radius:12px;padding:1.05rem 1rem;margin-bottom:.7rem;cursor:pointer;box-shadow:4px 4px 0 #222222;font-family:inherit;color:#222222}
+#tutor-overlay .h-big:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #222222}
+#tutor-overlay .h-big .t{font-size:1.02rem;font-weight:800;letter-spacing:-.01em}
+#tutor-overlay .h-big .d{font-size:.72rem;color:#777777;margin-top:3px}
+#tutor-overlay .dr-row{display:flex;align-items:center;gap:12px;padding:.9rem 2px;border-bottom:1px dashed #D8DADF;cursor:pointer}
+#tutor-overlay .dr-row:last-child{border-bottom:none}
+#tutor-overlay .dr-row .t{font-size:.88rem;font-weight:800}
+#tutor-overlay .dr-row .d{font-size:.71rem;color:#777777;margin-top:2px}
+#tutor-overlay .dr-row .arr{margin-left:auto;color:#777777;font-weight:800}
+#tutor-overlay .qp-row{border:1.5px solid #222222;border-radius:10px;padding:.85rem;margin-top:.6rem}
+#tutor-overlay .qp-row.main{box-shadow:3px 3px 0 #222222;margin-top:.8rem}
 #tutor-overlay #ai-panel{position:fixed;right:16px;bottom:74px;width:380px;max-width:calc(100vw - 32px);height:min(560px,70vh);background:#FFFFFF;border:1.5px solid #222222;border-radius:12px;box-shadow:3px 3px 0 #222222;z-index:61;display:none;flex-direction:column;overflow:hidden}
 #tutor-overlay #ai-panel.on{display:flex}
 #tutor-overlay .ai-hd{display:flex;align-items:center;gap:8px;padding:.6rem .8rem;border-bottom:1.5px solid #222222;font-size:.9rem}
@@ -701,13 +715,32 @@ input, select, textarea { font-size: max(16px, 1em); }
     </div>
   </header>
   <nav class="t-nav">
-    <button class="t-tab-btn active" data-tgroup="today" onclick="tShowGroup('today')">오늘</button>
-    <button class="t-tab-btn" data-tgroup="rec" onclick="tShowGroup('rec')">수업 기록</button>
-    <button class="t-tab-btn" data-tgroup="sheets" onclick="tShowGroup('sheets')">문제지</button>
-    <button class="t-tab-btn" data-tgroup="student" onclick="tShowGroup('student')">학생</button>
-    <button class="t-tab-btn" data-tgroup="settings" onclick="tShowGroup('settings')">설정</button>
+    <button class="t-tab-btn active" data-tgroup="home" onclick="tShowGroup('home')">홈</button>
+    <button class="t-tab-btn" data-tgroup="drawer" onclick="tShowGroup('drawer')">≡ 서랍</button>
   </nav>
   <div class="t-area">
+
+    <!-- v10: 홈 — 3버튼 개편 (스펙: UX프로토타입_3버튼.html) -->
+    <div id="t-panel-home" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">오늘선생</div>
+      <div id="home-status" class="t-psub">TODAY</div>
+      <div id="home-actions" style="margin:1rem 0">
+        <button class="h-big" onclick="wzOpen()"><div class="t">수업 마침 → 문자</div><div class="d">진도·숙제·한마디 적으면 학부모 문자 완성 — 기록은 저절로</div></button>
+        <button class="h-big" onclick="qpickOpen()"><div class="t">문제 내기</div><div class="d">미모 · Gemini 새 문제 · 파일 — 한 곳에서</div></button>
+      </div>
+      <div class="t-card"><div class="t-ctitle">받은함</div><div id="home-inbox"></div></div>
+    </div>
+    </div>
+
+    <!-- v10: 서랍 — 나머지 기능 전부 -->
+    <div id="t-panel-drawer" class="t-panel">
+    <div class="t-tc">
+      <div class="t-ptitle">서랍</div>
+      <div class="t-psub">기능·데이터 전부 여기 삽니다</div>
+      <div class="t-card" id="drawer-list"></div>
+    </div>
+    </div>
 
     <!-- 수업 준비 -->
     <div id="t-panel-prep" class="t-panel">
@@ -1034,8 +1067,6 @@ input, select, textarea { font-size: max(16px, 1em); }
       <div class="t-mbg" id="v2-new-modal">
         <div class="t-modal">
           <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">새 문제지</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-new-modal').classList.remove('open')">✕</button></div>
-          <button class="t-btn t-btn-g" style="width:100%;justify-content:center;margin-bottom:.3rem" onclick="v3OpenGen('')">Gemini로 문제 만들기 (앱에서 바로)</button>
-          <div style="text-align:center;font-size:.7rem;color:#B9BCC2;margin-bottom:.5rem">— 또는 파일 업로드 —</div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">제목</label><input type="text" id="v2-title" placeholder="예: 도형의 대칭이동 기본 연습"></div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">정답 (쉼표로 구분 — 자동 채점용)</label><input type="text" id="v2-answers" placeholder="예: 2, 5, 1, 3, 7, 5"></div>
           <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">학습지 파일 (선택 — <b>PDF 권장</b>. Claude 학습지 HTML은 브라우저에서 ⌘P → "PDF로 저장" 후 업로드)</label><input type="file" id="v2-file" accept=".pdf,.html,.htm"></div>
@@ -1045,13 +1076,8 @@ input, select, textarea { font-size: max(16px, 1em); }
 
       <div class="t-card">
         <div class="t-ctitle">미니 모의고사 <span style="margin-left:auto;font-size:.68rem;color:#777777">매일 10문제 · 진도 나간 범위 복습</span></div>
-        <div style="font-size:.72rem;color:#777777;margin-bottom:.5rem">출제 범위 (지난 문제지·약점에서 자동 추천됨)</div>
-        <div id="mini-units" class="yex-units" style="margin-bottom:.6rem"></div>
-        <div class="t-fr">
-          <div class="t-fg"><label class="tl">며칠치</label><select id="mini-days"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
-        </div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.7rem">
-          <button class="t-btn t-btn-p" id="mini-go" onclick="miniCreate()">미모 만들기</button>
+          <button class="t-btn t-btn-p" onclick="qpickGo('mimo')">＋ 새 미모</button>
           <button class="t-btn t-btn-g" onclick="miniRefresh()">↺ 새로고침</button>
         </div>
         <div id="mini-list"></div>
@@ -1106,7 +1132,8 @@ input, select, textarea { font-size: max(16px, 1em); }
           <div style="display:flex;align-items:center;margin-bottom:.6rem"><b style="font-family:'Gowun Batang',serif" id="v2s-title"></b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-sub-modal').classList.remove('open')">✕</button></div>
           <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:.6rem"><span id="v2s-score" style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:1.5rem;font-weight:700"></span><span style="font-size:.74rem;color:#777777">자동 채점 · 열면 확인함 처리</span></div>
           <div id="v2s-marks" style="display:flex;flex-direction:column;gap:0;margin-bottom:.6rem"></div>
-          <div style="display:flex;gap:7px;align-items:center;margin-bottom:.8rem">
+          <div style="display:flex;gap:7px;align-items:center;margin-bottom:.8rem;flex-wrap:wrap">
+            <button class="t-btn t-btn-p t-btn-sm" id="v2s-sol-btn" onclick="v2SolFromSub()">✍ 풀이로 답하기</button>
             <button class="t-btn t-btn-p t-btn-sm" onclick="v2SaveComments()">한마디 저장 → 학생에게 보내기</button>
             <span style="font-size:.7rem;color:#777777">틀린 문항에 적으면 학생 오답 화면에 뜹니다</span>
           </div>
@@ -1324,7 +1351,7 @@ input, select, textarea { font-size: max(16px, 1em); }
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.3 (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 홈 [문제 내기]의 <b>Gemini로 새 문제</b>와 미모 만들기가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 <span id="t6-ver"></span> (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1391,6 +1418,32 @@ input, select, textarea { font-size: max(16px, 1em); }
     <span class="t-lbclose" onclick="tCloseLightbox()">✕</span>
     <img id="t-lightbox-img" src="" alt="">
   </div>
+  <!-- v10: 문제 내기 통합 시트 (홈 버튼 ②) -->
+  <div class="t-mbg" id="qpick-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="t-modal" style="max-width:430px">
+      <div style="display:flex;align-items:center"><b style="font-family:'Gowun Batang',serif">문제 내기</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('qpick-modal').classList.remove('open')">✕</button></div>
+      <div class="dr-row qp-row main" onclick="qpickGo('mimo')">
+        <div><div class="t">미니 모의고사 만들기 <span style="font-size:.62rem;border:1.5px solid #222222;border-radius:5px;padding:.05rem .35rem;vertical-align:2px">기본</span></div><div class="d">매일 10문제 · 배운 범위에서 자동 추천</div></div><span class="arr">›</span></div>
+      <div class="dr-row qp-row" onclick="qpickGo('gen')">
+        <div><div class="t">Gemini로 새 문제</div><div class="d">단원 골라 생성 → 검수 → 전송</div></div><span class="arr">›</span></div>
+      <div class="dr-row qp-row" onclick="qpickGo('file')">
+        <div><div class="t">파일 올리기</div><div class="d">PDF + 정답 입력 → 자동 채점</div></div><span class="arr">›</span></div>
+    </div>
+  </div>
+
+  <!-- v10: 미모 만들기 모달 (구 tab2 카드의 생성 컨트롤 이주 — id 그대로) -->
+  <div class="t-mbg" id="mimo-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="t-modal" style="max-width:430px">
+      <div style="display:flex;align-items:center"><b style="font-family:'Gowun Batang',serif">미모 만들기</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('mimo-modal').classList.remove('open')">✕</button></div>
+      <div style="font-size:.72rem;color:#777777;margin:.3rem 0 .6rem">출제 범위 — 지난 문제지·약점에서 자동 추천됩니다</div>
+      <div id="mini-units" class="yex-units" style="margin-bottom:.6rem"></div>
+      <div class="t-fr">
+        <div class="t-fg"><label class="tl">며칠치</label><select id="mini-days"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
+      </div>
+      <button class="t-btn t-btn-p" id="mini-go" style="width:100%;justify-content:center;margin-top:.5rem" onclick="miniCreate()">미모 만들기</button>
+    </div>
+  </div>
+
   <!-- toast -->
   <div id="t-toast"></div>
 </div><!-- /tutor-overlay -->
@@ -1822,18 +1875,22 @@ function chM(which,delta){ const c=calM[which]; calM[which]=new Date(c.getFullYe
 /* ── 탭 전환 ── */
 let tCurrentTab='dashboard';
 let tCurGroup='today';
-/* v1.5: 9탭 → 5그룹. 한 그룹 = 기존 패널 여러 개를 세로로 쌓아 보여준다 */
-const TGROUPS={today:['dashboard','prep'],rec:['tab3','tab4'],sheets:['tab2'],student:['tab1','tab7','tab5'],settings:['tab6']};
-const TID2G={dashboard:'today',prep:'today',tab1:'student',tab2:'sheets',tab3:'rec',tab4:'rec',tab5:'student',tab6:'settings',tab7:'student'};
+/* v10: 홈+서랍 2탭. 기존 그룹(rec·sheets·student·settings)은 서랍의 하위 화면으로 산다 */
+const TGROUPS={home:['home'],drawer:['drawer'],rec:['tab3','tab4'],sheets:['tab2'],student:['tab1','tab7','tab5'],settings:['tab6'],prep:['prep']};
+const TID2G={dashboard:'home',prep:'prep',tab1:'student',tab2:'sheets',tab3:'rec',tab4:'rec',tab5:'student',tab6:'settings',tab7:'student'};
 function tShowGroup(g){
-  if(!TGROUPS[g])g='today';
+  if(g==='today')g='home';               // 구버전 호출 호환
+  if(!TGROUPS[g])g='home';
   document.querySelectorAll('.t-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.t-tab-btn').forEach(b=>b.classList.remove('active'));
   TGROUPS[g].forEach(id=>{const p=document.getElementById('t-panel-'+id);if(p)p.classList.add('active');});
-  const b=document.querySelector(`[data-tgroup="${g}"]`);if(b)b.classList.add('active');
+  /* 탭바는 홈/서랍 둘뿐 — 서랍 하위 화면에선 서랍이 켜져 있고, 누르면 서랍 목록으로 돌아간다 */
+  const ng=(g==='home')?'home':'drawer';
+  const b=document.querySelector(`[data-tgroup="${ng}"]`);if(b)b.classList.add('active');
   tCurrentTab=TGROUPS[g][0]; tCurGroup=g;
-  if(g==='today') tDashRefresh();
-  if(g==='today'){ try{v2DashAlert()}catch(e){} try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){} }
+  if(g==='home'){ tDashRefresh(); try{v2DashAlert()}catch(e){} try{rmRefreshFacts()}catch(e){} }
+  if(g==='drawer') try{drawerRender()}catch(e){}
+  if(g==='prep') try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){}
   if(g==='sheets') try{v2Render();miniRenderUnits();miniRefresh();}catch(e){}
   if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} try{pushRenderT();pushLoadHour();pushEnsureT()}catch(e){} }
   if(g==='student') t7Render();
@@ -1930,13 +1987,18 @@ let tInited=false;
 function tInit(){
   if(tInited) return;
   tInited=true;
-  // v1.5: 그룹 내 표시 순서대로 패널 DOM 재배치 (오늘=대시보드→준비, 학생=정보→성적→약점)
-  const ORDER=['dashboard','prep','tab3','tab4','tab2','tab1','tab7','tab5','tab6'];
+  // v1.5: 그룹 내 표시 순서대로 패널 DOM 재배치 (학생=정보→성적→약점)
+  const ORDER=['home','drawer','dashboard','prep','tab3','tab4','tab2','tab1','tab7','tab5','tab6'];
   const wrap=document.getElementById('t-panel-dashboard').parentElement;
   ORDER.forEach(id=>{const p=document.getElementById('t-panel-'+id);if(p)wrap.appendChild(p);});
+  /* v10: 숨은 패널 안에 갇히면 안 되는 모달·AI를 오버레이 루트로 (v2-q-modal과 같은 관례) */
+  ['wz-modal-bg','v2-sub-modal','v2-new-modal','v3-gen-modal','v3-view-modal','ai-fab','ai-panel'].forEach(function(id){
+    var m=document.getElementById(id); if(m) document.getElementById('tutor-overlay').appendChild(m);
+  });
   tplLoad();
   t1Load(); t2Load(); t3Load(); t4Load(); t5Load(); t7Load();
-  tShowGroup('today');
+  try{document.getElementById('t6-ver').textContent='v'+APP_VER}catch(e){}
+  tShowGroup('home');
 }
 
 /* ── 대시보드 ── */
@@ -2827,8 +2889,21 @@ async function v2OpenSub(i){   /* i = worksheet id */
     </div>`;
   }).join('');
   document.getElementById('v2s-photos').innerHTML=(sub.photo_paths||[]).map(p=>`<img src="${v2PhotoUrl(p)}" style="max-width:100%;border:1.5px solid #222222;border-radius:8px" loading="lazy">`).join('')||'<div style="font-size:.76rem;color:#777777">사진 없음</div>';
+  /* v10: 확인한 자리에서 바로 풀이로 답한다 — PDF 문제지일 때만 */
+  var solBtn=document.getElementById('v2s-sol-btn');
+  if(solBtn){
+    var hasPdf=/\.pdf$/i.test(String(v2cur.html_path||''));
+    solBtn.style.display=hasPdf?'':'none';
+    solBtn.textContent=v2cur.solution_path?'✍ 풀이 수정하기':'✍ 풀이로 답하기';
+  }
   document.getElementById('v2-sub-modal').classList.add('open');
   if(v2cur.status==='submitted'){try{await v2Seen(v2cur.id);v2cur.status='seen';v2Render();v2DashAlert();}catch(e){}}
+}
+/* v10: 제출 상세 → 손풀이 직행 (pdf 아니면 solOpen이 스스로 거른다) */
+function v2SolFromSub(){
+  if(!v2cur)return;
+  document.getElementById('v2-sub-modal').classList.remove('open');
+  solOpen(v2cur.id);
 }
 async function v2SaveComments(){
   if(!v2cur){return}
@@ -2854,7 +2929,8 @@ async function v2SaveComments(){
 }
 
 async function v2DashAlert(){
-  const el=document.getElementById('v2-dash-alert');if(!el)return;
+  /* v10: 받은함 — 홈 패널에 그린다 (구 대시보드 자리는 폴백) */
+  const el=document.getElementById('home-inbox')||document.getElementById('v2-dash-alert');if(!el)return;
   let rows=[],qs=[];
   try{rows=await v2List();v2rows=rows;}catch(e){}
   try{qs=await v2ListQuestions()}catch(e){}
@@ -2870,12 +2946,50 @@ async function v2DashAlert(){
         <div style="font-size:.82rem;font-weight:700">${tag} 제출 — ${tEscH(w.title)}</div>
         <div style="font-size:.72rem;color:#777777">${sb.score?'점수 '+tEscH(sb.score)+' · ':''}손풀이 ${(sb.photo_paths||[]).length}장${when?' · '+when:''} — 눌러서 채점 결과 보기</div></div>`;
     }).join('');
-    if(un.length>4)html+=`<div style="font-size:.72rem;color:#777777;margin-bottom:.6rem">외 ${un.length-4}건은 문제지·자료 탭에서</div>`;
+    if(un.length>4)html+=`<div style="font-size:.72rem;color:#777777;margin-bottom:.6rem">외 ${un.length-4}건은 서랍 › 문제지 전체 목록에서</div>`;
   }
   if(uq.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:0" onclick="v2OpenQuestions()">
     <div style="font-size:.82rem;font-weight:700">${tStudentCall()}의 질문 ${uq.length}건</div>
     <div style="font-size:.72rem;color:#777777">"${tEscH((uq[0].note||'').slice(0,42))}${(uq[0].note||'').length>42?'…':''}"</div></div>`;
+  if(!html) html='<div style="border:1.5px dashed #D8DADF;border-radius:10px;padding:1rem;text-align:center;font-size:.78rem;color:#777777">새로 온 것 없음 — 제출·질문이 오면 여기 떠요</div>';
   el.innerHTML=html;
+  try{homeStatus(rows)}catch(e){}
+}
+/* v10: 홈 상태줄 — 시험 D-day + 오늘 미모 상태 */
+function homeStatus(rows){
+  var el=document.getElementById('home-status'); if(!el)return;
+  var parts=[];
+  try{ var f=rmFacts(); if(f&&f.ex) parts.push(tEscH(f.ex.ttl)+' <b>'+tEscH(f.ex.dt)+'</b> · 남은 수업 '+f.dates.length+'회'); }catch(e){}
+  try{
+    var today=_ymd(new Date());
+    var m=(rows||[]).find(function(w){return w.kind==='mini'&&String(w.serve_date||'')===today});
+    if(m) parts.push('오늘 미모 '+(m.solution_path?'풀이 보냄 ✓':(m.status==='submitted'?'제출됨':(m.status==='seen'?'확인함':'대기'))));
+  }catch(e){}
+  el.innerHTML=parts.join(' · ')||'TODAY';
+}
+/* v10: 서랍 목록 */
+function drawerRender(){
+  var el=document.getElementById('drawer-list'); if(!el)return;
+  var rows=[
+    ['rec','수업 기록','진도 회차별 + 학부모 문자 보관 (검색·복사)'],
+    ['student','학생','기본 정보 · 성적 트래커 · 약점 기록소'],
+    ['sheets','문제지 전체 목록','보낸 문제지·미모 · 상태 · 질문함 · 손풀이'],
+    ['ai','AI 조교','이번 주 뭐 할까 · 오답 진단 · 문자 다듬기'],
+    ['prep','수업 로드맵','시험까지 회차 계획 · 시험 일정'],
+    ['settings','설정','문자 템플릿 · 태블릿 연동 · 알림 · 백업'],
+  ];
+  el.innerHTML=rows.map(function(r){
+    var act=r[0]==='ai'?"aiToggle(true)":"tShowGroup('"+r[0]+"')";
+    return '<div class="dr-row" onclick="'+act+'"><div><div class="t">'+r[1]+'</div><div class="d">'+r[2]+'</div></div><span class="arr">›</span></div>';
+  }).join('');
+}
+/* v10: 문제 내기 통합 시트 — 미모(기본)·Gemini·파일 한 입구 (게이트 결정 ③) */
+function qpickOpen(){document.getElementById('qpick-modal').classList.add('open')}
+function qpickGo(k){
+  document.getElementById('qpick-modal').classList.remove('open');
+  if(k==='mimo'){ try{miniRenderUnits()}catch(e){} document.getElementById('mimo-modal').classList.add('open'); }
+  else if(k==='gen'){ v3OpenGen(''); }
+  else { v2OpenNew(); }
 }
 /* 학생이 보내면 대시보드에 바로 뜨게 — 앱이 열려 있는 동안 주기 확인 + 앱으로 돌아올 때 즉시 */
 let _dashSeen=null, _dashTimer=null;
@@ -3163,7 +3277,7 @@ async function miniCreate(){
     }catch(e){ tShowToast('❗ '+dates[i]+' 실패: '+e.message,4000); break; }
   }
   btn.disabled=false; btn.textContent='미모 만들기';
-  if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); v2Render(); miniRefresh(); }
+  if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); document.getElementById('mimo-modal').classList.remove('open'); v2Render(); miniRefresh(); }
 }
 
 /* ═══════════ 미모 손풀이 — 리프 annotation.js 이식 ═══════════
@@ -3218,8 +3332,8 @@ function solTrimToolbar(){
 async function solOpen(id){
   var w=(v2rows||[]).find(function(x){return String(x.id)===String(id)});
   if(!w){ try{ v2rows=await v2List(); }catch(e){} w=(v2rows||[]).find(function(x){return String(x.id)===String(id)}); }
-  if(!w){ tShowToast('❗ 미모를 찾을 수 없어요'); return; }
-  if(!w.html_path||!/\.pdf$/i.test(w.html_path)){ tShowToast('❗ PDF 문제지가 있는 미모에서만 됩니다',4000); return; }
+  if(!w){ tShowToast('❗ 문제지를 찾을 수 없어요'); return; }
+  if(!w.html_path||!/\.pdf$/i.test(w.html_path)){ tShowToast('❗ PDF 문제지에서만 손풀이를 쓸 수 있어요',4000); return; }
   SOL.w=w; SOL.dirty=false;
   document.getElementById('sol-title').textContent=w.title+' — 손풀이';
   var vv=document.getElementById('sol-ver'); if(vv)vv.textContent='v'+APP_VER;
@@ -3577,7 +3691,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='9.0';
+var APP_VER='10.0';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
@@ -3821,6 +3935,18 @@ function v3SimilarFromWrong(){
 
 // v2 초기화 — 모든 선언이 끝난 스크립트 최하단에서 실행 (TDZ 회피)
 try{v2LoadCfg();v2Render();v2DashAlert();dashAutoStart();updateCloudStatus(syncAvailable()?'idle':'nourl');}catch(e){}
+
+/* v10: 푸시 딥링크 — ?open=q(질문함) / ?open=<worksheet id>(제출 상세). SW postMessage로도 받는다 */
+function deepOpen(v){
+  if(!v)return;
+  if(v==='q'){ try{v2OpenQuestions()}catch(e){} }
+  else { try{v2OpenSub(v)}catch(e){} }
+}
+try{
+  var _dl=new URLSearchParams(location.search).get('open');
+  if(_dl){ setTimeout(function(){deepOpen(_dl)},400); history.replaceState(null,'',location.pathname); }
+  if(navigator.serviceWorker) navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.open) deepOpen(e.data.open); });
+}catch(e){}
 </script>
 
 
