@@ -1463,7 +1463,7 @@ input, select, textarea { font-size: max(16px, 1em); }
   </div>
   <!-- 아래 구조·id는 리프 조작 엔진(vendor/leaf-zoom.js)의 계약이다. 바꾸지 말 것.
        #left{touch-action:none} 이 자체 스크롤러의 전제 — 지우면 iOS가 다시 공동 주인이 된다. -->
-  <div id="main"><div id="left"><div id="pdfStage"><div class="pdf-page" id="sol-page"></div></div></div></div>
+  <div id="main"><div id="left"><div id="pdfStage"></div></div></div>
 </div>
 
 <!-- TRASH -->
@@ -3285,7 +3285,7 @@ async function miniCreate(){
    · 리프 서버(/api/ink)는 S.doc 이 null 이면 호출 자체가 없다 → loadInk 를 부르지 않는 것으로 차단.
    · 줌/팬은 리프 viewer.js 대신 여기서 새로 쓴다 (그쪽은 리프 뷰어 DOM에 얽혀 있음).
      annotation.js 는 window.__pdfZoom / __pdfPinching 숫자만 읽으므로 그 값만 채워주면 맞물린다. */
-var SOL = { w:null, page:null, cssW:0, cssH:0, fitZ:1, loaded:false, dirty:false };
+var SOL = { w:null, pages:[], cssW:0, cssH:0, fitZ:1, loaded:false, dirty:false };
 
 function solLoadScript(src){
   return new Promise(function(res,rej){
@@ -3345,13 +3345,15 @@ async function solOpen(id){
     await solLoadScript('vendor/annotation.js');
     await solRenderPdf(w);
     await solLoadScript('vendor/leaf-zoom.js');      // 줌·팬 엔진 (리프 원문)
-    Annot.ensureOverlay(document.getElementById('sol-page'), 1, true);
+    SOL.pages.forEach(function(P,i){ Annot.ensureOverlay(P.div, i+1, true); });
     Annot.setEnabled(true); Annot.setTool('pen');
     solTrimToolbar();
     setTimeout(solTrimToolbar, 350);   // 펼침이 반영된 뒤 한 번 더 (되돌리기 버튼이 그때 생긴다)
     /* 전에 그려둔 필기가 있으면 되살린다 */
-    if(w.solution_ink && w.solution_ink.length){
-      Annot.commitPage(1, w.solution_ink, {snapshot:false});
+    var ink=w.solution_ink;
+    if(ink && (Array.isArray(ink)?ink.length:Object.keys(ink).length)){
+      if(Array.isArray(ink)){ Annot.commitPage(1, ink, {snapshot:false}); }   // 예전 1쪽 포맷
+      else { Object.keys(ink).forEach(function(k){ if(ink[k]&&ink[k].length) Annot.commitPage(parseInt(k,10), ink[k], {snapshot:false}); }); }
       Annot.refresh();
       document.getElementById('sol-state').textContent='전에 그린 풀이를 불러왔어요';
     }else{
@@ -3369,14 +3371,21 @@ async function solRenderPdf(w){
   lib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js';
   var url=v2sb.storage.from('worksheets').getPublicUrl(w.html_path).data.publicUrl;
   var doc=await lib.getDocument({url:url}).promise;
-  SOL.page=await doc.getPage(1);
-  var base=SOL.page.getViewport({scale:1});
-  SOL.cssW=Math.round(base.width); SOL.cssH=Math.round(base.height);   // 레이아웃 크기는 고정 (필기 좌표의 기준)
-  var pg=document.getElementById('sol-page');
-  pg.innerHTML='';
-  var c=document.createElement('canvas');
-  c.id='sol-pdfcanvas';       // 크기는 CSS(.pdf-page canvas{width:100%;height:auto})가 정한다
-  pg.appendChild(c);
+  var stage=document.getElementById('pdfStage');
+  stage.innerHTML='';
+  SOL.pages=[];
+  /* 문제지가 여러 쪽일 수 있다 (행렬 집중처럼 개념 상자가 길면 2쪽) — 전부 그린다 */
+  for(var n=1;n<=doc.numPages;n++){
+    var page=await doc.getPage(n);
+    var base=page.getViewport({scale:1});
+    var div=document.createElement('div');
+    div.className='pdf-page';                     // leaf-zoom 엔진·CSS 계약
+    var c=document.createElement('canvas');       // 크기는 CSS(width:100%;height:auto)가 정한다
+    div.appendChild(c);
+    stage.appendChild(div);
+    SOL.pages.push({page:page, canvas:c, div:div, cssW:Math.round(base.width), cssH:Math.round(base.height), renderQ:0});
+  }
+  SOL.cssW=SOL.pages[0].cssW; SOL.cssH=SOL.pages[0].cssH;   // 맞춤 계산 기준 = 1쪽
   await solRenderAt(2);
   SOL.loaded=true;
 }
@@ -3384,18 +3393,20 @@ async function solRenderPdf(w){
    캔버스의 CSS 크기(레이아웃)는 그대로 두고 뒷면 해상도만 올리므로 필기 좌표는 영향 없음. */
 var SOL_MAXPX = 12e6;   // iPad Safari 캔버스 상한(≈16.7M) 아래로 — 넘기면 캔버스가 통째로 빈다
 async function solRenderAt(q){
-  if(!SOL.page)return;
-  var qMax = Math.sqrt(SOL_MAXPX/Math.max(1, SOL.cssW*SOL.cssH));
-  q=Math.max(1.5, Math.min(qMax, q));
-  if(SOL.renderQ && Math.abs(SOL.renderQ-q)<0.25)return;   // 미세한 변화로는 다시 안 그린다
+  if(!SOL.pages||!SOL.pages.length)return;
   if(SOL.rendering)return;
   SOL.rendering=true;
   try{
-    var c=document.getElementById('sol-pdfcanvas'); if(!c)return;
-    var vp=SOL.page.getViewport({scale:q});
-    c.width=Math.round(vp.width); c.height=Math.round(vp.height);
-    await SOL.page.render({canvasContext:c.getContext('2d'), viewport:vp}).promise;
-    SOL.renderQ=q;
+    for(var i=0;i<SOL.pages.length;i++){
+      var P=SOL.pages[i];
+      var qMax=Math.sqrt(SOL_MAXPX/Math.max(1, P.cssW*P.cssH));   // 페이지당 픽셀 상한
+      var qi=Math.max(1.5, Math.min(qMax, q));
+      if(P.renderQ && Math.abs(P.renderQ-qi)<0.25)continue;        // 미세한 변화는 건너뜀
+      var vp=P.page.getViewport({scale:qi});
+      P.canvas.width=Math.round(vp.width); P.canvas.height=Math.round(vp.height);
+      await P.page.render({canvasContext:P.canvas.getContext('2d'), viewport:vp}).promise;
+      P.renderQ=qi;
+    }
   }catch(e){}finally{ SOL.rendering=false; }
 }
 
@@ -3409,7 +3420,7 @@ async function solRenderAt(q){
    조작엔진-현황.md 불변식 3: 제스처 중에는 무거운 일을 하지 않는다 —
    재렌더는 엔진이 배율을 확정한 뒤 rerenderPagesForZoom() 으로 한 번만 부른다. */
 function rerenderPagesForZoom(){
-  if(!SOL.page)return;
+  if(!SOL.pages||!SOL.pages.length)return;
   var dpr=Math.min(2, window.devicePixelRatio||1);
   solRenderAt((window.__pdfZoom||1)*SOL.fitZ*dpr);
   /* 리프에서는 페이지를 다시 그리면 오버레이도 함께 다시 붙는다.
@@ -3418,7 +3429,7 @@ function rerenderPagesForZoom(){
 }
 /* 화면 맞춤 배율(=엔진 배율 1일 때의 실제 확대율)을 재어 둔다 — 재렌더 해상도 계산용 */
 function solMeasureFit(){
-  var c=document.getElementById('sol-pdfcanvas');
+  var c=SOL.pages&&SOL.pages[0]&&SOL.pages[0].canvas;
   SOL.fitZ = (c && SOL.cssW) ? (c.getBoundingClientRect().width/SOL.cssW) : 1;
 }
 function solZoomTo(z){ try{ window.__setPdfZoom(z); }catch(e){} }
@@ -3427,7 +3438,7 @@ function solFit(){      /* 전체 맞춤 = 엔진 기준 배율 1 */
   var b=document.getElementById('left'); if(b)b.scrollTop=0;
 }
 function solFitWidth(){ /* 폭 맞춤 — #pdfStage 가 95%/820px 상한이므로 그 비율만큼 키운다 */
-  var box=document.getElementById('left'), pg=document.getElementById('sol-page');
+  var box=document.getElementById('left'), pg=SOL.pages&&SOL.pages[0]&&SOL.pages[0].div;
   if(!box||!pg)return;
   var cur=window.__pdfZoom||1;
   var avail=box.clientWidth-28;                       // #left 좌우 패딩 14px
@@ -3444,28 +3455,43 @@ function solClose(){
 /* ── 합성 → 업로드 → 전송 ─────────────────────────────────── */
 async function solSend(){
   if(!SOL.w){return}
-  var pg=document.getElementById('sol-page'), src=pg.querySelector('canvas');
-  if(!src){ tShowToast('❗ 문제지가 아직 안 떴어요'); return; }
-  var ink=(Annot.getPages()[1]||[]);
-  if(!ink.length && !confirm('아직 아무것도 안 쓰셨어요. 그래도 보낼까요?')) return;
+  if(!SOL.pages||!SOL.pages.length){ tShowToast('❗ 문제지가 아직 안 떴어요'); return; }
+  var allInk=Annot.getPages()||{};
+  var inkCount=0; SOL.pages.forEach(function(_,i){ inkCount+=(allInk[i+1]||[]).length; });
+  if(!inkCount && !confirm('아직 아무것도 안 쓰셨어요. 그래도 보낼까요?')) return;
   var btn=document.getElementById('sol-send'); btn.disabled=true; btn.textContent='보내는 중…';
   try{
-    /* 문제지 + 필기를 한 장으로 합성 (Annot.renderPageToCanvas 가 정규화 좌표를 픽셀로 그려준다) */
+    /* 전 페이지를 세로로 이어 한 장으로 합성 — 회차당 1장 원칙 유지.
+       (Annot.renderPageToCanvas 가 페이지별 정규화 좌표를 픽셀로 그려준다) */
+    var GAP=24;
+    var W=Math.max.apply(null, SOL.pages.map(function(P){return P.canvas.width}));
+    var H=SOL.pages.reduce(function(a,P){return a+Math.round(P.canvas.height*(W/P.canvas.width))},0)+GAP*(SOL.pages.length-1);
     var out=document.createElement('canvas');
-    out.width=src.width; out.height=src.height;
+    out.width=W; out.height=H;
     var ctx=out.getContext('2d');
-    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,out.width,out.height);
-    ctx.drawImage(src,0,0,out.width,out.height);
-    Annot.renderPageToCanvas(1, ctx, out.width, out.height);
+    ctx.fillStyle='#eceff1'; ctx.fillRect(0,0,W,H);
+    var y=0;
+    for(var pi=0;pi<SOL.pages.length;pi++){
+      var P=SOL.pages[pi];
+      var h=Math.round(P.canvas.height*(W/P.canvas.width));
+      ctx.fillStyle='#ffffff'; ctx.fillRect(0,y,W,h);
+      ctx.drawImage(P.canvas,0,y,W,h);
+      ctx.save(); ctx.translate(0,y);
+      Annot.renderPageToCanvas(pi+1, ctx, W, h);
+      ctx.restore();
+      y+=h+GAP;
+    }
     var blob=await new Promise(function(r){ out.toBlob(r,'image/jpeg',0.88); });
     var path=v2Pair()+'/solution_'+(SOL.w.serve_date||SOL.w.id)+'_'+Date.now()+'.jpg';
     var up=await v2sb.storage.from('worksheets').upload(path, blob, {contentType:'image/jpeg', upsert:true});
     if(up.error)throw up.error;
+    var inkSave={};
+    SOL.pages.forEach(function(_,i){ if((allInk[i+1]||[]).length) inkSave[String(i+1)]=allInk[i+1]; });
     var r=await v2sb.from('worksheets').update({
-      solution_path:path, solution_ink:ink, solution_at:new Date().toISOString()
+      solution_path:path, solution_ink:inkSave, solution_at:new Date().toISOString()
     }).eq('id', SOL.w.id);
     if(r.error)throw r.error;
-    SOL.w.solution_path=path; SOL.w.solution_ink=ink;
+    SOL.w.solution_path=path; SOL.w.solution_ink=inkSave;
     tShowToast('✅ 보냈어요 — 윤서 제출함에 [쌤 풀이]로 뜹니다', 4000);
     pushNotify('solution',{sheet:SOL.w.title});
     document.getElementById('sol-state').textContent='보냄 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
