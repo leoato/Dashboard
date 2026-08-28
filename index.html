@@ -2835,6 +2835,7 @@ async function v2Render(){
       <div style="flex:1;min-width:0"><b style="font-size:.8rem">${tEscH(w.title)}</b>
       <div style="font-size:.7rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
       ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet('${w.id}')">정답지</button>`:''}
+      ${/\.pdf$/i.test(String(w.html_path||''))?`<button class="t-btn ${w.solution_path?'t-btn-p':'t-btn-g'} t-btn-sm" onclick="event.stopPropagation();solOpen('${w.id}')">${w.solution_path?'손풀이 수정':'손풀이'}</button>`:''}
       <span class="t-lbadge" style="${w.status==='submitted'?'background:#222222;color:#fff':''}">${st}</span></div>`;
   }).join(''):'<div style="font-size:.76rem;color:#777777">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
 }
@@ -3508,7 +3509,7 @@ async function miniExtend(id){
   try{
     const rows=await v2List();
     const w=rows.find(function(x){return String(x.id)===String(id)});
-    if(!w){tShowToast('❗ 미모를 찾을 수 없어요');return}
+    if(!w){tShowToast('❗ 문제지를 찾을 수 없어요');return}
     const today=_ymd(new Date());
     let base=(String(w.open_until||'')>=today)?String(w.open_until):null;
     let d;
@@ -3717,7 +3718,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='10.1';
+var APP_VER='10.2';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
