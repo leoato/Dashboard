@@ -357,7 +357,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.4';
+var APP_VER='7.5';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -679,6 +679,7 @@ function openNewList(){
     return `<div class="row" onclick="pickNew('${w.id}',this)" style="cursor:pointer">
       <div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b>${latest?' <span class="badge-new">최신</span>':''}
       <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${w.answer_key?' · '+w.answer_key.length+'문제':''}</div></div>
+      ${w.solution_path?`<button class="btn sm pri" onclick="event.stopPropagation();openSolution('${w.id}')">쌤 풀이</button>`:''}
       <span class="chip">미리보기 →</span></div>`;
   }).join(''):'<div class="muted" style="padding:12px 4px">새 문제지가 없어요 — 다 풀었다! 🎉</div>';
   $('preview-wrap').hidden=true;
@@ -899,7 +900,7 @@ function openWrong1(){
 function wrong1Open(id){
   const w=rows.find(x=>x.id===id);if(!w)return;
   const sub=latestSub(w);
-  const list=(sub.marks||[]).map((m,i)=>m==='X'&&w.problems[i]?{...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i}:null).filter(Boolean);
+  const list=(sub.marks||[]).map((m,i)=>m==='X'&&w.problems[i]?{...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i,tcom:((sub.comments||[])[i]||'')}:null).filter(Boolean);
   openWrongView(list,w.title);
 }
 function openWrongView(list,title){
