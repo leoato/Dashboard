@@ -1428,6 +1428,8 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div><div class="t">Gemini로 새 문제</div><div class="d">단원 골라 생성 → 검수 → 전송</div></div><span class="arr">›</span></div>
       <div class="dr-row qp-row" onclick="qpickGo('file')">
         <div><div class="t">파일 올리기</div><div class="d">PDF + 정답 입력 → 자동 채점</div></div><span class="arr">›</span></div>
+      <div class="dr-row qp-row" onclick="wrOpen()">
+        <div><div class="t">오답 모아 풀기</div><div class="d">틀렸던 문제만 자동으로 모아 손풀이로</div></div><span class="arr">›</span></div>
     </div>
   </div>
 
@@ -2831,11 +2833,14 @@ async function v2Render(){
   box.innerHTML=v2rows.length?v2rows.map((w,i)=>{
     const sub=(w.submissions||[])[0];
     const st=w.status==='assigned'?'배정됨':w.status==='submitted'?'제출됨':'확인함';
+    const hasPdf=/\.pdf$/i.test(String(w.html_path||''));
+    const isWrongSet=!hasPdf&&/^\[오답 모음\]/.test(w.title||'')&&w.problems&&w.problems.length;
+    const solveFn=hasPdf?`solOpen('${w.id}')`:(isWrongSet?`wrReopen('${w.id}')`:'');
     return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #D8DADF;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub('${w.id}')"`:''}>
       <div style="flex:1;min-width:0"><b style="font-size:.8rem">${tEscH(w.title)}</b>
       <div style="font-size:.7rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
       ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet('${w.id}')">정답지</button>`:''}
-      ${/\.pdf$/i.test(String(w.html_path||''))?`<button class="t-btn ${w.solution_path?'t-btn-p':'t-btn-g'} t-btn-sm" onclick="event.stopPropagation();solOpen('${w.id}')">${w.solution_path?'손풀이 수정':'손풀이'}</button>`:''}
+      ${solveFn?`<button class="t-btn ${w.solution_path?'t-btn-p':'t-btn-g'} t-btn-sm" onclick="event.stopPropagation();${solveFn}">${w.solution_path?'손풀이 수정':'손풀이'}</button>`:''}
       <span class="t-lbadge" style="${w.status==='submitted'?'background:#222222;color:#fff':''}">${st}</span></div>`;
   }).join(''):'<div style="font-size:.76rem;color:#777777">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
 }
@@ -3330,6 +3335,146 @@ function solTrimToolbar(){
   });
 }
 
+/* ═══ 오답 자동 모아 손풀이 ═══
+   윤서가 이미 확인된(status:'seen') 문제지·미모에서 틀렸던 문제만 모아
+   PDF 없이 곧장 손풀이 화면에 띄운다. 문항 HTML을 SVG foreignObject 로
+   캔버스에 래스터화해 pdf.js 문서와 같은 getViewport/render 인터페이스를
+   흉내내므로, 기존 solRenderAt·손풀이 파이프라인(줌·필기·전송)을 그대로 탄다. */
+function wrGather(){
+  var out=[], seen={};
+  (v2rows||[]).forEach(function(w){
+    if(w.status!=='seen'||!w.problems||!w.problems.length) return;
+    if(/^\[오답 모음\]/.test(w.title||'')) return;   // 오답모음 자체는 재수집 제외
+    var sub=(w.submissions||[])[0]; if(!sub||!sub.marks) return;
+    sub.marks.forEach(function(m,i){
+      if(m!=='X'||!w.problems[i]) return;
+      var key=String(w.problems[i].q||'').replace(/\s+/g,'');
+      if(!key||seen[key]) return; seen[key]=1;
+      out.push({q:w.problems[i].q, choices:w.problems[i].choices||null,
+        answer:w.problems[i].answer, solution:w.problems[i].solution||'',
+        unit:w.problems[i].unit||null});
+    });
+  });
+  return out;
+}
+function wrBuildHtml(list){
+  var C=['①','②','③','④','⑤'];
+  return list.map(function(p,i){
+    var opts=p.choices?('<div style="margin-top:4px">'+p.choices.map(function(c,j){return '<span style="margin-right:14px;white-space:nowrap">'+C[j]+' '+tEscH(c)+'</span>'}).join('')+'</div>'):'';
+    return '<div style="margin-bottom:22px;padding-bottom:14px;border-bottom:1.5px dashed #ccc">'
+      +'<div><b style="color:#3d5a2e">'+String(i+1).padStart(2,'0')+'.</b> '+tEscH(p.q)+'</div>'+opts+'</div>';
+  }).join('');
+}
+/* pdf.js Page 와 같은 인터페이스({getViewport,render})를 흉내내는 가짜 페이지 —
+   HTML 문자열을 SVG foreignObject 로 감싸 <img> 로 로드한 뒤 캔버스에 그린다.
+   웹폰트는 이 경로에서 못 불러오므로 처음부터 시스템 한글 폰트 스택만 쓴다
+   (mock20 등 기존 인쇄용 문서와 동일 스택 — iOS 기본 CJK 폰트로 정상 렌더). */
+function wrFakePage(bodyHtml, cssW){
+  var cssH=null;
+  function measure(){
+    if(cssH!=null) return cssH;
+    var m=document.createElement('div');
+    m.style.cssText='position:fixed;left:-99999px;top:0;width:'+cssW+'px;box-sizing:border-box;'
+      +'padding:26px;background:#fff;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;'
+      +'font-size:15px;line-height:1.6;color:#1a1a1a';
+    m.innerHTML=bodyHtml;
+    document.body.appendChild(m);
+    cssH=Math.max(200, m.scrollHeight);
+    document.body.removeChild(m);
+    return cssH;
+  }
+  return {
+    getViewport: function(opt){
+      var scale=(opt&&opt.scale)||1;
+      return { width: cssW*scale, height: measure()*scale };
+    },
+    render: function(opt){
+      var vp=opt.viewport, ctx=opt.canvasContext;
+      var w=vp.width, h=vp.height;
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+        +'<foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" '
+        +'style="width:'+cssW+'px;transform:scale('+(w/cssW)+');transform-origin:top left;background:#fff;'
+        +'box-sizing:border-box;padding:26px;font-family:&quot;Apple SD Gothic Neo&quot;,&quot;Malgun Gothic&quot;,sans-serif;'
+        +'font-size:15px;line-height:1.6;color:#1a1a1a">'+bodyHtml+'</div></foreignObject></svg>';
+      var img=new Image();
+      var url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      return new Promise(function(res,rej){
+        img.onload=function(){ ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h); res(); };
+        img.onerror=function(){ rej(new Error('오답 모음 렌더 실패')); };
+        img.src=url;
+      });
+    }
+  };
+}
+async function solOpenVirtual(w){
+  SOL.w=w; SOL.dirty=false;
+  document.getElementById('sol-title').textContent=w.title+' — 손풀이';
+  var vv=document.getElementById('sol-ver'); if(vv)vv.textContent='v'+APP_VER;
+  document.getElementById('sol-state').textContent='오답 모으는 중…';
+  document.getElementById('sol-ov').classList.add('open');
+  try{
+    solPrepareTools();
+    await solLoadScript('vendor/annotation.js');   // PDF 아니므로 pdf.min.js 는 불필요
+    var stage=document.getElementById('pdfStage');
+    stage.innerHTML='';
+    var div=document.createElement('div');
+    div.className='pdf-page';
+    var c=document.createElement('canvas');
+    div.appendChild(c);
+    stage.appendChild(div);
+    var fake=wrFakePage(wrBuildHtml(w.problems), 720);
+    var base=fake.getViewport({scale:1});
+    SOL.pages=[{page:fake, canvas:c, div:div, cssW:Math.round(base.width), cssH:Math.round(base.height), renderQ:0}];
+    SOL.cssW=SOL.pages[0].cssW; SOL.cssH=SOL.pages[0].cssH;
+    await solRenderAt(2);
+    SOL.loaded=true;
+    await solLoadScript('vendor/leaf-zoom.js');
+    SOL.pages.forEach(function(P,i){ Annot.ensureOverlay(P.div, i+1, true); });
+    Annot.setEnabled(true); Annot.setTool('pen');
+    solTrimToolbar();
+    setTimeout(solTrimToolbar, 350);
+    var ink=w.solution_ink;
+    if(ink && (Array.isArray(ink)?ink.length:Object.keys(ink).length)){
+      if(Array.isArray(ink)){ Annot.commitPage(1, ink, {snapshot:false}); }
+      else { Object.keys(ink).forEach(function(k){ if(ink[k]&&ink[k].length) Annot.commitPage(parseInt(k,10), ink[k], {snapshot:false}); }); }
+      Annot.refresh();
+      document.getElementById('sol-state').textContent='전에 그린 풀이를 불러왔어요';
+    }else{
+      document.getElementById('sol-state').textContent=w.problems.length+'문제 모음 · 바로 풀어보세요';
+    }
+    solMeasureFit();
+    solFitWidth();
+  }catch(e){
+    document.getElementById('sol-state').textContent='';
+    tShowToast('❗ 오답 모음 화면을 열지 못했어요 — '+String(e&&e.message||e).slice(0,60), 5000);
+  }
+}
+async function wrOpen(){
+  document.getElementById('qpick-modal').classList.remove('open');
+  var list=wrGather();
+  if(!list.length){ tShowToast('모아볼 오답이 없어요 — 아직 만점이거나 확인한 제출이 없어요',4000); return; }
+  tShowToast('오답 '+list.length+'개 모으는 중…');
+  try{
+    var title='[오답 모음] '+list.length+'문제 · '+ymd(new Date());
+    var r=await v2sb.from('worksheets').insert({
+      pair_code:v2Pair(), kind:'sheet', status:'assigned', title:title,
+      answer_key:list.map(function(p){return p.answer}), problems:list
+    }).select();
+    if(r.error) throw r.error;
+    var row=r.data[0];
+    try{ v2rows=await v2List(); }catch(e){}
+    tShowGroup('sheets');
+    await solOpenVirtual(row);
+  }catch(e){
+    tShowToast('❗ 오답 모음 생성 실패 — 인터넷 확인 후 다시', 4500);
+  }
+}
+async function wrReopen(id){
+  var w=(v2rows||[]).find(function(x){return String(x.id)===String(id)});
+  if(!w){ try{ v2rows=await v2List(); }catch(e){} w=(v2rows||[]).find(function(x){return String(x.id)===String(id)}); }
+  if(!w||!w.problems||!w.problems.length){ tShowToast('❗ 오답 모음을 찾을 수 없어요'); return; }
+  await solOpenVirtual(w);
+}
 async function solOpen(id){
   var w=(v2rows||[]).find(function(x){return String(x.id)===String(id)});
   if(!w){ try{ v2rows=await v2List(); }catch(e){} w=(v2rows||[]).find(function(x){return String(x.id)===String(id)}); }
@@ -3718,7 +3863,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='10.2';
+var APP_VER='10.3';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
