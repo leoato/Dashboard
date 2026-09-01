@@ -1079,8 +1079,10 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.7rem">
           <button class="t-btn t-btn-p" onclick="qpickGo('mimo')">＋ 새 미모</button>
           <button class="t-btn t-btn-g" onclick="miniRefresh()">↺ 새로고침</button>
+          <button class="t-btn t-btn-g" onclick="miniListToggle()" id="mini-list-tog">목록으로 보기</button>
         </div>
-        <div id="mini-list"></div>
+        <div id="mini-cal" style="margin-bottom:.6rem"></div>
+        <div id="mini-list" style="display:none"></div>
       </div>
 
       <!-- v3: Gemini 문제 생성 모달 -->
@@ -3778,12 +3780,64 @@ async function miniExtend(id){
 
 var MINI_ALL=false;
 function miniToggleAll(){ MINI_ALL=!MINI_ALL; miniRefresh(); }
+function miniListToggle(){
+  var el=document.getElementById('mini-list'), b=document.getElementById('mini-list-tog');
+  var show=el.style.display==='none';
+  el.style.display=show?'block':'none';
+  if(b)b.textContent=show?'목록 접기':'목록으로 보기';
+}
+
+/* ── 미모 주간 캘린더 — 요일별로 배정·제출·손풀이를 한 칸에서 ── */
+var MINI_ROWS=[], MINI_CAL_OFF=0;
+function miniCalShift(d){ MINI_CAL_OFF+=d; miniCalRender(); }
+function miniCalToday(){ MINI_CAL_OFF=0; miniCalRender(); }
+function _weekMon(off){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-((d.getDay()+6)%7)+off*7); return d; }
+function miniCalRender(){
+  var box=document.getElementById('mini-cal'); if(!box)return;
+  var mon=_weekMon(MINI_CAL_OFF), today=_ymd(new Date());
+  var days=[]; for(var i=0;i<7;i++){ var d=new Date(mon); d.setDate(mon.getDate()+i); days.push(d); }
+  var label=(mon.getMonth()+1)+'/'+mon.getDate()+' ~ '+(days[6].getMonth()+1)+'/'+days[6].getDate();
+  var wdn=['월','화','수','목','금','토','일'];
+  box.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.45rem;font-size:.78rem">'
+    +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalShift(-1)">◀</button>'
+    +'<b style="font-variant-numeric:tabular-nums">'+label+'</b>'
+    +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalShift(1)">▶</button>'
+    +(MINI_CAL_OFF?'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalToday()">이번 주</button>':'')
+    +'</div>'
+    +'<div style="overflow-x:auto"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;min-width:640px">'
+    +days.map(function(d,i){
+      var ds=_ymd(d), isToday=ds===today;
+      var head='<div style="font-size:.7rem;font-weight:700;'+(i>=5?'color:#C0392B':'')+'">'
+        +wdn[i]+' <span style="font-variant-numeric:tabular-nums">'+(d.getMonth()+1)+'/'+d.getDate()+'</span>'
+        +(isToday?' <span style="background:#B9F18D;border-radius:4px;padding:0 4px">오늘</span>':'')+'</div>';
+      var items=MINI_ROWS.filter(function(w){return String(w.serve_date||'')===ds});
+      var body=items.length?items.map(function(w){
+        var sub=(w.submissions||[])[0];
+        var hasPdf=/\.pdf$/i.test(String(w.html_path||''));
+        var past=w.status==='assigned'&&ds<today;
+        var openTil=String(w.open_until||'');
+        var st=w.status==='assigned'
+          ? (past?(openTil>=today?openTil.slice(5).replace('-','/')+'까지 열림':'밀림'):(ds===today?'오늘 풀 차례':'대기'))
+          : (sub&&sub.score?sub.score:'제출됨');
+        var short=tEscH(String(w.title||'').replace(/^(미모|미니\s*모의고사|미니모의고사)\s*/,'').replace(/^[\d/]+\s*·?\s*/,''));
+        var bs='';
+        if(sub) bs+='<button class="t-btn t-btn-g t-btn-sm" style="width:100%;justify-content:center" onclick="v2OpenSub(\''+w.id+'\')">풀이 보기</button>';
+        if(hasPdf) bs+='<button class="t-btn '+(w.solution_path?'t-btn-p':'t-btn-g')+' t-btn-sm" style="width:100%;justify-content:center" onclick="solOpen(\''+w.id+'\')">'+(w.solution_path?'손풀이 수정':'손풀이')+'</button>';
+        if(past) bs+='<button class="t-btn t-btn-g t-btn-sm" style="width:100%;justify-content:center" onclick="miniExtend(\''+w.id+'\')">'+(openTil>=today?'하루 더':'지금 열기')+'</button>';
+        return '<div style="display:flex;flex-direction:column;gap:3px;margin-top:4px">'
+          +'<div title="'+tEscH(w.title)+'" style="font-size:.68rem;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+short+'</div>'
+          +'<span class="t-lbadge" style="align-self:flex-start;'+(w.status!=='assigned'?'background:#222222;color:#fff':'')+'">'+st+'</span>'+bs+'</div>';
+      }).join(''):'<div style="color:#C8CACF;font-size:.72rem;margin-top:6px;text-align:center">—</div>';
+      return '<div style="border:1.5px solid '+(isToday?'#222222':'#D8DADF')+';border-radius:8px;padding:6px 6px 7px;background:'+(isToday?'#FCFBEF':'#fff')+';min-height:92px">'+head+body+'</div>';
+    }).join('')+'</div></div>';
+}
 
 async function miniRefresh(){
   const box=document.getElementById('mini-list'); if(!box)return;
   let rows=[]; try{ rows=await v2List(); }catch(e){ box.innerHTML='<div style="font-size:.76rem;color:#777777">불러올 수 없습니다</div>'; return; }
   const today=_ymd(new Date());
   const mini=rows.filter(function(w){return w.kind==='mini'}).sort(function(a,b){return String(a.serve_date||'').localeCompare(String(b.serve_date||''))});
+  MINI_ROWS=mini; miniCalRender();
   const left=mini.filter(function(w){return w.status==='assigned'&&String(w.serve_date||'')>=today});
   /* 오늘 것부터는 무조건 다 보인다 — 예전엔 마지막 7개만 잘라 보여서
      오늘 회차가 목록 밖으로 밀려나 손풀이를 못 여는 일이 있었다. */
@@ -3963,7 +4017,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='10.4';
+var APP_VER='10.5';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
