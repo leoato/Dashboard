@@ -1428,6 +1428,8 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div><div class="t">Gemini로 새 문제</div><div class="d">단원 골라 생성 → 검수 → 전송</div></div><span class="arr">›</span></div>
       <div class="dr-row qp-row" onclick="qpickGo('file')">
         <div><div class="t">파일 올리기</div><div class="d">PDF + 정답 입력 → 자동 채점</div></div><span class="arr">›</span></div>
+      <div class="dr-row qp-row" onclick="qpickGo('mimoimp')">
+        <div><div class="t">파일로 미모 등록</div><div class="d">만들어 둔 미모 HTML 여러 개 → 날짜별로 한 번에</div></div><span class="arr">›</span></div>
       <div class="dr-row qp-row" onclick="wrOpen()">
         <div><div class="t">오답 모아 풀기</div><div class="d">틀렸던 문제만 자동으로 모아 손풀이로</div></div><span class="arr">›</span></div>
     </div>
@@ -1443,6 +1445,20 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div class="t-fg"><label class="tl">며칠치</label><select id="mini-days"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
       </div>
       <button class="t-btn t-btn-p" id="mini-go" style="width:100%;justify-content:center;margin-top:.5rem" onclick="miniCreate()">미모 만들기</button>
+    </div>
+  </div>
+
+  <!-- 파일로 미모 등록 — 선생님용 미모 HTML(정답 페이지 포함)을 넣으면
+       정답표를 읽어내고 학생용(정답 페이지 뺀 것)을 만들어 날짜별로 등록한다 -->
+  <div class="t-mbg" id="mimoimp-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="t-modal" style="max-width:460px">
+      <div style="display:flex;align-items:center"><b style="font-family:'Gowun Batang',serif">파일로 미모 등록</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('mimoimp-modal').classList.remove('open')">✕</button></div>
+      <div style="font-size:.72rem;color:#777777;margin:.3rem 0 .6rem">
+        선생님용 미모 <b>HTML</b>(정답·해설 쪽이 들어 있는 것)을 여러 개 고르세요.
+        정답은 자동으로 읽고, 학생에게는 정답 쪽을 <b>뺀 문제지</b>만 갑니다. 배포일은 파일명의 날짜(예: <b>0903</b>)로 잡습니다.</div>
+      <input type="file" id="mimoimp-file" accept=".html,.htm" multiple onchange="mimoImpPick(this)" style="font-size:.76rem;margin-bottom:.5rem">
+      <div id="mimoimp-list" style="font-size:.76rem;line-height:1.6;max-height:210px;overflow:auto"></div>
+      <button class="t-btn t-btn-p" id="mimoimp-go" style="width:100%;justify-content:center;margin-top:.6rem;display:none" onclick="mimoImpGo()">등록</button>
     </div>
   </div>
 
@@ -2994,6 +3010,7 @@ function qpickOpen(){document.getElementById('qpick-modal').classList.add('open'
 function qpickGo(k){
   document.getElementById('qpick-modal').classList.remove('open');
   if(k==='mimo'){ try{miniRenderUnits()}catch(e){} document.getElementById('mimo-modal').classList.add('open'); }
+  else if(k==='mimoimp'){ mimoImpReset(); document.getElementById('mimoimp-modal').classList.add('open'); }
   else if(k==='gen'){ v3OpenGen(''); }
   else { v2OpenNew(); }
 }
@@ -3286,6 +3303,85 @@ async function miniCreate(){
   if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); document.getElementById('mimo-modal').classList.remove('open'); v2Render(); miniRefresh(); }
 }
 
+/* ═══════════ 파일로 미모 등록 (v10.4 출고) ═══════════
+   선생님용 미모 HTML 1개 = 문제 2쪽 + 정답·해설 1쪽.
+   · 정답표(.ans td.k)에서 answer_key 를 뽑는다 — 객관식은 보기 번호(①→"1"), 단답은 값 그대로.
+   · 정답이 들어 있는 .page 를 지워 학생용 문제지를 만든다.
+   · 파일명의 MMDD(또는 YYYY-MM-DD)로 serve_date 를 잡아 kind:'mini' 로 등록한다. */
+var MIMOIMP = [];
+function mimoImpReset(){
+  MIMOIMP=[];
+  var el=document.getElementById('mimoimp-list'); if(el)el.innerHTML='';
+  var f=document.getElementById('mimoimp-file'); if(f)f.value='';
+  var b=document.getElementById('mimoimp-go'); if(b)b.style.display='none';
+}
+function mimoImpKey(txt){
+  // 유니코드 빼기표(−)·엔대시를 먼저 하이픈으로 바꿔야 음수 단답이 살아남는다
+  var t=String(txt||'').replace(/\u00a0/g,' ').replace(/[\u2212\u2013\u2014]/g,'-').trim();
+  var i='①②③④⑤'.indexOf(t.charAt(0));
+  if(i>=0) return String(i+1);                       // 객관식 → 보기 번호
+  var m=t.match(/-?\d+/); return m?m[0]:t;            // 단답 → 수(음수 포함)
+}
+function mimoImpDate(name){
+  var m=name.match(/(20\d{2})[-_.]?(\d{2})[-_.]?(\d{2})/);
+  if(m) return m[1]+'-'+m[2]+'-'+m[3];
+  m=name.match(/(?:^|[^\d])(\d{2})(\d{2})(?!\d)/);
+  if(m) return (new Date().getFullYear())+'-'+m[1]+'-'+m[2];
+  return '';
+}
+async function mimoImpPick(input){
+  var files=[].slice.call(input.files||[]); MIMOIMP=[];
+  var list=document.getElementById('mimoimp-list'); list.innerHTML='읽는 중…';
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    try{
+      var text=await f.text();
+      var doc=new DOMParser().parseFromString(text,'text/html');
+      var keys=[].slice.call(doc.querySelectorAll('.ans td.k')).map(function(td){return mimoImpKey(td.textContent)});
+      var pages=[].slice.call(doc.querySelectorAll('.page'));
+      var dropped=0;
+      pages.forEach(function(pg){ if(pg.querySelector('.ans')){ pg.remove(); dropped++; } });
+      var studentHtml='<!DOCTYPE html>'+doc.documentElement.outerHTML;
+      var date=mimoImpDate(f.name);
+      var err = !keys.length ? '정답표를 못 찾음' : (!dropped ? '정답 쪽을 못 찾음' : (!date ? '파일명에 날짜 없음' : ''));
+      MIMOIMP.push({name:f.name, date:date, keys:keys, html:studentHtml, err:err});
+    }catch(e){ MIMOIMP.push({name:f.name, date:'', keys:[], html:'', err:'읽기 실패'}); }
+  }
+  MIMOIMP.sort(function(a,b){return String(a.date).localeCompare(String(b.date))});
+  var ok=MIMOIMP.filter(function(x){return !x.err});
+  list.innerHTML = MIMOIMP.map(function(x){
+    return x.err
+      ? '<div style="color:#c0392b">✕ '+x.name+' — '+x.err+'</div>'
+      : '<div>· <b>'+x.date+'</b> · '+x.keys.length+'문제 · 정답 '+x.keys.join(',')+'</div>';
+  }).join('') || '고른 파일이 없어요';
+  var b=document.getElementById('mimoimp-go');
+  b.style.display = ok.length ? 'flex' : 'none';
+  b.textContent = ok.length+'개 등록';
+}
+async function mimoImpGo(){
+  var ok=MIMOIMP.filter(function(x){return !x.err});
+  if(!ok.length)return;
+  var b=document.getElementById('mimoimp-go'); b.disabled=true;
+  var made=0;
+  for(var i=0;i<ok.length;i++){
+    var x=ok[i]; b.textContent='등록 중… '+(i+1)+'/'+ok.length;
+    try{
+      var md=x.date.slice(5).replace('-','/');
+      var title='미모 '+md+' · '+x.keys.length+'문제';
+      var file=new File([x.html],'mini_'+x.date+'.html',{type:'text/html'});
+      await v2Create(title, x.keys, x.html, file, null, {kind:'mini', serve_date:x.date});
+      made++;
+    }catch(e){ tShowToast('❗ '+x.date+' 실패: '+String(e&&e.message||e).slice(0,50),4000); break; }
+  }
+  b.disabled=false; b.textContent='등록';
+  if(made){
+    tShowToast('✅ 미모 '+made+'개 등록 완료');
+    document.getElementById('mimoimp-modal').classList.remove('open');
+    try{ v2rows=await v2List(); }catch(e){}
+    v2Render(); try{ miniRefresh(); }catch(e){}
+  }
+}
+
 /* ═══════════ 미모 손풀이 — 리프 annotation.js 이식 ═══════════
    · 필기 엔진은 vendor/annotation.js 를 그대로 쓴다 (CSS·perfect-freehand 내장, 드롭인).
    · 리프 서버(/api/ink)는 S.doc 이 null 이면 호출 자체가 없다 → loadInk 를 부르지 않는 것으로 차단.
@@ -3327,8 +3423,9 @@ function solTrimToolbar(){
   /* 접힌 상태면 펼친다 — 접혀 있으면 되돌리기/다시가 숨겨진다 */
   var exp=bar.querySelector('.annot-expand');
   if(exp && exp.offsetParent!==null){ exp.click(); }
-  /* 펜 프리셋 제목이 "검정 펜 · 다시 탭하면 굵기/색…" 이라 '굵기'로 거르면 펜까지 사라진다 */
-  var drop=/텍스트 메모|올가미|사진|AI에게|묻기|프리셋으로 추가/;
+  /* 펜 프리셋 제목이 "검정 펜 · 다시 탭하면 굵기/색…" 이라 '굵기'로 거르면 펜까지 사라진다.
+     올가미(갈고리 — 둘러 그려 선택 → 이동·복사·삭제)는 선생님 요청으로 노출한다. */
+  var drop=/텍스트 메모|사진|AI에게|묻기|프리셋으로 추가/;
   [].forEach.call(bar.querySelectorAll('button'), function(b){
     var t=(b.getAttribute('title')||'')+' '+(b.textContent||'');
     if(drop.test(t)) b.classList.add('sol-hide'); else b.classList.remove('sol-hide');
@@ -3360,7 +3457,8 @@ function wrGather(){
 function wrBuildHtml(list){
   var C=['①','②','③','④','⑤'];
   return list.map(function(p,i){
-    var opts=p.choices?('<div style="margin-top:4px">'+p.choices.map(function(c,j){return '<span style="margin-right:14px;white-space:nowrap">'+C[j]+' '+tEscH(c)+'</span>'}).join('')+'</div>'):'';
+    /* 저장된 보기에는 이미 ①②… 가 붙어 있는 경우가 대부분 — 떼고 다시 붙여 이중 번호를 막는다 */
+    var opts=p.choices?('<div style="margin-top:4px">'+p.choices.map(function(c,j){return '<span style="margin-right:14px;white-space:nowrap">'+C[j]+' '+tEscH(String(c).replace(/^[①②③④⑤]\s*/,''))+'</span>'}).join('')+'</div>'):'';
     return '<div style="margin-bottom:22px;padding-bottom:14px;border-bottom:1.5px dashed #ccc">'
       +'<div><b style="color:#3d5a2e">'+String(i+1).padStart(2,'0')+'.</b> '+tEscH(p.q)+'</div>'+opts+'</div>';
   }).join('');
@@ -3431,6 +3529,7 @@ async function solOpenVirtual(w){
     await solLoadScript('vendor/leaf-zoom.js');
     SOL.pages.forEach(function(P,i){ Annot.ensureOverlay(P.div, i+1, true); });
     Annot.setEnabled(true); Annot.setTool('pen');
+    Annot.setToolbarHidden(false);   // 닫을 때 숨긴 툴바 복원 — 없으면 두 번째 열기부터 펜 툴바가 안 보인다
     solTrimToolbar();
     setTimeout(solTrimToolbar, 350);
     var ink=w.solution_ink;
@@ -3493,6 +3592,7 @@ async function solOpen(id){
     await solLoadScript('vendor/leaf-zoom.js');      // 줌·팬 엔진 (리프 원문)
     SOL.pages.forEach(function(P,i){ Annot.ensureOverlay(P.div, i+1, true); });
     Annot.setEnabled(true); Annot.setTool('pen');
+    Annot.setToolbarHidden(false);   // 닫을 때 숨긴 툴바 복원 — 없으면 두 번째 열기부터 펜 툴바가 안 보인다
     solTrimToolbar();
     setTimeout(solTrimToolbar, 350);   // 펼침이 반영된 뒤 한 번 더 (되돌리기 버튼이 그때 생긴다)
     /* 전에 그려둔 필기가 있으면 되살린다 */
@@ -3863,7 +3963,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='10.3';
+var APP_VER='10.4';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{

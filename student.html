@@ -360,7 +360,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.6';
+var APP_VER='7.7';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -561,7 +561,21 @@ function sheetFile(w){ // {kind:'pdf'|'html'|null, src|html}
 async function renderSheetInto(el,w,scale){
   const f=sheetFile(w);
   el.innerHTML='';
-  if(!f){el.innerHTML='<div style="color:#fff;font-size:.85rem;text-align:center;padding:30px 10px">문제지 파일이 없어요 — 종이로 받은 문제지예요 ✏️</div>';return}
+  if(!f){
+    /* 파일 없는 문제지 — 오답 모음처럼 문항 데이터만 있으면 그걸로 문제지를 그린다.
+       정답·해설은 절대 넣지 않는다(문항·보기까지만). */
+    if(w.problems&&w.problems.length){
+      const C=['①','②','③','④','⑤'];
+      el.innerHTML='<div style="background:#fff;color:#1a1a1a;border-radius:8px;max-width:720px;margin:0 auto;'
+        +'padding:22px 24px;font-size:.9rem;line-height:1.7;text-align:left">'
+        +w.problems.map((p,i)=>{
+          const opts=p.choices?('<div style="margin-top:4px">'+p.choices.map((c,j)=>'<span style="margin-right:14px;white-space:nowrap">'+C[j]+' '+escH(String(c).replace(/^[①②③④⑤]\s*/,''))+'</span>').join('')+'</div>'):'';
+          return '<div style="margin-bottom:18px;padding-bottom:12px;border-bottom:1.5px dashed #ccc">'
+            +'<b>'+String(i+1).padStart(2,'0')+'.</b> '+escH(p.q)+opts+'</div>';
+        }).join('')+'</div>';
+      return;
+    }
+    el.innerHTML='<div style="color:#fff;font-size:.85rem;text-align:center;padding:30px 10px">문제지 파일이 없어요 — 종이로 받은 문제지예요 ✏️</div>';return}
   if(f.kind==='pdf'){
     try{
       const lib=await loadPdfjs();
