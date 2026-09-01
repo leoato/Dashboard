@@ -729,6 +729,7 @@ input, select, textarea { font-size: max(16px, 1em); }
         <button class="h-big" onclick="wzOpen()"><div class="t">수업 마침 → 문자</div><div class="d">진도·숙제·한마디 적으면 학부모 문자 완성 — 기록은 저절로</div></button>
         <button class="h-big" onclick="qpickOpen()"><div class="t">문제 내기</div><div class="d">미모 · Gemini 새 문제 · 파일 — 한 곳에서</div></button>
       </div>
+      <div class="t-card"><div class="t-ctitle">미모 캘린더 <span style="margin-left:auto;font-size:.68rem;color:#777777">풀이 보기 · 손풀이 바로가기</span></div><div id="home-mini-cal"></div></div>
       <div class="t-card"><div class="t-ctitle">받은함</div><div id="home-inbox"></div></div>
     </div>
     </div>
@@ -1908,7 +1909,7 @@ function tShowGroup(g){
   const ng=(g==='home')?'home':'drawer';
   const b=document.querySelector(`[data-tgroup="${ng}"]`);if(b)b.classList.add('active');
   tCurrentTab=TGROUPS[g][0]; tCurGroup=g;
-  if(g==='home'){ tDashRefresh(); try{v2DashAlert()}catch(e){} try{rmRefreshFacts()}catch(e){} }
+  if(g==='home'){ tDashRefresh(); try{v2DashAlert()}catch(e){} try{rmRefreshFacts()}catch(e){} try{miniRefresh()}catch(e){} }
   if(g==='drawer') try{drawerRender()}catch(e){}
   if(g==='prep') try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){}
   if(g==='sheets') try{v2Render();miniRenderUnits();miniRefresh();}catch(e){}
@@ -3793,12 +3794,14 @@ function miniCalShift(d){ MINI_CAL_OFF+=d; miniCalRender(); }
 function miniCalToday(){ MINI_CAL_OFF=0; miniCalRender(); }
 function _weekMon(off){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-((d.getDay()+6)%7)+off*7); return d; }
 function miniCalRender(){
-  var box=document.getElementById('mini-cal'); if(!box)return;
+  /* 문제지 탭(#mini-cal)과 홈(#home-mini-cal) 두 곳에 같은 캘린더를 그린다 */
+  var boxes=['mini-cal','home-mini-cal'].map(function(id){return document.getElementById(id)}).filter(Boolean);
+  if(!boxes.length)return;
   var mon=_weekMon(MINI_CAL_OFF), today=_ymd(new Date());
   var days=[]; for(var i=0;i<7;i++){ var d=new Date(mon); d.setDate(mon.getDate()+i); days.push(d); }
   var label=(mon.getMonth()+1)+'/'+mon.getDate()+' ~ '+(days[6].getMonth()+1)+'/'+days[6].getDate();
   var wdn=['월','화','수','목','금','토','일'];
-  box.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.45rem;font-size:.78rem">'
+  var html='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.45rem;font-size:.78rem">'
     +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalShift(-1)">◀</button>'
     +'<b style="font-variant-numeric:tabular-nums">'+label+'</b>'
     +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalShift(1)">▶</button>'
@@ -3830,6 +3833,7 @@ function miniCalRender(){
       }).join(''):'<div style="color:#C8CACF;font-size:.72rem;margin-top:6px;text-align:center">—</div>';
       return '<div style="border:1.5px solid '+(isToday?'#222222':'#D8DADF')+';border-radius:8px;padding:6px 6px 7px;background:'+(isToday?'#FCFBEF':'#fff')+';min-height:92px">'+head+body+'</div>';
     }).join('')+'</div></div>';
+  boxes.forEach(function(b){ b.innerHTML=html; });
 }
 
 async function miniRefresh(){
@@ -4017,7 +4021,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='10.5';
+var APP_VER='10.6';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
