@@ -360,7 +360,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.7';
+var APP_VER='7.8';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -618,7 +618,7 @@ function weekMonday(){   // 이번 주 월요일 (월=주 시작)
   return ymd(d);
 }
 /* 미모 규칙 — 그날 것은 그날만. 밀린 것은 금요일에만 열리고, 그 주가 지나면 만료.
-   주말(금 수업~월 수업)은 미모 없이 교재 숙제 기간. */
+   v7.8: 미모는 주말 포함 매일 — '주말은 교재 숙제' 규칙 제거(weekend 플래그는 항상 false). */
 function miniToday(){
   const t=todayStr(), wk=weekMonday(), dow=new Date().getDay();
   const mini=rows.filter(w=>w.kind==='mini').sort((a,b)=>String(a.serve_date||'').localeCompare(String(b.serve_date||'')));
@@ -634,7 +634,7 @@ function miniToday(){
     extended: extended,
     openList: dow===5 ? backlog : extended,   // 금요일이면 이번 주 전부, 아니면 연장된 것만
     byFriday: dow===5,
-    weekend: (dow===0||dow===6),
+    weekend: false,   // v7.8 매일 미모
     next: next||null
   };
 }
