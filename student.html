@@ -59,6 +59,13 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .home-cell{border:1.5px solid var(--ink);border-radius:10px;background:var(--card);padding:18px 16px;display:flex;flex-direction:column;gap:5px;cursor:pointer;min-height:104px;box-shadow:2.5px 2.5px 0 var(--ink)}
 .home-cell:active{transform:translate(2px,2px);box-shadow:none}
+/* v7.9 홈 간소화 — 미모 우선, 나머지는 [더 보기]에 접는다 */
+#home-more{margin-top:28px}
+#home-more>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 4px;border-top:1.5px dashed var(--faint);color:var(--sub);font-size:.84rem;font-weight:700}
+#home-more>summary::-webkit-details-marker{display:none}
+#home-more>summary::after{content:'▾';margin-left:auto;font-size:.8rem} #home-more[open]>summary::after{content:'▴'}
+#home-more-badge{font-weight:600;color:var(--ink)}
+#mini-none{display:none;border:1.5px dashed var(--faint);border-radius:10px;padding:18px 16px;margin-bottom:16px;color:var(--sub);font-size:.9rem;text-align:center}
 .home-todo-line{display:flex;align-items:center;gap:9px;padding:8px 2px;font-size:.9rem;border-bottom:1.5px dashed var(--dash)}
 .home-todo-line .bx{width:17px;height:17px;border:1.8px solid var(--ink);border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900}
 .home-todo-line.done .bx{background:var(--ink);color:var(--hl)}
@@ -152,19 +159,22 @@ input, select, textarea { font-size: max(16px, 1em); }
     <div style="max-width:640px;width:100%;margin:3vh auto 0">
       <div class="muted num" id="home-date" style="font-weight:600"></div>
       <div id="home-headline" style="font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px"><span id="home-who"></span><span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 3px">오늘 계획</span></div>
-      <div id="home-todo" style="margin-bottom:14px"></div>
-      <button id="mini-btn" onclick="openMini()" style="display:none;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:14px 16px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left">
-        <div style="font-size:1.02rem;font-weight:800" id="mini-btn-t">오늘의 미모</div>
+      <button id="mini-btn" onclick="openMini()" style="display:none;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:24px 18px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left">
+        <div style="font-size:1.3rem;font-weight:800;margin-bottom:4px" id="mini-btn-t">오늘의 미모</div>
         <div class="muted" id="mini-btn-s" style="color:#3f5c2a"></div>
       </button>
       <button id="mini-back" onclick="openBacklog()" style="display:none;width:100%;border:1.5px dashed var(--faint);border-radius:8px;background:transparent;color:var(--sub);padding:8px 12px;margin:-8px 0 16px;cursor:pointer;font-family:var(--sans);font-size:.76rem;text-align:left"></button>
       <button id="push-btn" onclick="pushBtnClick()" style="display:none;width:100%;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;color:var(--ink);padding:9px 12px;margin:0 0 16px;cursor:pointer;font-family:var(--sans);font-size:.78rem;font-weight:600;text-align:left"></button>
+      <div id="mini-none">오늘은 준비된 미모가 없어요</div>
+      <details id="home-more"><summary>더 보기 <span id="home-more-badge"></span></summary>
+      <div id="home-todo" style="margin:6px 0 14px"></div>
       <div class="home-grid">
         <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
         <div class="home-cell" onclick="openSent()"><div class="t">보낸 문제</div><div class="muted" id="home-sent-cnt"> </div></div>
         <div class="home-cell" onclick="showScreen('wrongsel','오답모음')"><div class="t">오답모음</div><div class="muted" id="home-wrong-cnt"> </div></div>
         <div class="home-cell" onclick="openAsk()"><div class="t">질문하기</div><div class="muted" id="home-ask-cnt">막힌 문제를 쌤에게</div></div>
       </div>
+      </details>
       <div class="muted" id="home-err" style="text-align:center;margin-top:10px"></div>
     </div>
   </div>
@@ -360,7 +370,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.8';
+var APP_VER='7.9';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -521,6 +531,7 @@ async function renderHome(){
       +(todo?`<div class="home-todo-line"><span class="bx"></span><span>새 문제지 ${todo}개 풀기</span></div>`
              :`<div class="home-todo-line done"><span class="bx">✓</span><span>오늘 몫은 끝! 오답 복습 어때요</span></div>`);
     $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').length+'개';
+    { const hb=$('home-more-badge'); if(hb)hb.textContent=todo?('· 새 문제지 '+todo):''; }
     renderMiniBtn();renderPushBtn();pushEnsure();
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
@@ -529,6 +540,7 @@ async function renderHome(){
     const qs=await listQuestions();
     const a=qs.filter(q=>q.status==='answered').length;
     $('home-ask-cnt').textContent=a?('쌤 답변 '+a+'개'):'막힌 문제를 쌤에게';
+    { const hb=$('home-more-badge'); if(hb&&a&&hb.textContent.indexOf('쌤 답변')<0)hb.textContent+=' · 쌤 답변 '+a; }
   }catch(e){}
 }
 
@@ -640,6 +652,7 @@ function miniToday(){
 }
 function renderMiniBtn(){
   const b=$('mini-btn'); if(!b)return;
+  const mn=$('mini-none'); if(mn)mn.style.display='none';
   const m=miniToday();
   const n=(m.due&&(m.due.answer_key||[]).length)||10;
   if(m.due){
@@ -659,7 +672,7 @@ function renderMiniBtn(){
     b.style.display='block'; b.style.background='var(--card)';
     $('mini-btn-t').textContent='미모 준비됨';
     $('mini-btn-s').textContent=m.next.serve_date.slice(5).replace('-','/')+'부터 열려요';
-  }else{ b.style.display='none'; }
+  }else{ b.style.display='none'; if(mn)mn.style.display='block'; }
   // 밀린 미모 — 평소엔 잠금. 금요일이거나, 쌤이 기한을 늘려둔 것만 열린다.
   const bl=$('mini-back');
   if(bl){
