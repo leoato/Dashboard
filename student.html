@@ -65,6 +65,9 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 #home-more>summary::-webkit-details-marker{display:none}
 #home-more>summary::after{content:'▾';margin-left:auto;font-size:.8rem} #home-more[open]>summary::after{content:'▴'}
 #home-more-badge{font-weight:600;color:var(--ink)}
+.mini-open-btn{display:block;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:20px 18px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left}
+.mini-open-btn:active{transform:translate(2px,2px);box-shadow:none}
+.mini-open-btn .t{font-size:1.15rem;font-weight:800;margin-bottom:3px} .mini-open-btn .s{font-size:.82rem;color:#3f5c2a}
 #mini-none{display:none;border:1.5px dashed var(--faint);border-radius:10px;padding:18px 16px;margin-bottom:16px;color:var(--sub);font-size:.9rem;text-align:center}
 .home-todo-line{display:flex;align-items:center;gap:9px;padding:8px 2px;font-size:.9rem;border-bottom:1.5px dashed var(--dash)}
 .home-todo-line .bx{width:17px;height:17px;border:1.8px solid var(--ink);border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900}
@@ -165,7 +168,9 @@ input, select, textarea { font-size: max(16px, 1em); }
       </button>
       <button id="mini-back" onclick="openBacklog()" style="display:none;width:100%;border:1.5px dashed var(--faint);border-radius:8px;background:transparent;color:var(--sub);padding:8px 12px;margin:-8px 0 16px;cursor:pointer;font-family:var(--sans);font-size:.76rem;text-align:left"></button>
       <button id="push-btn" onclick="pushBtnClick()" style="display:none;width:100%;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;color:var(--ink);padding:9px 12px;margin:0 0 16px;cursor:pointer;font-family:var(--sans);font-size:.78rem;font-weight:600;text-align:left"></button>
-      <div id="mini-none">오늘은 준비된 미모가 없어요</div>
+      <div id="mini-open"></div>
+      <div id="mini-none">오늘 풀 미모는 없어요</div>
+      <div id="mini-next" class="muted" style="display:none;font-size:.8rem;margin:-6px 2px 14px"></div>
       <details id="home-more"><summary>더 보기 <span id="home-more-badge"></span></summary>
       <div id="home-todo" style="margin:6px 0 14px"></div>
       <div class="home-grid">
@@ -370,7 +375,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.9';
+var APP_VER='7.10';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -651,11 +656,14 @@ function miniToday(){
   };
 }
 function renderMiniBtn(){
+  /* v7.10 — 홈의 큰 자리는 '오늘 풀 수 있는 미모'만: 오늘 것 + 열려 있는 밀린 것.
+     내일 이후 미모는 큰 버튼이 아니라 작은 안내 한 줄로만 알린다. */
   const b=$('mini-btn'); if(!b)return;
-  const mn=$('mini-none'); if(mn)mn.style.display='none';
+  const mn=$('mini-none'), mo=$('mini-open'), nx=$('mini-next'), bl=$('mini-back');
   const m=miniToday();
-  const n=(m.due&&(m.due.answer_key||[]).length)||10;
+  const md=function(w){return String(w.serve_date||'').slice(5).replace('-','/').replace(/^0/,'')};
   if(m.due){
+    const n=(m.due.answer_key||[]).length||10;
     b.style.display='block'; b.style.background='var(--hl)';
     $('mini-btn-t').textContent='오늘의 미모 · '+n+'문제';
     $('mini-btn-s').textContent='진도 나간 범위 복습이에요';
@@ -663,38 +671,38 @@ function renderMiniBtn(){
     const sub=latestSub(m.doneToday);
     b.style.display='block'; b.style.background='var(--card)';
     $('mini-btn-t').textContent='오늘 미모 완료';
-    $('mini-btn-s').textContent=(sub&&sub.score)?('점수 '+sub.score+' — 내일 또 만나요'):'제출했어요';
-  }else if(m.weekend){
-    b.style.display='block'; b.style.background='var(--card)';
-    $('mini-btn-t').textContent='주말은 교재 숙제';
-    $('mini-btn-s').textContent='미모는 월요일에 다시 열려요';
-  }else if(m.next){
-    b.style.display='block'; b.style.background='var(--card)';
-    $('mini-btn-t').textContent='미모 준비됨';
-    $('mini-btn-s').textContent=m.next.serve_date.slice(5).replace('-','/')+'부터 열려요';
-  }else{ b.style.display='none'; if(mn)mn.style.display='block'; }
-  // 밀린 미모 — 평소엔 잠금. 금요일이거나, 쌤이 기한을 늘려둔 것만 열린다.
-  const bl=$('mini-back');
+    $('mini-btn-s').textContent=(sub&&sub.score)?('점수 '+sub.score):'제출했어요';
+  }else{ b.style.display='none'; }
+  // 열려 있는 밀린 미모 — 하나씩 큰 버튼으로
+  if(mo){
+    mo.innerHTML=m.openList.map(function(w){
+      const n=(w.answer_key||[]).length||10;
+      return '<button class="mini-open-btn" onclick="openBackId(\''+w.id+'\')"><div class="t">밀린 미모 · '+md(w)+' · '+n+'문제</div>'
+        +'<div class="s">'+(m.byFriday?'금요일이라 열렸어요':'쌤이 더 열어줬어요')+'</div></button>';
+    }).join('');
+  }
+  // 아직 잠긴 밀린 미모 — 작은 안내만
   if(bl){
-    if(m.openList.length){
-      bl.style.display='block';
-      bl.style.borderColor='var(--ink)'; bl.style.color='var(--ink)'; bl.style.cursor='pointer';
-      bl.textContent=m.byFriday
-        ? '이번 주 밀린 미모 '+m.openList.length+'개 — 금요일이라 열렸어요, 눌러서 풀기'
-        : '쌤이 더 열어준 미모 ('+m.openList[0].serve_date.slice(5).replace('-','/')+')'+(m.openList.length>1?' 외 '+(m.openList.length-1)+'개':'')+' — 눌러서 풀기';
-    }else if(m.backlog.length&&!m.weekend){
-      bl.style.display='block';
-      bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
-      bl.textContent='밀린 미모 '+m.backlog.length+'개 — 금요일에 열려요';
+    const locked=m.backlog.filter(function(w){return m.openList.indexOf(w)<0});
+    if(locked.length){
+      bl.style.display='block'; bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
+      bl.textContent='밀린 미모 '+locked.length+'개 — 금요일에 열려요';
     }else bl.style.display='none';
   }
+  const solvable=!!m.due||m.openList.length>0;
+  if(mn) mn.style.display=(solvable||m.doneToday)?'none':'block';
+  if(nx){ if(m.next){ nx.style.display='block'; nx.textContent='다음 미모 '+md(m.next); } else nx.style.display='none'; }
 }
 function openMini(){
   const m=miniToday();
   if(m.due){ startSolve(m.due); return; }
   if(m.doneToday){ toast('오늘 미모는 이미 제출했어요'); return; }
-  if(m.weekend){ toast('주말은 교재 숙제 기간이에요 — 미모는 월요일에'); return; }
   toast('아직 준비된 미모가 없어요');
+}
+function openBackId(id){
+  const w=miniToday().openList.find(function(x){return String(x.id)===String(id)});
+  if(w){ startSolve(w); return; }
+  toast('이 미모는 지금 열 수 없어요');
 }
 function openBacklog(){
   const m=miniToday();
@@ -1145,7 +1153,9 @@ function renderPushBtn(){
   var b=document.getElementById('push-btn'); if(!b)return;
   /* 권한만 보고 숨기면 안 된다 — 권한은 허용됐는데 서버 등록이 안 된 상태에서
      버튼이 사라져 다시 켤 방법이 없어지는 함정이 있었다. 기준은 '서버에 등록됐는가'. */
-  if(isViewer()||!pushSupported()||cfg('push')==='1'){b.style.display='none';return}
+  /* v7.10: '등록됨' 표시(cfg push)만 믿고 숨기면 안 된다 — 권한이 없는데 표시만 남아 버튼이 사라지는 함정(윤서 폰 2026-09-18).
+     숨기는 조건은 '서버 등록 표시 + 이 기기의 알림 권한이 실제로 허용' 둘 다일 때뿐. */
+  if(isViewer()||!pushSupported()||(cfg('push')==='1'&&pushGranted())){b.style.display='none';return}
   b.style.display='block';
   b.textContent = pushGranted()
     ? '알림 등록이 안 됐어요 — 눌러서 다시 연결'
