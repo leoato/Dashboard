@@ -27,12 +27,14 @@ create extension if not exists pg_net;
 select cron.unschedule('oneul-mini-reminder')
   where exists (select 1 from cron.job where jobname = 'oneul-mini-reminder');
 
+-- ※ 서버 주소·키는 저장소에 두지 않는다 (2026-10-16 정리).
+--    다시 실행할 일이 있으면 <프로젝트-ref>·<ANON_KEY> 자리에 대시보드 Settings → API 값을 넣어 실행.
 select cron.schedule('oneul-mini-reminder', '0 * * * *', $CRON$
   select net.http_post(
-    url     := 'https://izydmguvzdjezxsumxtn.supabase.co/functions/v1/notify',
+    url     := 'https://<프로젝트-ref>.supabase.co/functions/v1/notify',
     headers := jsonb_build_object(
                  'Content-Type','application/json',
-                 'Authorization','Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6eWRtZ3V2emRqZXp4c3VteHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NzkyNzMsImV4cCI6MjEwMjQ1NTI3M30.jdfBJOoYz2xfm1zSTe4TmTFTGh9yRlgcGDCnIaAMDuM'),
+                 'Authorization','Bearer <ANON_KEY>'),
     body    := '{"kind":"mini_reminder"}'::jsonb
   );
 $CRON$);
