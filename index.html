@@ -13,6 +13,8 @@
 <meta name="theme-color" content="#222222">
 <link rel="stylesheet" href="vendor/pretendard.css">
 <script>
+/* 1.0.1: 기본 연결 코드가 바뀌었다 — 코드를 따로 정한 적 없는 기기는 기존 기록의 코드를 이어받는다 */
+(function(){try{if(localStorage.getItem('yt_pair'))return;var s=JSON.parse(localStorage.getItem('v2demo')||'{}');var r=[].concat(s.worksheets||[],s.questions||[]).find(function(x){return x&&x.pair_code});if(r)localStorage.setItem('yt_pair',r.pair_code);}catch(e){}})();
 // Apply saved theme before first paint to avoid flash
 (function(){var t=localStorage.getItem('dash6_theme');if(t){document.documentElement.setAttribute('data-theme',t);}})();
 </script>
@@ -1230,14 +1232,14 @@ input, select, textarea { font-size: max(16px, 1em); }
             <button class="t-btn t-btn-g t-btn-sm" type="button" onclick="v2TogglePw('v2-key',this)" title="보기/가리기">보기</button>
           </div>
         </div>
-        <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">페어링 코드</label><input type="text" id="v2-pair" placeholder="YUN-4821" onchange="v2SaveCfg()"></div>
+        <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">페어링 코드</label><input type="text" id="v2-pair" placeholder="PAIR-0001" onchange="v2SaveCfg()"></div>
         <div id="v2-conn-state" style="font-size:.74rem;margin-bottom:.6rem;line-height:1.7"></div>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
           <button class="t-btn t-btn-g" onclick="v2ConnTest()">연결 확인</button>
           <button class="t-btn t-btn-p" onclick="v2CopyConnect()">태블릿 연결 코드 복사</button>
           <button class="t-btn t-btn-g" onclick="v2CopyConnect(true)">내 기기 미리보기 코드</button>
         </div>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem"><b>내 기기 미리보기</b>: 선생님 아이패드의 오늘학생에 붙여넣으면 윤서와 똑같은 화면을 보되, 풀어봐도 제출·질문이 나가지 않습니다.<br>URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-setup-guide.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem"><b>내 기기 미리보기</b>: 선생님 아이패드의 오늘학생에 붙여넣으면 학생과 똑같은 화면을 보되, 풀어봐도 제출·질문이 나가지 않습니다.<br>URL·키를 비워두면 <b>데모 모드</b>(이 브라우저 안에서만 동작). 실제 연동은 supabase-setup-guide.md 참고 — 복사한 연결 코드를 학생 태블릿 student.html에 한 번 붙여넣으면 끝.</div>
       </div>
 
       <div class="t-card">
@@ -1403,7 +1405,7 @@ let gasUrl = localStorage.getItem(GAS_KEY) || '';
 /* ── 동기화 전송 계층: Supabase 우선, 없으면 Drive(Apps Script) ──
    충돌 방지·타임스탬프 로직은 그대로 두고 저장소만 갈아끼운다. */
 var _syncClient=null;
-function sbSyncCfg(){ try{ return {u:localStorage.getItem('yt_url')||'', k:localStorage.getItem('yt_key')||'', p:localStorage.getItem('yt_pair')||'YUN-4821'}; }catch(e){ return {u:'',k:'',p:'YUN-4821'}; } }
+function sbSyncCfg(){ try{ return {u:localStorage.getItem('yt_url')||'', k:localStorage.getItem('yt_key')||'', p:localStorage.getItem('yt_pair')||'PAIR-0001'}; }catch(e){ return {u:'',k:'',p:'PAIR-0001'}; } }
 function sbSyncReady(){ const c=sbSyncCfg(); return !!(c.u&&c.k&&window.supabase); }
 function sbSyncClient(){ if(_syncClient) return _syncClient; const c=sbSyncCfg(); if(c.u&&c.k&&window.supabase) _syncClient=window.supabase.createClient(c.u,c.k); return _syncClient; }
 function syncAvailable(){ return sbSyncReady()||!!gasUrl; }
@@ -2539,7 +2541,7 @@ async function pushSaveHour(){
   }catch(e){tShowToast('❗ 저장 실패')}
 }
 
-function v2Pair(){return v2Cfg('pair')||'YUN-4821'}
+function v2Pair(){return v2Cfg('pair')||'PAIR-0001'}
 function v2Demo(){return !(v2Cfg('url')&&v2Cfg('key'))}
 let v2sb=null;
 function v2Sb(){if(v2sb)return v2sb;if(!v2Demo()&&window.supabase)v2sb=window.supabase.createClient(v2Cfg('url'),v2Cfg('key'));return v2sb}
@@ -2605,7 +2607,7 @@ function v2PhotoUrl(p){
 
 /* v2 UI */
 function v2LoadCfg(){
-  ['url','key','pair','gem','gem2'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)el.value=v2Cfg(k)||(k==='pair'?'YUN-4821':'')});
+  ['url','key','pair','gem','gem2'].forEach(k=>{const el=document.getElementById('v2-'+k);if(el)el.value=v2Cfg(k)||(k==='pair'?'PAIR-0001':'')});
   v2ModeChip();
 }
 function v2SaveCfg(){
@@ -3124,7 +3126,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='6.4';
+var APP_VER='6.4.1';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{

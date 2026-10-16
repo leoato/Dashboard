@@ -125,6 +125,8 @@ input, select, textarea { font-size: max(16px, 1em); }
       <div class="muted" style="margin-bottom:14px">선생님이 보내준 <b>연결 코드</b>를 붙여넣으세요. 처음 한 번만 하면 돼요.</div>
       <textarea id="pair-input" rows="3" placeholder="연결 코드 붙여넣기" style="font-family:var(--mono);font-size:.8rem"></textarea>
       <button class="btn pri big" style="margin-top:12px" onclick="pairConnect()">연결</button>
+      <div class="muted" style="margin:18px 0 8px;font-size:.82rem">아직 연결 코드가 없나요? 예시 문제지 2개로 먼저 둘러볼 수 있어요.</div>
+      <button class="btn big" id="demo-btn" onclick="startDemo()">데모로 둘러보기</button>
     </div>
   </div>
 </div>
@@ -320,7 +322,9 @@ input, select, textarea { font-size: max(16px, 1em); }
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='6.4';
+var APP_VER='6.4.1';
+/* 1.0.1: 기본 연결 코드가 바뀌었다 — 코드를 따로 정한 적 없는 기기는 기존 기록의 코드를 이어받는다 */
+(function(){try{if(localStorage.getItem('yt_pair'))return;var s=JSON.parse(localStorage.getItem('v2demo')||'{}');var r=[].concat(s.worksheets||[],s.questions||[]).find(function(x){return x&&x.pair_code});if(r)localStorage.setItem('yt_pair',r.pair_code);}catch(e){}})();
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -354,7 +358,7 @@ function setCfg(k,v){localStorage.setItem('yt_'+k,v)}
 function isDemo(){return !(cfg('url')&&cfg('key'))}
 let sb=null;
 function sbc(){if(sb)return sb;if(!isDemo()&&window.supabase)sb=window.supabase.createClient(cfg('url'),cfg('key'));return sb}
-function pairCode(){return cfg('pair')||'YUN-4821'}
+function pairCode(){return cfg('pair')||'PAIR-0001'}
 function studentCall(){return cfg('name')||''}
 function isViewer(){return cfg('viewer')==='1'}
 async function refreshStudentName(){
@@ -365,11 +369,29 @@ async function refreshStudentName(){
     if(n&&n!==cfg('name'))setCfg('name',n);
   }catch(e){}
 }
-function rePair(){if(confirm('선생님과 다시 연결할까요? (새 연결 코드를 붙여넣게 됩니다)')){$('pair-input').value='';showScreen('pair','선생님과 연결')}}
+function demoSeed(){
+  const s=demoStore(); if(s.worksheets.some(w=>w.pair_code===pairCode()))return;
+  const now=Date.now(), C='①②③④⑤';
+  const mk=(id,title,probs,ago)=>({id,pair_code:pairCode(),kind:'sheet',status:'assigned',title,
+    answer_key:probs.map(q=>q.answer),problems:probs,created_at:new Date(now-ago).toISOString(),
+    html_data:'<!doctype html><meta charset="utf-8"><body style="font-family:sans-serif;padding:24px;line-height:1.8;color:#222"><h2>'+title+'</h2>'
+      +probs.map((q,i)=>'<p><b>'+(i+1)+'.</b> '+q.q+(q.choices?'<br>'+q.choices.map((c,j)=>C[j]+' '+c).join(' &nbsp; '):'')+'</p>').join('')+'</body>'});
+  s.worksheets.push(
+    mk('demo-ws-1','[예시] 이차방정식 기초 3문제',[
+      {q:'x² − 5x + 6 = 0 의 두 근의 합은?',choices:['2','3','5','6','7'],answer:'③',solution:'근과 계수의 관계: 두 근의 합 = 5',unit:['공통수학1','이차방정식','']},
+      {q:'x² − 4 = 0 의 양수인 근은?',choices:['1','2','3','4','8'],answer:'②',solution:'x = ±2 → 양수인 근은 2',unit:['공통수학1','이차방정식','']},
+      {q:'2 + 3 × 4 의 값을 구하시오.',choices:null,answer:'14',solution:'곱셈 먼저: 2 + 12 = 14',unit:['공통수학1','다항식','']}],120000),
+    mk('demo-ws-2','[예시] 좌표평면 2문제',[
+      {q:'두 점 (0, 0), (3, 4) 사이의 거리는?',choices:['3','4','5','6','7'],answer:'③',solution:'√(3² + 4²) = 5',unit:['공통수학2','평면좌표','']},
+      {q:'점 (2, −1)을 x축에 대하여 대칭이동한 점의 y좌표를 구하시오.',choices:null,answer:'1',solution:'x축 대칭: (2, 1) → y좌표는 1',unit:['공통수학2','도형의 이동','']}],60000));
+  demoSave(s);
+}
+function startDemo(){setCfg('url','');setCfg('key','');setCfg('viewer','');setCfg('paired','1');sb=null;demoSeed();boot();toast('데모 모드예요 — 맨 위 \'데모 모드 · 끝내기\'를 누르면 끝낼 수 있어요',3600)}
+function rePair(){if(isDemo()&&cfg('paired')){if(confirm('데모를 끝내고 연결 화면으로 돌아갈까요?')){setCfg('paired','');$('pair-input').value='';boot()}return}if(confirm('선생님과 다시 연결할까요? (새 연결 코드를 붙여넣게 됩니다)')){$('pair-input').value='';showScreen('pair','선생님과 연결')}}
 function pairConnect(){
   const raw=($('pair-input').value||'').trim();
   if(!raw){toast('코드를 붙여넣어 주세요');return}
-  if(raw==='데모'||raw.toUpperCase()==='DEMO'){setCfg('paired','1');boot();toast('데모 모드로 연결됐어요');return}
+  
   try{
     const o=JSON.parse(atob(raw));
     if(!o.p)throw 0;
@@ -448,7 +470,7 @@ function showScreen(sc,title){
 }
 function goHome(){renderHome();showScreen('home')}
 function boot(){
-  $('mode-chip').textContent=(isViewer()?'미리보기(선생님) · ':'')+(isDemo()?'데모 모드':'연결됨 · '+pairCode())+' · v'+APP_VER;
+  $('mode-chip').textContent=(isViewer()?'미리보기(선생님) · ':'')+(!cfg('paired')?'':isDemo()?'데모 모드 · 끝내기 · ':'연결됨 · '+pairCode()+' · ')+'v'+APP_VER;
   document.body.classList.toggle('viewer', isViewer());
   if(!cfg('paired')){showScreen('pair');return}
   showScreen('home');renderHome();
