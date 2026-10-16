@@ -181,7 +181,7 @@ textarea { resize: vertical; min-height: 42px; }
 .crow.done .lbl { text-decoration: line-through; color: var(--muted); }
 .crow.done .dday { opacity: .35; }
 input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink: 0; accent-color: var(--btn-acc); }
-.ilbl { flex: 1; min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.45; }   /* 좁은 화면에서 잘리지 않게 — 말줄임 대신 줄바꿈 */
+.ilbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lbl  { flex: 1; min-width: 0; }
 .stag { font-size: .56rem; padding: 1px 4px; background: var(--tag-bg); color: var(--muted); border: 1px solid var(--border-soft); flex-shrink: 0; white-space: nowrap; border-radius: var(--r); }
 
@@ -543,11 +543,6 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 #tutor-overlay .legacy-wrap .card-head { font-family:'Nanum Myeongjo',serif; font-size:.9rem; font-weight:700; color:#222222; }
 #tutor-overlay .legacy-wrap .btn { border-radius:6px; }
 #tutor-overlay .legacy-wrap .slist { max-height:none; }
-/* 어떤 폭에서도 카드가 화면을 밀어내지 않게 — 그리드 아이템의 자동 최소폭(min-content) 차단 */
-#tutor-overlay .legacy-wrap > *, #tutor-overlay .t-fr > *, #tutor-overlay .t-2col > *, #tutor-overlay .t-sacts > *, #tutor-overlay .t-dsum > * { min-width:0; }
-#tutor-overlay .irow, #tutor-overlay .crow, #tutor-overlay .erow { min-width:0; flex-wrap:wrap; }
-#tutor-overlay .t-card, #tutor-overlay .legacy-wrap .card { overflow-wrap:anywhere; }
-
 @media(max-width:600px){
   #tutor-overlay .legacy-wrap { grid-template-columns:1fr; }
   #tutor-overlay .t-tc{padding:.9rem;}
@@ -556,63 +551,6 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
   #tutor-overlay .t-dsum{grid-template-columns:repeat(2,1fr);}
   #tutor-overlay .t-sacts{grid-template-columns:1fr;}
 }
-
-
-/* ═══ 미모 손풀이 (리프 annotation.js + leaf-zoom.js) ═══ */
-/* 필기 팝오버는 document.body 에 붙는다 — 변수를 :root 에 둬야 색이 닿는다 */
-:root{ --s:#FFFFFF; --s2:#F4F5F2; --tx:#222222; --tx-mid:#4A4A4A; --tx-dim:#777777;
-       --bd:#D8DADF; --bd2:#C7CAD1; --ac:#222222; --ac-d:#111111; --ac-l:#B9F18D; }
-#annotBar, .annot-pop, [class^="annot-"]{ font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif; }
-#sol-ov{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#EEEFF1}
-#sol-ov.open{display:flex}
-#sol-top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#FFFFFF;border-bottom:1.5px solid #222222}
-#sol-top .sol-titles{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.25}
-#sol-top .sol-titles b{font-size:.9rem;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#sol-top #sol-state{font-size:.68rem;color:#777777;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#sol-top button{font-family:inherit;cursor:pointer;border-radius:9px;font-weight:700;transition:transform .06s}
-#sol-top button:active{transform:translate(1.5px,1.5px)}
-#sol-top .sol-ghost{border:1.5px solid #222222;background:#FFFFFF;color:#222222;box-shadow:1.5px 1.5px 0 #222222;
-  padding:9px 14px;font-size:.8rem;white-space:nowrap;flex-shrink:0}
-#sol-top .sol-ghost:active{box-shadow:0 0 0 #222222}
-#sol-top .sol-primary{border:1.5px solid #222222;background:#B9F18D;color:#222222;box-shadow:2.5px 2.5px 0 #222222;
-  padding:10px 18px;font-size:.84rem;white-space:nowrap;flex-shrink:0}
-#sol-top .sol-primary:active{box-shadow:0 0 0 #222222}
-#sol-top .sol-primary:disabled{background:#EDEFF2;color:#9AA0A6;box-shadow:none}
-@media(max-width:820px){
-  #sol-top{gap:7px;padding:8px 10px}
-  #sol-top .sol-ghost{padding:8px 11px;font-size:.76rem}
-  #sol-top .sol-primary{padding:9px 13px;font-size:.78rem}
-  #sol-top .sol-titles #sol-state{display:none}
-  #sol-top .sol-titles #sol-ver{display:inline}
-}
-/* ── 아래는 리프 leaf.html 319~336행의 계약을 그대로 옮긴 것 ── */
-#main{flex:1;display:flex;overflow:hidden;min-height:0;position:relative;z-index:1}
-#left{flex:1;overflow-y:auto;height:100%;background:#8b877e;padding:18px 14px;
-      display:flex;flex-direction:column;align-items:center;gap:14px}
-#left{touch-action:none}   /* ★ 자체 스크롤러의 전제 — 지우면 iOS가 다시 공동 주인이 된다 */
-#pdfStage{width:calc(95% * var(--pdf-zoom,1));max-width:calc(820px * var(--pdf-zoom,1));
-  display:flex;flex-direction:column;align-items:stretch;gap:calc(14px * var(--pdf-zoom,1))}
-#left.pdf-zoomed{align-items:flex-start}
-#left.pdf-zoomed #pdfStage{margin-left:auto;margin-right:auto}
-#sol-ov .pdf-page{background:#fff;box-shadow:0 3px 16px rgba(0,0,0,.35);border-radius:4px;position:relative}
-#sol-ov .pdf-page canvas{display:block;width:100%;height:auto;border-radius:4px}
-/* 엔진이 #main 에 만드는 좌하단 줌 컨트롤 (− % +) — 리프 leaf.html 559~566행 이식.
-   배율(%) 버튼을 0.9초 길게 누르면 진단 로그 모달이 열린다 (실기기 문제의 유일한 눈) */
-#pdfZoomCtl{position:absolute;left:16px;bottom:16px;z-index:60;display:flex;align-items:center;gap:2px;
-  background:#FFFFFF;border:1.5px solid #222222;border-radius:10px;box-shadow:2px 2px 0 #222222;padding:3px}
-#pdfZoomCtl button{border:none;background:transparent;color:#222222;min-width:30px;height:30px;
-  border-radius:7px;font-size:16px;line-height:1;cursor:pointer;font-family:inherit;padding:0 5px;font-weight:700}
-#pdfZoomCtl button:active{background:#EDEFF2}
-#pdfZoomCtl #pzPct{min-width:52px;font-size:12px;font-variant-numeric:tabular-nums}
-/* 진단 로그 모달 */
-#pinchLogOv{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.5);display:flex;
-  align-items:center;justify-content:center;padding:20px}
-#pinchLogOv > *{background:#fff;border:1.5px solid #222;border-radius:12px;max-width:760px;width:100%;
-  max-height:80vh;overflow:auto;padding:14px;font-size:.72rem;line-height:1.55}
-#pinchLogOv pre{white-space:pre-wrap;word-break:break-all;font-size:.66rem}
-#pinchLogOv button{border:1.5px solid #222;background:#fff;border-radius:8px;padding:6px 12px;
-  font-family:inherit;font-size:.74rem;font-weight:700;cursor:pointer;margin-right:6px}
-#annotBar .sol-hide{display:none !important}
 
 /* ── v5.0 오늘선생 플래너 스킨 (kill-ai-slop: 포인트 1색=형광연두 하이라이트, 위계는 크기·여백) ── */
 #tutor-overlay { font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif; background-image:linear-gradient(#F0F1F3 1px,transparent 1px),linear-gradient(90deg,#F0F1F3 1px,transparent 1px); background-size:22px 22px; background-color:#FFFFFF; }
@@ -631,20 +569,6 @@ input[type="checkbox"] { width: 13px; height: 13px; cursor: pointer; flex-shrink
 /* AI 조교 채팅 */
 #tutor-overlay #ai-fab{position:fixed;right:18px;bottom:18px;z-index:60;background:#222222;color:#B9F18D;border:1.5px solid #222222;border-radius:99px;padding:.7rem 1.15rem;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;box-shadow:3px 3px 0 rgba(34,34,34,.25)}
 #tutor-overlay #ai-fab:active{transform:translate(2px,2px);box-shadow:none}
-/* v10: AI 조교는 서랍행이 유일한 입구 — FAB 은퇴 (게이트 결정 ②) */
-#tutor-overlay #ai-fab{display:none}
-/* ── v10: 홈 대형 버튼 · 서랍 목록 ── */
-#tutor-overlay .h-big{display:block;width:100%;text-align:left;border:2px solid #222222;background:#FFFFFF;border-radius:12px;padding:1.05rem 1rem;margin-bottom:.7rem;cursor:pointer;box-shadow:4px 4px 0 #222222;font-family:inherit;color:#222222}
-#tutor-overlay .h-big:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #222222}
-#tutor-overlay .h-big .t{font-size:1.02rem;font-weight:800;letter-spacing:-.01em}
-#tutor-overlay .h-big .d{font-size:.72rem;color:#777777;margin-top:3px}
-#tutor-overlay .dr-row{display:flex;align-items:center;gap:12px;padding:.9rem 2px;border-bottom:1px dashed #D8DADF;cursor:pointer}
-#tutor-overlay .dr-row:last-child{border-bottom:none}
-#tutor-overlay .dr-row .t{font-size:.88rem;font-weight:800}
-#tutor-overlay .dr-row .d{font-size:.71rem;color:#777777;margin-top:2px}
-#tutor-overlay .dr-row .arr{margin-left:auto;color:#777777;font-weight:800}
-#tutor-overlay .qp-row{border:1.5px solid #222222;border-radius:10px;padding:.85rem;margin-top:.6rem}
-#tutor-overlay .qp-row.main{box-shadow:3px 3px 0 #222222;margin-top:.8rem}
 #tutor-overlay #ai-panel{position:fixed;right:16px;bottom:74px;width:380px;max-width:calc(100vw - 32px);height:min(560px,70vh);background:#FFFFFF;border:1.5px solid #222222;border-radius:12px;box-shadow:3px 3px 0 #222222;z-index:61;display:none;flex-direction:column;overflow:hidden}
 #tutor-overlay #ai-panel.on{display:flex}
 #tutor-overlay .ai-hd{display:flex;align-items:center;gap:8px;padding:.6rem .8rem;border-bottom:1.5px solid #222222;font-size:.9rem}
@@ -715,33 +639,13 @@ input, select, textarea { font-size: max(16px, 1em); }
     </div>
   </header>
   <nav class="t-nav">
-    <button class="t-tab-btn active" data-tgroup="home" onclick="tShowGroup('home')">홈</button>
-    <button class="t-tab-btn" data-tgroup="drawer" onclick="tShowGroup('drawer')">≡ 서랍</button>
+    <button class="t-tab-btn active" data-tgroup="today" onclick="tShowGroup('today')">오늘</button>
+    <button class="t-tab-btn" data-tgroup="rec" onclick="tShowGroup('rec')">수업 기록</button>
+    <button class="t-tab-btn" data-tgroup="sheets" onclick="tShowGroup('sheets')">문제지·자료</button>
+    <button class="t-tab-btn" data-tgroup="student" onclick="tShowGroup('student')">학생</button>
+    <button class="t-tab-btn" data-tgroup="settings" onclick="tShowGroup('settings')">설정</button>
   </nav>
   <div class="t-area">
-
-    <!-- v10: 홈 — 3버튼 개편 (스펙: UX프로토타입_3버튼.html) -->
-    <div id="t-panel-home" class="t-panel">
-    <div class="t-tc">
-      <div class="t-ptitle">오늘선생</div>
-      <div id="home-status" class="t-psub">TODAY</div>
-      <div id="home-actions" style="margin:1rem 0">
-        <button class="h-big" onclick="wzOpen()"><div class="t">수업 마침 → 문자</div><div class="d">진도·숙제·한마디 적으면 학부모 문자 완성 — 기록은 저절로</div></button>
-        <button class="h-big" onclick="qpickOpen()"><div class="t">문제 내기</div><div class="d">미모 · Gemini 새 문제 · 파일 — 한 곳에서</div></button>
-      </div>
-      <div class="t-card"><div class="t-ctitle">미모 캘린더 <span style="margin-left:auto;font-size:.68rem;color:#777777">풀이 보기 · 손풀이 바로가기</span></div><div id="home-mini-cal"></div></div>
-      <div class="t-card"><div class="t-ctitle">받은함</div><div id="home-inbox"></div></div>
-    </div>
-    </div>
-
-    <!-- v10: 서랍 — 나머지 기능 전부 -->
-    <div id="t-panel-drawer" class="t-panel">
-    <div class="t-tc">
-      <div class="t-ptitle">서랍</div>
-      <div class="t-psub">기능·데이터 전부 여기 삽니다</div>
-      <div class="t-card" id="drawer-list"></div>
-    </div>
-    </div>
 
     <!-- 수업 준비 -->
     <div id="t-panel-prep" class="t-panel">
@@ -897,7 +801,7 @@ input, select, textarea { font-size: max(16px, 1em); }
       <div id="v2-dash-alert" style="margin-bottom:1rem"></div>
       <div class="t-dgrid">
         <div class="t-dc" onclick="tShowTab('tab1')"><div class="t-dc-num">TAB 01</div><div class="t-dc-title">학생 기본 정보</div><div class="t-dc-desc">학생 리스트, 프로필, 수업료 계산기</div><div class="t-dc-badge" id="t-dc-students">0명</div></div>
-        <div class="t-dc" onclick="tShowGroup('settings')"><div class="t-dc-num">설정</div><div class="t-dc-title">자료 모음실</div><div class="t-dc-desc">교재·기출 링크 목록 — 설정 탭</div><div class="t-dc-badge" id="t-dc-folders">0 폴더</div></div>
+        <div class="t-dc" onclick="tShowTab('tab2')"><div class="t-dc-num">TAB 02</div><div class="t-dc-title">자료 모음실</div><div class="t-dc-desc">기출, 모의고사, 추가 자료</div><div class="t-dc-badge" id="t-dc-folders">0 폴더</div></div>
         <div class="t-dc" onclick="tShowTab('tab3')"><div class="t-dc-num">TAB 03</div><div class="t-dc-title">수업 진도 기록</div><div class="t-dc-desc">날짜, 회차, 진도, 숙제 + 문자 생성</div><div class="t-dc-badge" id="t-dc-lessons">0회</div></div>
         <div class="t-dc" onclick="tShowTab('tab4')"><div class="t-dc-num">TAB 04</div><div class="t-dc-title">안내 문자 보관소</div><div class="t-dc-desc">학부모 발송 문자 기록 및 검색</div><div class="t-dc-badge" id="t-dc-msgs">0건</div></div>
         <div class="t-dc" onclick="tShowTab('tab5')"><div class="t-dc-num">TAB 05</div><div class="t-dc-title">약점 기록소</div><div class="t-dc-desc">단원별 취약 유형 + 사진 첨부</div><div class="t-dc-badge" id="t-dc-weakness">0건</div></div>
@@ -1051,7 +955,7 @@ input, select, textarea { font-size: max(16px, 1em); }
     <!-- 탭2: 자료 모음실 -->
     <div id="t-panel-tab2" class="t-panel">
     <div class="t-tc">
-      <div class="t-ptitle">문제지</div>
+      <div class="t-ptitle">문제지 · 자료</div>
       <div class="t-psub">SHEETS &amp; MATERIALS</div>
       <div class="t-card">
         <div class="t-ctitle">문제지 — 학생 태블릿 <span id="v2-chip" style="margin-left:auto;font-size:.68rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif"></span></div>
@@ -1068,6 +972,8 @@ input, select, textarea { font-size: max(16px, 1em); }
       <div class="t-mbg" id="v2-new-modal">
         <div class="t-modal">
           <div style="display:flex;align-items:center;margin-bottom:.8rem"><b style="font-family:'Gowun Batang',serif">새 문제지</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-new-modal').classList.remove('open')">✕</button></div>
+          <button class="t-btn t-btn-g" style="width:100%;justify-content:center;margin-bottom:.3rem" onclick="v3OpenGen('')">Gemini로 문제 만들기 (앱에서 바로)</button>
+          <div style="text-align:center;font-size:.7rem;color:#B9BCC2;margin-bottom:.5rem">— 또는 파일 업로드 —</div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">제목</label><input type="text" id="v2-title" placeholder="예: 도형의 대칭이동 기본 연습"></div>
           <div class="t-fg full" style="margin-bottom:.6rem"><label class="tl">정답 (쉼표로 구분 — 자동 채점용)</label><input type="text" id="v2-answers" placeholder="예: 2, 5, 1, 3, 7, 5"></div>
           <div class="t-fg full" style="margin-bottom:.8rem"><label class="tl">학습지 파일 (선택 — <b>PDF 권장</b>. Claude 학습지 HTML은 브라우저에서 ⌘P → "PDF로 저장" 후 업로드)</label><input type="file" id="v2-file" accept=".pdf,.html,.htm"></div>
@@ -1077,13 +983,16 @@ input, select, textarea { font-size: max(16px, 1em); }
 
       <div class="t-card">
         <div class="t-ctitle">미니 모의고사 <span style="margin-left:auto;font-size:.68rem;color:#777777">매일 10문제 · 진도 나간 범위 복습</span></div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.7rem">
-          <button class="t-btn t-btn-p" onclick="qpickGo('mimo')">＋ 새 미모</button>
-          <button class="t-btn t-btn-g" onclick="miniRefresh()">↺ 새로고침</button>
-          <button class="t-btn t-btn-g" onclick="miniListToggle()" id="mini-list-tog">목록으로 보기</button>
+        <div style="font-size:.72rem;color:#777777;margin-bottom:.5rem">출제 범위 (지난 문제지·약점에서 자동 추천됨)</div>
+        <div id="mini-units" class="yex-units" style="margin-bottom:.6rem"></div>
+        <div class="t-fr">
+          <div class="t-fg"><label class="tl">며칠치</label><select id="mini-days"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
         </div>
-        <div id="mini-cal" style="margin-bottom:.6rem"></div>
-        <div id="mini-list" style="display:none"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.7rem">
+          <button class="t-btn t-btn-p" id="mini-go" onclick="miniCreate()">미모 만들기</button>
+          <button class="t-btn t-btn-g" onclick="miniRefresh()">↺ 새로고침</button>
+        </div>
+        <div id="mini-list"></div>
       </div>
 
       <!-- v3: Gemini 문제 생성 모달 -->
@@ -1134,12 +1043,7 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div class="t-modal">
           <div style="display:flex;align-items:center;margin-bottom:.6rem"><b style="font-family:'Gowun Batang',serif" id="v2s-title"></b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('v2-sub-modal').classList.remove('open')">✕</button></div>
           <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:.6rem"><span id="v2s-score" style="font-family:'Pretendard Variable',Pretendard,sans-serif;font-size:1.5rem;font-weight:700"></span><span style="font-size:.74rem;color:#777777">자동 채점 · 열면 확인함 처리</span></div>
-          <div id="v2s-marks" style="display:flex;flex-direction:column;gap:0;margin-bottom:.6rem"></div>
-          <div style="display:flex;gap:7px;align-items:center;margin-bottom:.8rem;flex-wrap:wrap">
-            <button class="t-btn t-btn-p t-btn-sm" id="v2s-sol-btn" onclick="v2SolFromSub()">✍ 풀이로 답하기</button>
-            <button class="t-btn t-btn-p t-btn-sm" onclick="v2SaveComments()">한마디 저장 → 학생에게 보내기</button>
-            <span style="font-size:.7rem;color:#777777">틀린 문항에 적으면 학생 오답 화면에 뜹니다</span>
-          </div>
+          <div id="v2s-marks" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.8rem"></div>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.8rem">
             <button class="t-btn t-btn-g t-btn-sm" onclick="v3WrongToWeak()">오답 → 약점 노트</button>
             <button class="t-btn t-btn-g t-btn-sm" onclick="v3SimilarFromWrong()">오답 유사문제 만들기</button>
@@ -1149,7 +1053,20 @@ input, select, textarea { font-size: max(16px, 1em); }
         </div>
       </div>
 
-      
+      <div class="t-card">
+        <div class="t-ctitle">폴더 & 파일 관리</div>
+        <div id="t2-folder-list"></div>
+        <div class="t-new-folder-form" id="t2-new-folder-form">
+          <label class="tl">새 폴더 이름</label>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:.45rem">
+            <select id="t2-new-emoji" style="width:68px;flex-shrink:0"><option>📁</option><option>🏫</option><option>📝</option><option>➕</option><option>📚</option><option>🗂</option><option>⭐</option></select>
+            <input type="text" id="t2-new-name" placeholder="폴더 이름" style="flex:1">
+            <button class="t-btn t-btn-p t-btn-sm" onclick="t2AddFolder()">추가</button>
+            <button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleNewFolder()">취소</button>
+          </div>
+        </div>
+        <div style="margin-top:.75rem"><button class="t-btn t-btn-g" onclick="t2ToggleNewFolder()">📁 폴더 추가</button></div>
+      </div>
     </div>
     </div>
 
@@ -1354,7 +1271,7 @@ input, select, textarea { font-size: max(16px, 1em); }
           </div>
         </div>
         <button class="t-btn t-btn-g t-btn-sm" onclick="v3GemTest()">연결 테스트</button>
-        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 홈 [문제 내기]의 <b>Gemini로 새 문제</b>와 미모 만들기가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 <span id="t6-ver"></span> (새 버전 자동 감지)</span></div>
+        <div style="font-size:.72rem;color:#777777;margin-top:.5rem">키를 넣으면 문제지·자료 탭의 [새 문제지]에서 <b>Gemini로 문제 만들기</b>가 활성화됩니다. 모델은 자동 선택 (무료 한도로 충분). 문제가 생기면 [연결 테스트] 결과를 알려주세요. <span style="color:#777777">앱 버전 v6.3 (새 버전 자동 감지)</span></div>
       </div>
 
       <!-- 기존 과외 앱에서 데이터 이전 -->
@@ -1395,22 +1312,6 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div class="t-hint">이전에 저장한 tutoring_backup_날짜.json 파일을 선택하면 복원됩니다.</div>
       </div>
 
-      <div class="t-card">
-        <div class="t-ctitle">폴더 & 파일 관리</div>
-        <div style="font-size:.72rem;color:#777777;margin-bottom:.6rem">교재·기출 파일의 <b>경로나 링크를 적어두는 목록</b>입니다. 파일이 올라가는 게 아니라서, 아이패드에서 열려면 링크(URL)여야 합니다.</div>
-        <div id="t2-folder-list"></div>
-        <div class="t-new-folder-form" id="t2-new-folder-form">
-          <label class="tl">새 폴더 이름</label>
-          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:.45rem">
-            <select id="t2-new-emoji" style="width:68px;flex-shrink:0"><option>📁</option><option>🏫</option><option>📝</option><option>➕</option><option>📚</option><option>🗂</option><option>⭐</option></select>
-            <input type="text" id="t2-new-name" placeholder="폴더 이름" style="flex:1">
-            <button class="t-btn t-btn-p t-btn-sm" onclick="t2AddFolder()">추가</button>
-            <button class="t-btn t-btn-g t-btn-sm" onclick="t2ToggleNewFolder()">취소</button>
-          </div>
-        </div>
-        <div style="margin-top:.75rem"><button class="t-btn t-btn-g" onclick="t2ToggleNewFolder()">📁 폴더 추가</button></div>
-      </div>
-
     </div>
     </div>
 
@@ -1421,72 +1322,9 @@ input, select, textarea { font-size: max(16px, 1em); }
     <span class="t-lbclose" onclick="tCloseLightbox()">✕</span>
     <img id="t-lightbox-img" src="" alt="">
   </div>
-  <!-- v10: 문제 내기 통합 시트 (홈 버튼 ②) -->
-  <div class="t-mbg" id="qpick-modal" onclick="if(event.target===this)this.classList.remove('open')">
-    <div class="t-modal" style="max-width:430px">
-      <div style="display:flex;align-items:center"><b style="font-family:'Gowun Batang',serif">문제 내기</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('qpick-modal').classList.remove('open')">✕</button></div>
-      <div class="dr-row qp-row main" onclick="qpickGo('mimo')">
-        <div><div class="t">미니 모의고사 만들기 <span style="font-size:.62rem;border:1.5px solid #222222;border-radius:5px;padding:.05rem .35rem;vertical-align:2px">기본</span></div><div class="d">매일 10문제 · 배운 범위에서 자동 추천</div></div><span class="arr">›</span></div>
-      <div class="dr-row qp-row" onclick="qpickGo('gen')">
-        <div><div class="t">Gemini로 새 문제</div><div class="d">단원 골라 생성 → 검수 → 전송</div></div><span class="arr">›</span></div>
-      <div class="dr-row qp-row" onclick="qpickGo('file')">
-        <div><div class="t">파일 올리기</div><div class="d">PDF + 정답 입력 → 자동 채점</div></div><span class="arr">›</span></div>
-      <div class="dr-row qp-row" onclick="qpickGo('mimoimp')">
-        <div><div class="t">파일로 미모 등록</div><div class="d">만들어 둔 미모 HTML 여러 개 → 날짜별로 한 번에</div></div><span class="arr">›</span></div>
-      <div class="dr-row qp-row" onclick="wrOpen()">
-        <div><div class="t">오답 모아 풀기</div><div class="d">틀렸던 문제만 자동으로 모아 손풀이로</div></div><span class="arr">›</span></div>
-    </div>
-  </div>
-
-  <!-- v10: 미모 만들기 모달 (구 tab2 카드의 생성 컨트롤 이주 — id 그대로) -->
-  <div class="t-mbg" id="mimo-modal" onclick="if(event.target===this)this.classList.remove('open')">
-    <div class="t-modal" style="max-width:430px">
-      <div style="display:flex;align-items:center"><b style="font-family:'Gowun Batang',serif">미모 만들기</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('mimo-modal').classList.remove('open')">✕</button></div>
-      <div style="font-size:.72rem;color:#777777;margin:.3rem 0 .6rem">출제 범위 — 지난 문제지·약점에서 자동 추천됩니다</div>
-      <div id="mini-units" class="yex-units" style="margin-bottom:.6rem"></div>
-      <div class="t-fr">
-        <div class="t-fg"><label class="tl">며칠치</label><select id="mini-days"><option>3</option><option selected>5</option><option>7</option><option>10</option></select></div>
-      </div>
-      <button class="t-btn t-btn-p" id="mini-go" style="width:100%;justify-content:center;margin-top:.5rem" onclick="miniCreate()">미모 만들기</button>
-    </div>
-  </div>
-
-  <!-- 파일로 미모 등록 — 선생님용 미모 HTML(정답 페이지 포함)을 넣으면
-       정답표를 읽어내고 학생용(정답 페이지 뺀 것)을 만들어 날짜별로 등록한다 -->
-  <div class="t-mbg" id="mimoimp-modal" onclick="if(event.target===this)this.classList.remove('open')">
-    <div class="t-modal" style="max-width:460px">
-      <div style="display:flex;align-items:center"><b style="font-family:'Gowun Batang',serif">파일로 미모 등록</b><button class="t-rmfbtn" style="margin-left:auto" onclick="document.getElementById('mimoimp-modal').classList.remove('open')">✕</button></div>
-      <div style="font-size:.72rem;color:#777777;margin:.3rem 0 .6rem">
-        선생님용 미모 <b>HTML</b>(정답·해설 쪽이 들어 있는 것)을 여러 개 고르세요.
-        정답은 자동으로 읽고, 학생에게는 정답 쪽을 <b>뺀 문제지</b>만 갑니다. 배포일은 파일명의 날짜(예: <b>0903</b>)로 잡습니다.</div>
-      <input type="file" id="mimoimp-file" accept=".html,.htm" multiple onchange="mimoImpPick(this)" style="font-size:.76rem;margin-bottom:.5rem">
-      <div id="mimoimp-list" style="font-size:.76rem;line-height:1.6;max-height:210px;overflow:auto"></div>
-      <button class="t-btn t-btn-p" id="mimoimp-go" style="width:100%;justify-content:center;margin-top:.6rem;display:none" onclick="mimoImpGo()">등록</button>
-    </div>
-  </div>
-
   <!-- toast -->
   <div id="t-toast"></div>
 </div><!-- /tutor-overlay -->
-
-<!-- ═══ 미모 손풀이 (리프 annotation.js 이식) ═══ -->
-<div id="sol-ov">
-  <div id="sol-top">
-    <button class="sol-ghost" onclick="solClose()" title="닫기">← 닫기</button>
-    <div class="sol-titles">
-      <b id="sol-title"></b>
-      <span id="sol-state"></span>
-      <span id="sol-ver" style="font-size:.62rem;color:#9AA0A6"></span>
-    </div>
-    <button class="sol-ghost" onclick="solFitWidth()" title="문제지 폭을 화면에 맞춤">폭 맞춤</button>
-    <button class="sol-ghost" onclick="solFit()" title="문제지 전체를 화면에 맞춤">전체</button>
-    <button class="sol-primary" id="sol-send" onclick="solSend()">윤서에게 보내기</button>
-  </div>
-  <!-- 아래 구조·id는 리프 조작 엔진(vendor/leaf-zoom.js)의 계약이다. 바꾸지 말 것.
-       #left{touch-action:none} 이 자체 스크롤러의 전제 — 지우면 iOS가 다시 공동 주인이 된다. -->
-  <div id="main"><div id="left"><div id="pdfStage"></div></div></div>
-</div>
-
 <!-- TRASH -->
 <div id="trash-panel">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding-bottom:8px;border-bottom:2px solid var(--border)">
@@ -1895,25 +1733,20 @@ function chM(which,delta){ const c=calM[which]; calM[which]=new Date(c.getFullYe
 
 /* ── 탭 전환 ── */
 let tCurrentTab='dashboard';
-let tCurGroup='today';
-/* v10: 홈+서랍 2탭. 기존 그룹(rec·sheets·student·settings)은 서랍의 하위 화면으로 산다 */
-const TGROUPS={home:['home'],drawer:['drawer'],rec:['tab3','tab4'],sheets:['tab2'],student:['tab1','tab7','tab5'],settings:['tab6'],prep:['prep']};
-const TID2G={dashboard:'home',prep:'prep',tab1:'student',tab2:'sheets',tab3:'rec',tab4:'rec',tab5:'student',tab6:'settings',tab7:'student'};
+/* v1.5: 9탭 → 5그룹. 한 그룹 = 기존 패널 여러 개를 세로로 쌓아 보여준다 */
+const TGROUPS={today:['dashboard','prep'],rec:['tab3','tab4'],sheets:['tab2'],student:['tab1','tab7','tab5'],settings:['tab6']};
+const TID2G={dashboard:'today',prep:'today',tab1:'student',tab2:'sheets',tab3:'rec',tab4:'rec',tab5:'student',tab6:'settings',tab7:'student'};
 function tShowGroup(g){
-  if(g==='today')g='home';               // 구버전 호출 호환
-  if(!TGROUPS[g])g='home';
+  if(!TGROUPS[g])g='today';
   document.querySelectorAll('.t-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.t-tab-btn').forEach(b=>b.classList.remove('active'));
   TGROUPS[g].forEach(id=>{const p=document.getElementById('t-panel-'+id);if(p)p.classList.add('active');});
-  /* 탭바는 홈/서랍 둘뿐 — 서랍 하위 화면에선 서랍이 켜져 있고, 누르면 서랍 목록으로 돌아간다 */
-  const ng=(g==='home')?'home':'drawer';
-  const b=document.querySelector(`[data-tgroup="${ng}"]`);if(b)b.classList.add('active');
-  tCurrentTab=TGROUPS[g][0]; tCurGroup=g;
-  if(g==='home'){ tDashRefresh(); try{v2DashAlert()}catch(e){} try{rmRefreshFacts()}catch(e){} try{miniRefresh()}catch(e){} }
-  if(g==='drawer') try{drawerRender()}catch(e){}
-  if(g==='prep') try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){}
+  const b=document.querySelector(`[data-tgroup="${g}"]`);if(b)b.classList.add('active');
+  tCurrentTab=TGROUPS[g][0];
+  if(g==='today') tDashRefresh();
+  if(g==='today'){ try{v2DashAlert()}catch(e){} try{yexRenderUnitPickers();rmRefreshFacts()}catch(e){} }
   if(g==='sheets') try{v2Render();miniRenderUnits();miniRefresh();}catch(e){}
-  if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} try{pushRenderT();pushLoadHour();pushEnsureT()}catch(e){} }
+  if(g==='settings'){ t6RefreshSummary(); try{v2ConnTest()}catch(e){} try{pushRenderT();pushLoadHour()}catch(e){} }
   if(g==='student') t7Render();
   const area=document.querySelector('#tutor-overlay .t-area');if(area)area.scrollTop=0;
 }
@@ -2008,18 +1841,13 @@ let tInited=false;
 function tInit(){
   if(tInited) return;
   tInited=true;
-  // v1.5: 그룹 내 표시 순서대로 패널 DOM 재배치 (학생=정보→성적→약점)
-  const ORDER=['home','drawer','dashboard','prep','tab3','tab4','tab2','tab1','tab7','tab5','tab6'];
+  // v1.5: 그룹 내 표시 순서대로 패널 DOM 재배치 (오늘=대시보드→준비, 학생=정보→성적→약점)
+  const ORDER=['dashboard','prep','tab3','tab4','tab2','tab1','tab7','tab5','tab6'];
   const wrap=document.getElementById('t-panel-dashboard').parentElement;
   ORDER.forEach(id=>{const p=document.getElementById('t-panel-'+id);if(p)wrap.appendChild(p);});
-  /* v10: 숨은 패널 안에 갇히면 안 되는 모달·AI를 오버레이 루트로 (v2-q-modal과 같은 관례) */
-  ['wz-modal-bg','v2-sub-modal','v2-new-modal','v3-gen-modal','v3-view-modal','ai-fab','ai-panel'].forEach(function(id){
-    var m=document.getElementById(id); if(m) document.getElementById('tutor-overlay').appendChild(m);
-  });
   tplLoad();
   t1Load(); t2Load(); t3Load(); t4Load(); t5Load(); t7Load();
-  try{document.getElementById('t6-ver').textContent='v'+APP_VER}catch(e){}
-  tShowGroup('home');
+  tShowGroup('today');
 }
 
 /* ── 대시보드 ── */
@@ -2675,7 +2503,6 @@ async function pushOn(role,label){
     var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
       body:JSON.stringify({endpoint:j.endpoint,pair_code:v2Pair(),role:role,p256dh:j.keys.p256dh,auth:j.keys.auth,label:label||''})});
     if(!r.ok)throw new Error(await r.text());
-    try{ localStorage.setItem('yt_push','1'); }catch(e){}
     tShowToast('✅ 이 기기 알림을 켰어요 — 제출·질문이 오면 알려드립니다',3500); return true;
   }catch(e){ tShowToast('❗ 알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
 }
@@ -2688,20 +2515,6 @@ async function pushNotify(kind,extra){
 }
 
 async function pushBtnClickT(){ if(await pushOn('teacher','선생님 기기')) pushRenderT(); }
-/* 선생님 기기도 같은 이유로 조용히 재등록 (권한 있는데 서버 등록이 빠진 상태 복구) */
-async function pushEnsureT(){
-  if(!pushSupported()||Notification.permission!=='granted')return;
-  var U=v2Cfg('url'), K=v2Cfg('key'); if(!U||!K)return;
-  try{
-    var reg=await navigator.serviceWorker.register('./sw.js');
-    await navigator.serviceWorker.ready;
-    var sub=await reg.pushManager.getSubscription();
-    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_b64u8(VAPID_PUB)});
-    var j=sub.toJSON();
-    await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
-      body:JSON.stringify({endpoint:j.endpoint,pair_code:v2Pair(),role:'teacher',p256dh:j.keys.p256dh,auth:j.keys.auth,label:'선생님 기기'})});
-  }catch(e){}
-}
 function pushRenderT(){
   var el=document.getElementById('push-state'); if(!el)return;
   el.innerHTML = !pushSupported() ? '이 브라우저는 알림 미지원 — 아이폰은 <b>홈 화면에 추가</b>한 오늘선생에서 켜주세요.'
@@ -2852,14 +2665,10 @@ async function v2Render(){
   box.innerHTML=v2rows.length?v2rows.map((w,i)=>{
     const sub=(w.submissions||[])[0];
     const st=w.status==='assigned'?'배정됨':w.status==='submitted'?'제출됨':'확인함';
-    const hasPdf=/\.pdf$/i.test(String(w.html_path||''));
-    const isWrongSet=!hasPdf&&/^\[오답 모음\]/.test(w.title||'')&&w.problems&&w.problems.length;
-    const solveFn=hasPdf?`solOpen('${w.id}')`:(isWrongSet?`wrReopen('${w.id}')`:'');
-    return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #D8DADF;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub('${w.id}')"`:''}>
+    return `<div style="display:flex;align-items:center;gap:9px;border-bottom:1.5px dashed #D8DADF;padding:9px 2px;${sub?'cursor:pointer':''}" ${sub?`onclick="v2OpenSub(${i})"`:''}>
       <div style="flex:1;min-width:0"><b style="font-size:.8rem">${tEscH(w.title)}</b>
       <div style="font-size:.7rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(w.created_at||'').slice(5,10).replace('-','.')}${sub?' · '+(sub.score||'')+' · 손풀이 '+((sub.photo_paths||[]).length)+'장':''}</div></div>
-      ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet('${w.id}')">정답지</button>`:''}
-      ${solveFn?`<button class="t-btn ${w.solution_path?'t-btn-p':'t-btn-g'} t-btn-sm" onclick="event.stopPropagation();${solveFn}">${w.solution_path?'손풀이 수정':'손풀이'}</button>`:''}
+      ${(w.problems&&w.problems.length)?`<button class="t-btn t-btn-g t-btn-sm" onclick="event.stopPropagation();v3AnswerSheet(${i})">정답지</button>`:''}
       <span class="t-lbadge" style="${w.status==='submitted'?'background:#222222;color:#fff':''}">${st}</span></div>`;
   }).join(''):'<div style="font-size:.76rem;color:#777777">아직 문제지가 없습니다 — [＋ 새 문제지]로 시작하세요</div>';
 }
@@ -2887,173 +2696,31 @@ async function v2Send(){
   }catch(e){tShowToast('❗ 전송 실패 — 연동 설정/인터넷 확인');}
   btn.disabled=false;btn.textContent='학생 태블릿으로 전송';
 }
-async function v2OpenSub(i){   /* i = worksheet id */
-  let _w=(v2rows||[]).find(function(x){return String(x.id)===String(i)});
-  if(!_w){ try{ v2rows=await v2List(); }catch(e){} _w=(v2rows||[]).find(function(x){return String(x.id)===String(i)}); }
-  if(!_w)return;
-  v2cur=_w;const sub=(v2cur.submissions||[])[0];if(!sub)return;
+async function v2OpenSub(i){
+  v2cur=(v2rows.filter(function(w){return w.kind!=='mini'}))[i]||v2rows[i];const sub=(v2cur.submissions||[])[0];if(!sub)return;
   document.getElementById('v2s-title').textContent=v2cur.title;
   document.getElementById('v2s-score').textContent=sub.score||'';
-  const _cm=sub.comments||[], _ans=sub.answers||[];
-  const _probs=v2cur.problems||[], _key=v2cur.answer_key||[];
-  const _hl='background:linear-gradient(transparent 55%,#B9F18D 55%);padding:0 2px';
-  document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>{
-    const wrong=m==='X';
-    const correct=(_probs[j]&&_probs[j].answer)||_key[j]||'';
-    const mine=String(_ans[j]==null?'':_ans[j]).trim();
-    /* 맞은 문항은 번호만 — 틀린 문항만 '뭐라고 적었는지'를 보여준다 */
-    const detail=wrong?`<span style="font-size:.76rem">적은 답 <b>${mine?tEscH(mine):'(빈칸)'}</b></span>
-        ${correct?`<span style="font-size:.76rem;color:#4A4A4A">정답 <b style="${_hl}">${tEscH(correct)}</b></span>`:''}`:'';
-    return `<div style="padding:6px 0;border-bottom:1px dashed #D8DADF">
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <span style="border:1.5px solid #222222;border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700;flex-shrink:0;${wrong?'background:#222222;color:#fff':''}">${j+1}번 ${wrong?'✕':'○'}</span>
-        ${detail}
-      </div>
-      <input type="text" id="v2cm-${j}" value="${tEscH(_cm[j]||'')}" placeholder="${wrong?'여기 이렇게 풀어봐 — 학생 오답 화면에 떠요':'한마디 (선택)'}"
-        style="width:100%;margin-top:5px;padding:5px 8px;font-size:.76rem;border:1.5px solid ${wrong?'#222222':'#D8DADF'};border-radius:6px">
-    </div>`;
-  }).join('');
+  document.getElementById('v2s-marks').innerHTML=(sub.marks||[]).map((m,j)=>`<span style="border:1.2px solid ${m==='X'?'#222222':'#222222'};color:${m==='X'?'#222222':'#222222'};border-radius:20px;padding:2px 9px;font-size:.68rem;font-weight:700">${j+1}번 ${m==='O'?'○':'✕'}</span>`).join('');
   document.getElementById('v2s-photos').innerHTML=(sub.photo_paths||[]).map(p=>`<img src="${v2PhotoUrl(p)}" style="max-width:100%;border:1.5px solid #222222;border-radius:8px" loading="lazy">`).join('')||'<div style="font-size:.76rem;color:#777777">사진 없음</div>';
-  /* v10: 확인한 자리에서 바로 풀이로 답한다 — PDF 문제지일 때만 */
-  var solBtn=document.getElementById('v2s-sol-btn');
-  if(solBtn){
-    var hasPdf=/\.pdf$/i.test(String(v2cur.html_path||''));
-    solBtn.style.display=hasPdf?'':'none';
-    solBtn.textContent=v2cur.solution_path?'✍ 풀이 수정하기':'✍ 풀이로 답하기';
-  }
   document.getElementById('v2-sub-modal').classList.add('open');
   if(v2cur.status==='submitted'){try{await v2Seen(v2cur.id);v2cur.status='seen';v2Render();v2DashAlert();}catch(e){}}
 }
-/* v10: 제출 상세 → 손풀이 직행 (pdf 아니면 solOpen이 스스로 거른다) */
-function v2SolFromSub(){
-  if(!v2cur)return;
-  document.getElementById('v2-sub-modal').classList.remove('open');
-  solOpen(v2cur.id);
-}
-async function v2SaveComments(){
-  if(!v2cur){return}
-  const sub=(v2cur.submissions||[])[0]; if(!sub){tShowToast('❗ 제출 기록이 없어요');return}
-  const n=(sub.marks||[]).length;
-  const cm=[]; for(let j=0;j<n;j++){ const el=document.getElementById('v2cm-'+j); cm.push(el?(el.value||'').trim():''); }
-  if(!cm.some(function(x){return x})){tShowToast('적은 한마디가 없어요');return}
-  try{
-    if(v2Sb()){
-      const {error}=await v2sb.from('submissions').update({comments:cm}).eq('id',sub.id);
-      if(error)throw error;
-    }else{
-      const st=v2StoreGet(); const x=st.submissions.find(function(y){return y.id===sub.id});
-      if(x)x.comments=cm; v2StoreSave(st);
-    }
-    sub.comments=cm;
-    tShowToast('✅ 저장 — 학생 오답 화면에 "쌤 한마디"로 표시됩니다');
-    pushNotify('comment',{sheet:v2cur.title});
-  }catch(e){
-    const msg=String(e&&e.message||'');
-    tShowToast(/comments|column/i.test(msg)?'❗ comments 컬럼이 없습니다 — supabase-v9.sql을 실행해주세요':'❗ 저장 실패 — 인터넷 확인',4500);
-  }
-}
-
 async function v2DashAlert(){
-  /* v10: 받은함 — 홈 패널에 그린다 (구 대시보드 자리는 폴백) */
-  const el=document.getElementById('home-inbox')||document.getElementById('v2-dash-alert');if(!el)return;
+  const el=document.getElementById('v2-dash-alert');if(!el)return;
   let rows=[],qs=[];
-  try{rows=await v2List();v2rows=rows;}catch(e){}
+  try{rows=await v2List()}catch(e){}
   try{qs=await v2ListQuestions()}catch(e){}
   const un=rows.filter(w=>w.status==='submitted');
   const uq=qs.filter(q=>q.status==='open');
   let html='';
-  if(un.length){
-    html+=un.slice(0,4).map(function(w){
-      const sb=(w.submissions||[])[0]||{};
-      const tag=w.kind==='mini'?'미모':'문제지';
-      const when=String(sb.created_at||'').slice(11,16);
-      return `<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:.6rem" onclick="v2OpenSub('${w.id}')">
-        <div style="font-size:.82rem;font-weight:700">${tag} 제출 — ${tEscH(w.title)}</div>
-        <div style="font-size:.72rem;color:#777777">${sb.score?'점수 '+tEscH(sb.score)+' · ':''}손풀이 ${(sb.photo_paths||[]).length}장${when?' · '+when:''} — 눌러서 채점 결과 보기</div></div>`;
-    }).join('');
-    if(un.length>4)html+=`<div style="font-size:.72rem;color:#777777;margin-bottom:.6rem">외 ${un.length-4}건은 서랍 › 문제지 전체 목록에서</div>`;
-  }
+  if(un.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:.6rem" onclick="tShowGroup('sheets')">
+    <div style="font-size:.82rem;font-weight:700">제출물 ${un.length}건 — ${tEscH(un[0].title)}${un.length>1?' 외':''}</div>
+    <div style="font-size:.72rem;color:#777777">눌러서 확인 (자동 채점 완료 · 손풀이 사진 포함)</div></div>`;
   if(uq.length)html+=`<div class="t-card" style="border-color:#222222;cursor:pointer;margin-bottom:0" onclick="v2OpenQuestions()">
     <div style="font-size:.82rem;font-weight:700">${tStudentCall()}의 질문 ${uq.length}건</div>
     <div style="font-size:.72rem;color:#777777">"${tEscH((uq[0].note||'').slice(0,42))}${(uq[0].note||'').length>42?'…':''}"</div></div>`;
-  if(!html) html='<div style="border:1.5px dashed #D8DADF;border-radius:10px;padding:1rem;text-align:center;font-size:.78rem;color:#777777">새로 온 것 없음 — 제출·질문이 오면 여기 떠요</div>';
   el.innerHTML=html;
-  try{homeStatus(rows)}catch(e){}
 }
-/* v10: 홈 상태줄 — 시험 D-day + 오늘 미모 상태 */
-function homeStatus(rows){
-  var el=document.getElementById('home-status'); if(!el)return;
-  var parts=[];
-  try{ var f=rmFacts(); if(f&&f.ex) parts.push(tEscH(f.ex.ttl)+' <b>'+tEscH(f.ex.dt)+'</b> · 남은 수업 '+f.dates.length+'회'); }catch(e){}
-  try{
-    var today=_ymd(new Date());
-    var m=(rows||[]).find(function(w){return w.kind==='mini'&&String(w.serve_date||'')===today});
-    if(m) parts.push('오늘 미모 '+(m.solution_path?'풀이 보냄 ✓':(m.status==='submitted'?'제출됨':(m.status==='seen'?'확인함':'대기'))));
-  }catch(e){}
-  el.innerHTML=parts.join(' · ')||'TODAY';
-}
-/* v10: 서랍 목록 */
-function drawerRender(){
-  var el=document.getElementById('drawer-list'); if(!el)return;
-  var rows=[
-    ['rec','수업 기록','진도 회차별 + 학부모 문자 보관 (검색·복사)'],
-    ['student','학생','기본 정보 · 성적 트래커 · 약점 기록소'],
-    ['sheets','문제지 전체 목록','보낸 문제지·미모 · 상태 · 질문함 · 손풀이'],
-    ['ai','AI 조교','이번 주 뭐 할까 · 오답 진단 · 문자 다듬기'],
-    ['prep','수업 로드맵','시험까지 회차 계획 · 시험 일정'],
-    ['settings','설정','문자 템플릿 · 태블릿 연동 · 알림 · 백업'],
-  ];
-  el.innerHTML=rows.map(function(r){
-    var act=r[0]==='ai'?"aiToggle(true)":"tShowGroup('"+r[0]+"')";
-    return '<div class="dr-row" onclick="'+act+'"><div><div class="t">'+r[1]+'</div><div class="d">'+r[2]+'</div></div><span class="arr">›</span></div>';
-  }).join('');
-}
-/* v10: 문제 내기 통합 시트 — 미모(기본)·Gemini·파일 한 입구 (게이트 결정 ③) */
-function qpickOpen(){document.getElementById('qpick-modal').classList.add('open')}
-function qpickGo(k){
-  document.getElementById('qpick-modal').classList.remove('open');
-  if(k==='mimo'){ try{miniRenderUnits()}catch(e){} document.getElementById('mimo-modal').classList.add('open'); }
-  else if(k==='mimoimp'){ mimoImpReset(); document.getElementById('mimoimp-modal').classList.add('open'); }
-  else if(k==='gen'){ v3OpenGen(''); }
-  else { v2OpenNew(); }
-}
-/* 학생이 보내면 대시보드에 바로 뜨게 — 앱이 열려 있는 동안 주기 확인 + 앱으로 돌아올 때 즉시 */
-let _dashSeen=null, _dashTimer=null;
-async function dashPoll(){
-  if(document.hidden)return;
-  try{
-    await v2DashAlert();
-    const submitted=(v2rows||[]).filter(function(w){return w.status==='submitted'});
-    const now=new Set(submitted.map(function(w){return String(w.id)}));
-    if(_dashSeen){
-      const fresh=submitted.filter(function(w){return !_dashSeen.has(String(w.id))});
-      if(fresh.length){
-        const w=fresh[0], sb=(w.submissions||[])[0]||{};
-        tShowToast((w.kind==='mini'?'미모':'문제지')+' 제출 도착 — '+w.title+(sb.score?' · '+sb.score:''), 5000);
-        try{ if(tCurGroup==='sheets'){v2Render();miniRefresh();} }catch(e){}
-      }
-    }
-    _dashSeen=now;
-  }catch(e){}
-}
-function dashAutoStart(){
-  if(_dashTimer)return;
-  _dashTimer=setInterval(dashPoll, 25000);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) dashPoll(); });
-  window.addEventListener('focus', function(){ dashPoll(); });
-  dashPoll();
-}
-
-/* 질문 스레드 — thread가 비어 있으면 기존 note/answer를 첫 두 메시지로 읽는다 (과거 질문 보존) */
-function qThread(q){
-  if(q&&q.thread&&q.thread.length)return q.thread.slice();
-  const out=[];
-  if(q&&q.note)out.push({who:'s',text:q.note,photos:q.photo_paths||[],ts:q.created_at});
-  if(q&&q.answer)out.push({who:'t',text:q.answer,photos:[],ts:q.answered_at||q.created_at});
-  return out;
-}
-function qLastWho(q){const t=qThread(q);return t.length?t[t.length-1].who:'s'}
-
 async function v2OpenQuestions(){
   let qs=[],ws=[];
   try{qs=await v2ListQuestions()}
@@ -3068,10 +2735,7 @@ async function v2OpenQuestions(){
   document.getElementById('v2-q-list').innerHTML=qs.length?qs.map(function(q){
     const w=wmap[q.worksheet_id];
     const p=(w&&w.problems&&q.problem_index!=null)?w.problems[q.problem_index]:null;
-    const _last=qLastWho(q);
-    const stBadge=_last==='s'
-      ?'<span class="t-lbadge" style="background:#222222;color:#fff">내가 답할 차례</span>'
-      :'<span class="t-lbadge" style="background:#3E7C4F;color:#fff">답장함</span>';
+    const stBadge=q.status==='answered'?'<span class="t-lbadge" style="background:#3E7C4F;color:#fff">답변함</span>':(q.status==='seen'?'<span class="t-lbadge">확인함</span>':'<span class="t-lbadge" style="background:#222222;color:#fff">새 질문</span>');
     // 문항 원문 (선생님용 정답·풀이 포함)
     const probBox=p?`<div style="border:1.5px solid #D8DADF;border-radius:8px;background:#F4F5F2;padding:9px 11px;margin-top:6px;font-size:.8rem;line-height:1.6">
         <b>${q.problem_index+1}.</b> ${tEscH(p.q)}
@@ -3080,21 +2744,13 @@ async function v2OpenQuestions(){
       </div>`
       :(q.worksheet_title?`<div style="font-size:.74rem;color:#777777;margin-top:4px">${tEscH(q.worksheet_title)}${q.problem_index!=null?' · '+(q.problem_index+1)+'번':''} — 파일 문제지 (아래 사진·정답지에서 확인)</div>`:'');
     // 답변 영역
-    const _th=qThread(q);
-    const bubbles=_th.map(function(m){
-      const mine=m.who==='t';
-      return `<div style="display:flex;justify-content:${mine?'flex-end':'flex-start'};margin-top:6px">
-        <div style="max-width:80%;border:1.5px solid #222222;border-radius:10px;padding:7px 10px;font-size:.8rem;line-height:1.6;white-space:pre-line;background:${mine?'#B9F18D':'#FFFFFF'}">
-          <div style="font-size:.62rem;color:#4A4A4A;font-weight:700;margin-bottom:2px">${mine?'나':tEscH(tStudentCall())}</div>${tEscH(m.text||'')}
-          ${(m.photos||[]).map(function(pp){return `<img src="${v2PhotoUrl(pp)}" style="max-width:100%;border:1.5px solid #222222;border-radius:6px;margin-top:5px" loading="lazy">`}).join('')}
-        </div></div>`;
-    }).join('');
-    const ansArea=`${bubbles}
-        <div style="margin-top:8px">
-          <textarea id="v2-qa-${q.id}" placeholder="답장을 적으면 학생 앱에 바로 떠요 — 학생도 이어서 되물을 수 있어요" style="min-height:52px;font-size:.82rem"></textarea>
+    const ansArea=q.answer
+      ?`<div style="border-left:3px solid #3E7C4F;background:rgba(62,124,79,.06);padding:8px 11px;border-radius:0 6px 6px 0;margin-top:7px;font-size:.8rem;white-space:pre-line"><b>내 답변</b> — ${tEscH(q.answer)}</div>`
+      :`<div style="margin-top:7px">
+          <textarea id="v2-qa-${q.id}" placeholder="답변을 적으면 학생 앱 질문하기 화면에 떠요" style="min-height:52px;font-size:.82rem"></textarea>
           <div style="display:flex;gap:6px;margin-top:5px;justify-content:flex-end">
-            ${_last==='s'?`<button class="t-btn t-btn-g t-btn-sm" onclick="v2QSeenClick('${q.id}')">답장 없이 확인만</button>`:''}
-            <button class="t-btn t-btn-p t-btn-sm" onclick="v2Answer('${q.id}')">답장 보내기</button>
+            ${q.status==='open'?`<button class="t-btn t-btn-g t-btn-sm" onclick="v2QSeenClick('${q.id}')">답변 없이 확인만</button>`:''}
+            <button class="t-btn t-btn-p t-btn-sm" onclick="v2Answer('${q.id}')">답변 보내기</button>
           </div>
         </div>`;
     return `<div style="border-bottom:1.5px dashed #D8DADF;padding:11px 2px">
@@ -3103,7 +2759,9 @@ async function v2OpenQuestions(){
         <span style="font-size:.68rem;color:#777777;font-family:'Pretendard Variable',Pretendard,sans-serif">${(q.created_at||'').slice(5,10).replace('-','.')}</span>
         <div style="flex:1"></div>${stBadge}
       </div>
+      <div style="font-size:.82rem;margin-top:5px;white-space:pre-line"><b>${tStudentCall()}:</b> ${tEscH(q.note)}</div>
       ${probBox}
+      ${(q.photo_paths||[]).map(function(pp){return `<img src="${v2PhotoUrl(pp)}" style="max-width:100%;border:1.5px solid #222222;border-radius:8px;margin-top:6px" loading="lazy">`}).join('')}
       ${ansArea}
     </div>`}).join(''):'<div style="font-size:.78rem;color:#777777">아직 질문이 없습니다</div>';
   const qt=document.getElementById('v2-q-title'); if(qt)qt.textContent=tStudentCall()+'의 질문함';
@@ -3113,26 +2771,22 @@ async function v2QSeenClick(id){try{await v2QSeen(id);v2OpenQuestions();v2DashAl
 async function v2Answer(id){
   const ta=document.getElementById('v2-qa-'+id);
   const txt=(ta&&ta.value||'').trim();
-  if(!txt){tShowToast('❗ 답장 내용을 적어주세요');return;}
+  if(!txt){tShowToast('❗ 답변 내용을 적어주세요');return;}
   try{
-    const now=new Date().toISOString();
     if(v2Sb()){
-      /* 직전에 학생이 덧붙였을 수 있으니 최신 스레드를 다시 읽고 이어붙인다 */
-      const {data:cur}=await v2sb.from('questions').select('*').eq('id',id).maybeSingle();
-      const th=qThread(cur||{}); th.push({who:'t',text:txt,photos:[],ts:now});
-      const {error}=await v2sb.from('questions').update({thread:th,answer:txt,status:'answered',answered_at:now}).eq('id',id);
+      const {error}=await v2sb.from('questions').update({answer:txt,status:'answered',answered_at:new Date().toISOString()}).eq('id',id);
       if(error)throw error;
     }else{
-      const st=v2StoreGet();const q=st.questions.find(function(x){return x.id===id});
-      if(q){const th=qThread(q); th.push({who:'t',text:txt,photos:[],ts:now}); q.thread=th; q.answer=txt; q.status='answered'; q.answered_at=now;}
-      v2StoreSave(st);
+      const s=v2StoreGet();const q=s.questions.find(function(x){return x.id===id});
+      if(q){q.answer=txt;q.status='answered';q.answered_at=new Date().toISOString();}
+      v2StoreSave(s);
     }
-    tShowToast('답장 전송 — 학생 앱 질문 화면에 바로 떠요');
+    tShowToast('답변 전송 — 학생 앱 질문하기 화면에 표시됩니다');
     pushNotify('answered',{});
     v2OpenQuestions();v2DashAlert();
   }catch(e){
     const msg=String(e&&e.message||'');
-    tShowToast(/thread|column/i.test(msg)?'❗ thread 컬럼이 없습니다 — supabase-v9.sql을 실행해주세요':'❗ 전송 실패 — 인터넷 확인',4500);
+    tShowToast(/answer|column/i.test(msg)?'❗ answer 컬럼이 없습니다 — supabase-v5.sql을 실행해주세요':'❗ 전송 실패 — 인터넷 확인',4500);
   }
 }
 document.getElementById('v2-new-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
@@ -3256,10 +2910,11 @@ function miniRenderUnits(){
   }).join('');
 }
 function _ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function miniDates(n){   // v10.7: 주말 포함 매일 연속 n일
+function miniDates(n){   // 평일만 — 주말(금 수업~월 수업)은 교재 숙제 기간
   const out=[]; const d=new Date(); d.setHours(0,0,0,0);
-  for(let i=0;i<n;i++){
+  for(let i=0;out.length<n&&i<n+14;i++){
     const x=new Date(d); x.setDate(d.getDate()+i);
+    const w=x.getDay(); if(w===0||w===6)continue;
     out.push(_ymd(x));   // 로컬 날짜 (UTC 변환 금지)
   }
   return out;
@@ -3302,573 +2957,22 @@ async function miniCreate(){
     }catch(e){ tShowToast('❗ '+dates[i]+' 실패: '+e.message,4000); break; }
   }
   btn.disabled=false; btn.textContent='미모 만들기';
-  if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); document.getElementById('mimo-modal').classList.remove('open'); v2Render(); miniRefresh(); }
+  if(made){ tShowToast('✅ 미모 '+made+'일치 준비 완료'); v2Render(); miniRefresh(); }
 }
-
-/* ═══════════ 파일로 미모 등록 (v10.4 출고) ═══════════
-   선생님용 미모 HTML 1개 = 문제 2쪽 + 정답·해설 1쪽.
-   · 정답표(.ans td.k)에서 answer_key 를 뽑는다 — 객관식은 보기 번호(①→"1"), 단답은 값 그대로.
-   · 정답이 들어 있는 .page 를 지워 학생용 문제지를 만든다.
-   · 파일명의 MMDD(또는 YYYY-MM-DD)로 serve_date 를 잡아 kind:'mini' 로 등록한다. */
-var MIMOIMP = [];
-function mimoImpReset(){
-  MIMOIMP=[];
-  var el=document.getElementById('mimoimp-list'); if(el)el.innerHTML='';
-  var f=document.getElementById('mimoimp-file'); if(f)f.value='';
-  var b=document.getElementById('mimoimp-go'); if(b)b.style.display='none';
-}
-function mimoImpKey(txt){
-  // 유니코드 빼기표(−)·엔대시를 먼저 하이픈으로 바꿔야 음수 단답이 살아남는다
-  var t=String(txt||'').replace(/\u00a0/g,' ').replace(/[\u2212\u2013\u2014]/g,'-').trim();
-  var i='①②③④⑤'.indexOf(t.charAt(0));
-  if(i>=0) return String(i+1);                       // 객관식 → 보기 번호
-  var m=t.match(/-?\d+/); return m?m[0]:t;            // 단답 → 수(음수 포함)
-}
-function mimoImpDate(name){
-  var m=name.match(/(20\d{2})[-_.]?(\d{2})[-_.]?(\d{2})/);
-  if(m) return m[1]+'-'+m[2]+'-'+m[3];
-  m=name.match(/(?:^|[^\d])(\d{2})(\d{2})(?!\d)/);
-  if(m) return (new Date().getFullYear())+'-'+m[1]+'-'+m[2];
-  return '';
-}
-async function mimoImpPick(input){
-  var files=[].slice.call(input.files||[]); MIMOIMP=[];
-  var list=document.getElementById('mimoimp-list'); list.innerHTML='읽는 중…';
-  for(var i=0;i<files.length;i++){
-    var f=files[i];
-    try{
-      var text=await f.text();
-      var doc=new DOMParser().parseFromString(text,'text/html');
-      var keys=[].slice.call(doc.querySelectorAll('.ans td.k')).map(function(td){return mimoImpKey(td.textContent)});
-      var pages=[].slice.call(doc.querySelectorAll('.page'));
-      var dropped=0;
-      pages.forEach(function(pg){ if(pg.querySelector('.ans')){ pg.remove(); dropped++; } });
-      var studentHtml='<!DOCTYPE html>'+doc.documentElement.outerHTML;
-      var date=mimoImpDate(f.name);
-      var err = !keys.length ? '정답표를 못 찾음' : (!dropped ? '정답 쪽을 못 찾음' : (!date ? '파일명에 날짜 없음' : ''));
-      MIMOIMP.push({name:f.name, date:date, keys:keys, html:studentHtml, err:err});
-    }catch(e){ MIMOIMP.push({name:f.name, date:'', keys:[], html:'', err:'읽기 실패'}); }
-  }
-  MIMOIMP.sort(function(a,b){return String(a.date).localeCompare(String(b.date))});
-  var ok=MIMOIMP.filter(function(x){return !x.err});
-  list.innerHTML = MIMOIMP.map(function(x){
-    return x.err
-      ? '<div style="color:#c0392b">✕ '+x.name+' — '+x.err+'</div>'
-      : '<div>· <b>'+x.date+'</b> · '+x.keys.length+'문제 · 정답 '+x.keys.join(',')+'</div>';
-  }).join('') || '고른 파일이 없어요';
-  var b=document.getElementById('mimoimp-go');
-  b.style.display = ok.length ? 'flex' : 'none';
-  b.textContent = ok.length+'개 등록';
-}
-async function mimoImpGo(){
-  var ok=MIMOIMP.filter(function(x){return !x.err});
-  if(!ok.length)return;
-  var b=document.getElementById('mimoimp-go'); b.disabled=true;
-  var made=0;
-  for(var i=0;i<ok.length;i++){
-    var x=ok[i]; b.textContent='등록 중… '+(i+1)+'/'+ok.length;
-    try{
-      var md=x.date.slice(5).replace('-','/');
-      var title='미모 '+md+' · '+x.keys.length+'문제';
-      var file=new File([x.html],'mini_'+x.date+'.html',{type:'text/html'});
-      await v2Create(title, x.keys, x.html, file, null, {kind:'mini', serve_date:x.date});
-      made++;
-    }catch(e){ tShowToast('❗ '+x.date+' 실패: '+String(e&&e.message||e).slice(0,50),4000); break; }
-  }
-  b.disabled=false; b.textContent='등록';
-  if(made){
-    tShowToast('✅ 미모 '+made+'개 등록 완료');
-    document.getElementById('mimoimp-modal').classList.remove('open');
-    try{ v2rows=await v2List(); }catch(e){}
-    v2Render(); try{ miniRefresh(); }catch(e){}
-  }
-}
-
-/* ═══════════ 미모 손풀이 — 리프 annotation.js 이식 ═══════════
-   · 필기 엔진은 vendor/annotation.js 를 그대로 쓴다 (CSS·perfect-freehand 내장, 드롭인).
-   · 리프 서버(/api/ink)는 S.doc 이 null 이면 호출 자체가 없다 → loadInk 를 부르지 않는 것으로 차단.
-   · 줌/팬은 리프 viewer.js 대신 여기서 새로 쓴다 (그쪽은 리프 뷰어 DOM에 얽혀 있음).
-     annotation.js 는 window.__pdfZoom / __pdfPinching 숫자만 읽으므로 그 값만 채워주면 맞물린다. */
-var SOL = { w:null, pages:[], cssW:0, cssH:0, fitZ:1, loaded:false, dirty:false };
-
-function solLoadScript(src){
-  return new Promise(function(res,rej){
-    if(document.querySelector('script[data-src="'+src+'"]'))return res();
-    var el=document.createElement('script'); el.src=src; el.setAttribute('data-src',src);
-    el.onload=res; el.onerror=function(){rej(new Error(src+' 로드 실패'))};
-    document.head.appendChild(el);
-  });
-}
-/* 툴바를 펜 3색 + 지우개 + 되돌리기로 줄인다 — 프리셋을 미리 심고, 남는 버튼은 감춘다 */
-function solPrepareTools(){
-  try{
-    /* 한 번만 새 기본값으로 맞춘다 — 이미 쓰던 기기에는 예전 굵기(3px)가 저장돼 있어
-       프리셋만 바꿔서는 반영되지 않는다. 이후 선생님이 조절한 값은 그대로 유지된다. */
-    var seeded = localStorage.getItem('yt_penseed')==='2';
-    if(!seeded){
-      var st={}; try{ st=JSON.parse(localStorage.getItem('annot-settings-v1')||'{}')||{}; }catch(e){}
-      st.activePresetId='pen-black';
-      st.penSettings={color:'#1e2320',width:1,opacity:1};
-      localStorage.setItem('annot-settings-v1', JSON.stringify(st));
-      localStorage.setItem('yt_penseed','2');
-    }
-    if(seeded) return;
-    localStorage.setItem('annot-presets-v1', JSON.stringify([
-      { id:'pen-black', tool:'pen', color:'#1e2320', width:1, opacity:1, label:'검정 펜', straight:false },
-      { id:'pen-red',   tool:'pen', color:'#d94c4c', width:1.2, opacity:1, label:'빨강 펜', straight:false },
-      { id:'pen-blue',  tool:'pen', color:'#3169d8', width:1, opacity:1, label:'파랑 펜', straight:false }
-    ]));
-  }catch(e){}
-}
-function solTrimToolbar(){
-  var bar=document.getElementById('annotBar'); if(!bar)return;
-  /* 접힌 상태면 펼친다 — 접혀 있으면 되돌리기/다시가 숨겨진다 */
-  var exp=bar.querySelector('.annot-expand');
-  if(exp && exp.offsetParent!==null){ exp.click(); }
-  /* 펜 프리셋 제목이 "검정 펜 · 다시 탭하면 굵기/색…" 이라 '굵기'로 거르면 펜까지 사라진다.
-     올가미(갈고리 — 둘러 그려 선택 → 이동·복사·삭제)는 선생님 요청으로 노출한다. */
-  var drop=/텍스트 메모|사진|AI에게|묻기|프리셋으로 추가/;
-  [].forEach.call(bar.querySelectorAll('button'), function(b){
-    var t=(b.getAttribute('title')||'')+' '+(b.textContent||'');
-    if(drop.test(t)) b.classList.add('sol-hide'); else b.classList.remove('sol-hide');
-  });
-}
-
-/* ═══ 오답 자동 모아 손풀이 ═══
-   윤서가 이미 확인된(status:'seen') 문제지·미모에서 틀렸던 문제만 모아
-   PDF 없이 곧장 손풀이 화면에 띄운다. 문항 HTML을 SVG foreignObject 로
-   캔버스에 래스터화해 pdf.js 문서와 같은 getViewport/render 인터페이스를
-   흉내내므로, 기존 solRenderAt·손풀이 파이프라인(줌·필기·전송)을 그대로 탄다. */
-function wrGather(){
-  var out=[], seen={};
-  (v2rows||[]).forEach(function(w){
-    if(w.status!=='seen'||!w.problems||!w.problems.length) return;
-    if(/^\[오답 모음\]/.test(w.title||'')) return;   // 오답모음 자체는 재수집 제외
-    var sub=(w.submissions||[])[0]; if(!sub||!sub.marks) return;
-    sub.marks.forEach(function(m,i){
-      if(m!=='X'||!w.problems[i]) return;
-      var key=String(w.problems[i].q||'').replace(/\s+/g,'');
-      if(!key||seen[key]) return; seen[key]=1;
-      out.push({q:w.problems[i].q, choices:w.problems[i].choices||null,
-        answer:w.problems[i].answer, solution:w.problems[i].solution||'',
-        unit:w.problems[i].unit||null});
-    });
-  });
-  return out;
-}
-function wrBuildHtml(list){
-  var C=['①','②','③','④','⑤'];
-  return list.map(function(p,i){
-    /* 저장된 보기에는 이미 ①②… 가 붙어 있는 경우가 대부분 — 떼고 다시 붙여 이중 번호를 막는다 */
-    var opts=p.choices?('<div style="margin-top:4px">'+p.choices.map(function(c,j){return '<span style="margin-right:14px;white-space:nowrap">'+C[j]+' '+tEscH(String(c).replace(/^[①②③④⑤]\s*/,''))+'</span>'}).join('')+'</div>'):'';
-    return '<div style="margin-bottom:22px;padding-bottom:14px;border-bottom:1.5px dashed #ccc">'
-      +'<div><b style="color:#3d5a2e">'+String(i+1).padStart(2,'0')+'.</b> '+tEscH(p.q)+'</div>'+opts+'</div>';
-  }).join('');
-}
-/* pdf.js Page 와 같은 인터페이스({getViewport,render})를 흉내내는 가짜 페이지 —
-   HTML 문자열을 SVG foreignObject 로 감싸 <img> 로 로드한 뒤 캔버스에 그린다.
-   웹폰트는 이 경로에서 못 불러오므로 처음부터 시스템 한글 폰트 스택만 쓴다
-   (mock20 등 기존 인쇄용 문서와 동일 스택 — iOS 기본 CJK 폰트로 정상 렌더). */
-function wrFakePage(bodyHtml, cssW){
-  var cssH=null;
-  function measure(){
-    if(cssH!=null) return cssH;
-    var m=document.createElement('div');
-    m.style.cssText='position:fixed;left:-99999px;top:0;width:'+cssW+'px;box-sizing:border-box;'
-      +'padding:26px;background:#fff;font-family:"Apple SD Gothic Neo","Malgun Gothic",sans-serif;'
-      +'font-size:15px;line-height:1.6;color:#1a1a1a';
-    m.innerHTML=bodyHtml;
-    document.body.appendChild(m);
-    cssH=Math.max(200, m.scrollHeight);
-    document.body.removeChild(m);
-    return cssH;
-  }
-  return {
-    getViewport: function(opt){
-      var scale=(opt&&opt.scale)||1;
-      return { width: cssW*scale, height: measure()*scale };
-    },
-    render: function(opt){
-      var vp=opt.viewport, ctx=opt.canvasContext;
-      var w=vp.width, h=vp.height;
-      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
-        +'<foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" '
-        +'style="width:'+cssW+'px;transform:scale('+(w/cssW)+');transform-origin:top left;background:#fff;'
-        +'box-sizing:border-box;padding:26px;font-family:&quot;Apple SD Gothic Neo&quot;,&quot;Malgun Gothic&quot;,sans-serif;'
-        +'font-size:15px;line-height:1.6;color:#1a1a1a">'+bodyHtml+'</div></foreignObject></svg>';
-      var img=new Image();
-      var url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
-      return new Promise(function(res,rej){
-        img.onload=function(){ ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h); res(); };
-        img.onerror=function(){ rej(new Error('오답 모음 렌더 실패')); };
-        img.src=url;
-      });
-    }
-  };
-}
-async function solOpenVirtual(w){
-  SOL.w=w; SOL.dirty=false;
-  document.getElementById('sol-title').textContent=w.title+' — 손풀이';
-  var vv=document.getElementById('sol-ver'); if(vv)vv.textContent='v'+APP_VER;
-  document.getElementById('sol-state').textContent='오답 모으는 중…';
-  document.getElementById('sol-ov').classList.add('open');
-  try{
-    solPrepareTools();
-    await solLoadScript('vendor/annotation.js');   // PDF 아니므로 pdf.min.js 는 불필요
-    var stage=document.getElementById('pdfStage');
-    stage.innerHTML='';
-    var div=document.createElement('div');
-    div.className='pdf-page';
-    var c=document.createElement('canvas');
-    div.appendChild(c);
-    stage.appendChild(div);
-    var fake=wrFakePage(wrBuildHtml(w.problems), 720);
-    var base=fake.getViewport({scale:1});
-    SOL.pages=[{page:fake, canvas:c, div:div, cssW:Math.round(base.width), cssH:Math.round(base.height), renderQ:0}];
-    SOL.cssW=SOL.pages[0].cssW; SOL.cssH=SOL.pages[0].cssH;
-    await solRenderAt(2);
-    SOL.loaded=true;
-    await solLoadScript('vendor/leaf-zoom.js');
-    SOL.pages.forEach(function(P,i){ Annot.ensureOverlay(P.div, i+1, true); });
-    Annot.setEnabled(true); Annot.setTool('pen');
-    Annot.setToolbarHidden(false);   // 닫을 때 숨긴 툴바 복원 — 없으면 두 번째 열기부터 펜 툴바가 안 보인다
-    solTrimToolbar();
-    setTimeout(solTrimToolbar, 350);
-    var ink=w.solution_ink;
-    if(ink && (Array.isArray(ink)?ink.length:Object.keys(ink).length)){
-      if(Array.isArray(ink)){ Annot.commitPage(1, ink, {snapshot:false}); }
-      else { Object.keys(ink).forEach(function(k){ if(ink[k]&&ink[k].length) Annot.commitPage(parseInt(k,10), ink[k], {snapshot:false}); }); }
-      Annot.refresh();
-      document.getElementById('sol-state').textContent='전에 그린 풀이를 불러왔어요';
-    }else{
-      document.getElementById('sol-state').textContent=w.problems.length+'문제 모음 · 바로 풀어보세요';
-    }
-    solMeasureFit();
-    solFitWidth();
-  }catch(e){
-    document.getElementById('sol-state').textContent='';
-    tShowToast('❗ 오답 모음 화면을 열지 못했어요 — '+String(e&&e.message||e).slice(0,60), 5000);
-  }
-}
-async function wrOpen(){
-  document.getElementById('qpick-modal').classList.remove('open');
-  var list=wrGather();
-  if(!list.length){ tShowToast('모아볼 오답이 없어요 — 아직 만점이거나 확인한 제출이 없어요',4000); return; }
-  tShowToast('오답 '+list.length+'개 모으는 중…');
-  try{
-    var title='[오답 모음] '+list.length+'문제 · '+ymd(new Date());
-    var r=await v2sb.from('worksheets').insert({
-      pair_code:v2Pair(), kind:'sheet', status:'assigned', title:title,
-      answer_key:list.map(function(p){return p.answer}), problems:list
-    }).select();
-    if(r.error) throw r.error;
-    var row=r.data[0];
-    try{ v2rows=await v2List(); }catch(e){}
-    tShowGroup('sheets');
-    await solOpenVirtual(row);
-  }catch(e){
-    tShowToast('❗ 오답 모음 생성 실패 — 인터넷 확인 후 다시', 4500);
-  }
-}
-async function wrReopen(id){
-  var w=(v2rows||[]).find(function(x){return String(x.id)===String(id)});
-  if(!w){ try{ v2rows=await v2List(); }catch(e){} w=(v2rows||[]).find(function(x){return String(x.id)===String(id)}); }
-  if(!w||!w.problems||!w.problems.length){ tShowToast('❗ 오답 모음을 찾을 수 없어요'); return; }
-  await solOpenVirtual(w);
-}
-async function solOpen(id){
-  var w=(v2rows||[]).find(function(x){return String(x.id)===String(id)});
-  if(!w){ try{ v2rows=await v2List(); }catch(e){} w=(v2rows||[]).find(function(x){return String(x.id)===String(id)}); }
-  if(!w){ tShowToast('❗ 문제지를 찾을 수 없어요'); return; }
-  if(!w.html_path||!/\.pdf$/i.test(w.html_path)){ tShowToast('❗ PDF 문제지에서만 손풀이를 쓸 수 있어요',4000); return; }
-  SOL.w=w; SOL.dirty=false;
-  document.getElementById('sol-title').textContent=w.title+' — 손풀이';
-  var vv=document.getElementById('sol-ver'); if(vv)vv.textContent='v'+APP_VER;
-  document.getElementById('sol-state').textContent='불러오는 중…';
-  document.getElementById('sol-ov').classList.add('open');
-  try{
-    solPrepareTools();
-    await solLoadScript('vendor/pdf.min.js');
-    await solLoadScript('vendor/annotation.js');
-    await solRenderPdf(w);
-    await solLoadScript('vendor/leaf-zoom.js');      // 줌·팬 엔진 (리프 원문)
-    SOL.pages.forEach(function(P,i){ Annot.ensureOverlay(P.div, i+1, true); });
-    Annot.setEnabled(true); Annot.setTool('pen');
-    Annot.setToolbarHidden(false);   // 닫을 때 숨긴 툴바 복원 — 없으면 두 번째 열기부터 펜 툴바가 안 보인다
-    solTrimToolbar();
-    setTimeout(solTrimToolbar, 350);   // 펼침이 반영된 뒤 한 번 더 (되돌리기 버튼이 그때 생긴다)
-    /* 전에 그려둔 필기가 있으면 되살린다 */
-    var ink=w.solution_ink;
-    if(ink && (Array.isArray(ink)?ink.length:Object.keys(ink).length)){
-      if(Array.isArray(ink)){ Annot.commitPage(1, ink, {snapshot:false}); }   // 예전 1쪽 포맷
-      else { Object.keys(ink).forEach(function(k){ if(ink[k]&&ink[k].length) Annot.commitPage(parseInt(k,10), ink[k], {snapshot:false}); }); }
-      Annot.refresh();
-      document.getElementById('sol-state').textContent='전에 그린 풀이를 불러왔어요';
-    }else{
-      document.getElementById('sol-state').textContent = w.solution_path ? '이미 보낸 풀이가 있어요' : '';
-    }
-    solMeasureFit();
-    solFitWidth();               // 열자마자 폭 맞춤
-  }catch(e){
-    document.getElementById('sol-state').textContent='';
-    tShowToast('❗ 손풀이 화면을 열지 못했어요 — '+String(e&&e.message||e).slice(0,60), 5000);
-  }
-}
-async function solRenderPdf(w){
-  var lib=window.pdfjsLib||window['pdfjs-dist/build/pdf'];
-  lib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js';
-  var url=v2sb.storage.from('worksheets').getPublicUrl(w.html_path).data.publicUrl;
-  var doc=await lib.getDocument({url:url}).promise;
-  var stage=document.getElementById('pdfStage');
-  stage.innerHTML='';
-  SOL.pages=[];
-  /* 문제지가 여러 쪽일 수 있다 (행렬 집중처럼 개념 상자가 길면 2쪽) — 전부 그린다 */
-  for(var n=1;n<=doc.numPages;n++){
-    var page=await doc.getPage(n);
-    var base=page.getViewport({scale:1});
-    var div=document.createElement('div');
-    div.className='pdf-page';                     // leaf-zoom 엔진·CSS 계약
-    var c=document.createElement('canvas');       // 크기는 CSS(width:100%;height:auto)가 정한다
-    div.appendChild(c);
-    stage.appendChild(div);
-    SOL.pages.push({page:page, canvas:c, div:div, cssW:Math.round(base.width), cssH:Math.round(base.height), renderQ:0});
-  }
-  SOL.cssW=SOL.pages[0].cssW; SOL.cssH=SOL.pages[0].cssH;   // 맞춤 계산 기준 = 1쪽
-  await solRenderAt(2);
-  SOL.loaded=true;
-}
-/* 확대하면 픽셀이 늘어나 뭉개진다 — 보이는 배율에 맞춰 PDF를 다시 그린다.
-   캔버스의 CSS 크기(레이아웃)는 그대로 두고 뒷면 해상도만 올리므로 필기 좌표는 영향 없음. */
-var SOL_MAXPX = 12e6;   // iPad Safari 캔버스 상한(≈16.7M) 아래로 — 넘기면 캔버스가 통째로 빈다
-async function solRenderAt(q){
-  if(!SOL.pages||!SOL.pages.length)return;
-  if(SOL.rendering)return;
-  SOL.rendering=true;
-  try{
-    for(var i=0;i<SOL.pages.length;i++){
-      var P=SOL.pages[i];
-      var qMax=Math.sqrt(SOL_MAXPX/Math.max(1, P.cssW*P.cssH));   // 페이지당 픽셀 상한
-      var qi=Math.max(1.5, Math.min(qMax, q));
-      if(P.renderQ && Math.abs(P.renderQ-qi)<0.25)continue;        // 미세한 변화는 건너뜀
-      var vp=P.page.getViewport({scale:qi});
-      P.canvas.width=Math.round(vp.width); P.canvas.height=Math.round(vp.height);
-      await P.page.render({canvasContext:P.canvas.getContext('2d'), viewport:vp}).promise;
-      P.renderQ=qi;
-    }
-  }catch(e){}finally{ SOL.rendering=false; }
-}
-
-
-/* ── 줌·팬 (리프 viewer.js 대체) ───────────────────────────── */
-/* transform 으로 늘리면 레이어가 통째로 래스터돼 필기(SVG)가 픽셀로 쪼개진다.
-   레이아웃 크기 자체를 바꿔 SVG·캔버스가 그 크기로 다시 그려지게 한다. */
-/* ── 줌·팬은 리프 엔진(vendor/leaf-zoom.js)이 전담한다 ─────────────────
-   엔진은 #left 의 --pdf-zoom 만 바꾸고, 크기는 위 CSS 가 계산한다.
-   따라서 여기서 레이아웃을 직접 만지는 코드는 없다(있으면 안 된다).
-   조작엔진-현황.md 불변식 3: 제스처 중에는 무거운 일을 하지 않는다 —
-   재렌더는 엔진이 배율을 확정한 뒤 rerenderPagesForZoom() 으로 한 번만 부른다. */
-function rerenderPagesForZoom(){
-  if(!SOL.pages||!SOL.pages.length)return;
-  var dpr=Math.min(2, window.devicePixelRatio||1);
-  solRenderAt((window.__pdfZoom||1)*SOL.fitZ*dpr);
-  /* 리프에서는 페이지를 다시 그리면 오버레이도 함께 다시 붙는다.
-     안 하면 SVG viewBox 가 옛 크기로 남아, 그 상태에서 새로 그은 획이 어긋난다. */
-  try{ Annot.invalidateLayout(); Annot.refresh(); }catch(e){}
-}
-/* 화면 맞춤 배율(=엔진 배율 1일 때의 실제 확대율)을 재어 둔다 — 재렌더 해상도 계산용 */
-function solMeasureFit(){
-  var c=SOL.pages&&SOL.pages[0]&&SOL.pages[0].canvas;
-  SOL.fitZ = (c && SOL.cssW) ? (c.getBoundingClientRect().width/SOL.cssW) : 1;
-}
-function solZoomTo(z){ try{ window.__setPdfZoom(z); }catch(e){} }
-function solFit(){      /* 전체 맞춤 = 엔진 기준 배율 1 */
-  solZoomTo(1);
-  var b=document.getElementById('left'); if(b)b.scrollTop=0;
-}
-function solFitWidth(){ /* 폭 맞춤 — #pdfStage 가 95%/820px 상한이므로 그 비율만큼 키운다 */
-  var box=document.getElementById('left'), pg=SOL.pages&&SOL.pages[0]&&SOL.pages[0].div;
-  if(!box||!pg)return;
-  var cur=window.__pdfZoom||1;
-  var avail=box.clientWidth-28;                       // #left 좌우 패딩 14px
-  var want=cur*(avail/Math.max(1,pg.getBoundingClientRect().width));
-  solZoomTo(want);
-  box.scrollTop=0;
-}
-
-function solClose(){
-  document.getElementById('sol-ov').classList.remove('open');
-  try{ Annot.setEnabled(false); Annot.setToolbarHidden(true); }catch(e){}
-}
-
-/* ── 합성 → 업로드 → 전송 ─────────────────────────────────── */
-async function solSend(){
-  if(!SOL.w){return}
-  if(!SOL.pages||!SOL.pages.length){ tShowToast('❗ 문제지가 아직 안 떴어요'); return; }
-  var allInk=Annot.getPages()||{};
-  var inkCount=0; SOL.pages.forEach(function(_,i){ inkCount+=(allInk[i+1]||[]).length; });
-  if(!inkCount && !confirm('아직 아무것도 안 쓰셨어요. 그래도 보낼까요?')) return;
-  var btn=document.getElementById('sol-send'); btn.disabled=true; btn.textContent='보내는 중…';
-  try{
-    /* 전 페이지를 세로로 이어 한 장으로 합성 — 회차당 1장 원칙 유지.
-       (Annot.renderPageToCanvas 가 페이지별 정규화 좌표를 픽셀로 그려준다) */
-    var GAP=24;
-    var W=Math.max.apply(null, SOL.pages.map(function(P){return P.canvas.width}));
-    var H=SOL.pages.reduce(function(a,P){return a+Math.round(P.canvas.height*(W/P.canvas.width))},0)+GAP*(SOL.pages.length-1);
-    var out=document.createElement('canvas');
-    out.width=W; out.height=H;
-    var ctx=out.getContext('2d');
-    ctx.fillStyle='#eceff1'; ctx.fillRect(0,0,W,H);
-    var y=0;
-    for(var pi=0;pi<SOL.pages.length;pi++){
-      var P=SOL.pages[pi];
-      var h=Math.round(P.canvas.height*(W/P.canvas.width));
-      ctx.fillStyle='#ffffff'; ctx.fillRect(0,y,W,h);
-      ctx.drawImage(P.canvas,0,y,W,h);
-      ctx.save(); ctx.translate(0,y);
-      Annot.renderPageToCanvas(pi+1, ctx, W, h);
-      ctx.restore();
-      y+=h+GAP;
-    }
-    var blob=await new Promise(function(r){ out.toBlob(r,'image/jpeg',0.88); });
-    var path=v2Pair()+'/solution_'+(SOL.w.serve_date||SOL.w.id)+'_'+Date.now()+'.jpg';
-    var up=await v2sb.storage.from('worksheets').upload(path, blob, {contentType:'image/jpeg', upsert:true});
-    if(up.error)throw up.error;
-    var inkSave={};
-    SOL.pages.forEach(function(_,i){ if((allInk[i+1]||[]).length) inkSave[String(i+1)]=allInk[i+1]; });
-    var r=await v2sb.from('worksheets').update({
-      solution_path:path, solution_ink:inkSave, solution_at:new Date().toISOString()
-    }).eq('id', SOL.w.id);
-    if(r.error)throw r.error;
-    SOL.w.solution_path=path; SOL.w.solution_ink=inkSave;
-    tShowToast('✅ 보냈어요 — 윤서 제출함에 [쌤 풀이]로 뜹니다', 4000);
-    pushNotify('solution',{sheet:SOL.w.title});
-    document.getElementById('sol-state').textContent='보냄 · '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
-    try{ miniRefresh(); }catch(e){}
-  }catch(e){
-    var msg=String(e&&e.message||'');
-    tShowToast(/solution_|column/i.test(msg)?'❗ solution 컬럼이 없습니다 — supabase-v10.sql을 실행해주세요':'❗ 전송 실패 — '+msg.slice(0,50), 5000);
-  }
-  btn.disabled=false; btn.textContent='윤서에게 보내기';
-}
-
-/* 미모 기한 연장 — 처음 누르면 오늘까지, 다시 누르면 하루씩 더 */
-async function miniExtend(id){
-  try{
-    const rows=await v2List();
-    const w=rows.find(function(x){return String(x.id)===String(id)});
-    if(!w){tShowToast('❗ 문제지를 찾을 수 없어요');return}
-    const today=_ymd(new Date());
-    let base=(String(w.open_until||'')>=today)?String(w.open_until):null;
-    let d;
-    if(base){ d=new Date(base+'T12:00:00'); d.setDate(d.getDate()+1); }
-    else { d=new Date(today+'T12:00:00'); }
-    const until=_ymd(d);
-    if(v2Sb()){
-      const {error}=await v2sb.from('worksheets').update({open_until:until}).eq('id',w.id);
-      if(error)throw error;
-    }else{
-      const st=v2StoreGet(); const x=st.worksheets.find(function(y){return y.id===w.id});
-      if(x)x.open_until=until; v2StoreSave(st);
-    }
-    tShowToast('✅ '+w.title+' — '+until.slice(5).replace('-','/')+'까지 열어뒀어요',3800);
-    miniRefresh();
-  }catch(e){
-    const msg=String(e&&e.message||'');
-    tShowToast(/open_until|column/i.test(msg)?'❗ open_until 컬럼이 없습니다 — supabase-v9.sql을 실행해주세요':'❗ 실패 — 인터넷 확인',4500);
-  }
-}
-
-var MINI_ALL=false;
-function miniToggleAll(){ MINI_ALL=!MINI_ALL; miniRefresh(); }
-function miniListToggle(){
-  var el=document.getElementById('mini-list'), b=document.getElementById('mini-list-tog');
-  var show=el.style.display==='none';
-  el.style.display=show?'block':'none';
-  if(b)b.textContent=show?'목록 접기':'목록으로 보기';
-}
-
-/* ── 미모 주간 캘린더 — 요일별로 배정·제출·손풀이를 한 칸에서 ── */
-var MINI_ROWS=[], MINI_CAL_OFF=0;
-function miniCalShift(d){ MINI_CAL_OFF+=d; miniCalRender(); }
-function miniCalToday(){ MINI_CAL_OFF=0; miniCalRender(); }
-function _weekMon(off){ var d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-((d.getDay()+6)%7)+off*7); return d; }
-function miniCalRender(){
-  /* 문제지 탭(#mini-cal)과 홈(#home-mini-cal) 두 곳에 같은 캘린더를 그린다 */
-  var boxes=['mini-cal','home-mini-cal'].map(function(id){return document.getElementById(id)}).filter(Boolean);
-  if(!boxes.length)return;
-  var mon=_weekMon(MINI_CAL_OFF), today=_ymd(new Date());
-  var days=[]; for(var i=0;i<7;i++){ var d=new Date(mon); d.setDate(mon.getDate()+i); days.push(d); }
-  var label=(mon.getMonth()+1)+'/'+mon.getDate()+' ~ '+(days[6].getMonth()+1)+'/'+days[6].getDate();
-  var wdn=['월','화','수','목','금','토','일'];
-  var html='<div style="display:flex;align-items:center;gap:8px;margin-bottom:.45rem;font-size:.78rem">'
-    +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalShift(-1)">◀</button>'
-    +'<b style="font-variant-numeric:tabular-nums">'+label+'</b>'
-    +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalShift(1)">▶</button>'
-    +(MINI_CAL_OFF?'<button class="t-btn t-btn-g t-btn-sm" onclick="miniCalToday()">이번 주</button>':'')
-    +'</div>'
-    +'<div style="overflow-x:auto"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;min-width:640px">'
-    +days.map(function(d,i){
-      var ds=_ymd(d), isToday=ds===today;
-      var head='<div style="font-size:.7rem;font-weight:700;'+(i>=5?'color:#C0392B':'')+'">'
-        +wdn[i]+' <span style="font-variant-numeric:tabular-nums">'+(d.getMonth()+1)+'/'+d.getDate()+'</span>'
-        +(isToday?' <span style="background:#B9F18D;border-radius:4px;padding:0 4px">오늘</span>':'')+'</div>';
-      var items=MINI_ROWS.filter(function(w){return String(w.serve_date||'')===ds});
-      var body=items.length?items.map(function(w){
-        var sub=(w.submissions||[])[0];
-        var hasPdf=/\.pdf$/i.test(String(w.html_path||''));
-        var past=w.status==='assigned'&&ds<today;
-        var openTil=String(w.open_until||'');
-        var st=w.status==='assigned'
-          ? (past?(openTil>=today?openTil.slice(5).replace('-','/')+'까지 열림':'밀림'):(ds===today?'오늘 풀 차례':'대기'))
-          : (sub&&sub.score?sub.score:'제출됨');
-        var short=tEscH(String(w.title||'').replace(/^(미모|미니\s*모의고사|미니모의고사)\s*/,'').replace(/^[\d/]+\s*·?\s*/,''));
-        var bs='';
-        if(sub) bs+='<button class="t-btn t-btn-g t-btn-sm" style="width:100%;justify-content:center" onclick="v2OpenSub(\''+w.id+'\')">풀이 보기</button>';
-        if(hasPdf) bs+='<button class="t-btn '+(w.solution_path?'t-btn-p':'t-btn-g')+' t-btn-sm" style="width:100%;justify-content:center" onclick="solOpen(\''+w.id+'\')">'+(w.solution_path?'손풀이 수정':'손풀이')+'</button>';
-        if(past) bs+='<button class="t-btn t-btn-g t-btn-sm" style="width:100%;justify-content:center" onclick="miniExtend(\''+w.id+'\')">'+(openTil>=today?'하루 더':'지금 열기')+'</button>';
-        return '<div style="display:flex;flex-direction:column;gap:3px;margin-top:4px">'
-          +'<div title="'+tEscH(w.title)+'" style="font-size:.68rem;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">'+short+'</div>'
-          +'<span class="t-lbadge" style="align-self:flex-start;'+(w.status!=='assigned'?'background:#222222;color:#fff':'')+'">'+st+'</span>'+bs+'</div>';
-      }).join(''):'<div style="color:#C8CACF;font-size:.72rem;margin-top:6px;text-align:center">—</div>';
-      return '<div style="border:1.5px solid '+(isToday?'#222222':'#D8DADF')+';border-radius:8px;padding:6px 6px 7px;background:'+(isToday?'#FCFBEF':'#fff')+';min-height:92px">'+head+body+'</div>';
-    }).join('')+'</div></div>';
-  boxes.forEach(function(b){ b.innerHTML=html; });
-}
-
 async function miniRefresh(){
   const box=document.getElementById('mini-list'); if(!box)return;
   let rows=[]; try{ rows=await v2List(); }catch(e){ box.innerHTML='<div style="font-size:.76rem;color:#777777">불러올 수 없습니다</div>'; return; }
   const today=_ymd(new Date());
   const mini=rows.filter(function(w){return w.kind==='mini'}).sort(function(a,b){return String(a.serve_date||'').localeCompare(String(b.serve_date||''))});
-  MINI_ROWS=mini; miniCalRender();
   const left=mini.filter(function(w){return w.status==='assigned'&&String(w.serve_date||'')>=today});
-  /* 오늘 것부터는 무조건 다 보인다 — 예전엔 마지막 7개만 잘라 보여서
-     오늘 회차가 목록 밖으로 밀려나 손풀이를 못 여는 일이 있었다. */
-  const shown = MINI_ALL ? mini : mini.filter(function(w){ return String(w.serve_date||'') >= today; });
-  const hidden = mini.length - shown.length;
-  box.innerHTML=mini.length?('<div style="display:flex;align-items:center;gap:8px;font-size:.74rem;color:#4A4A4A;margin-bottom:.4rem">'
-    +'<span>준비된 미모 <b>'+left.length+'일치</b> (오늘 이후) · 전체 '+mini.length+'개</span>'
-    +(hidden>0||MINI_ALL?'<button class="t-btn t-btn-g t-btn-sm" onclick="miniToggleAll()">'+(MINI_ALL?'지난 회차 접기':'지난 회차 '+hidden+'개 보기')+'</button>':'')
-    +'</div>'
-    +shown.map(function(w){
+  box.innerHTML=mini.length?('<div style="font-size:.74rem;color:#4A4A4A;margin-bottom:.4rem">준비된 미모 <b>'+left.length+'일치</b> (오늘 이후) · 전체 '+mini.length+'개</div>'
+    +mini.slice(-7).map(function(w){
       const sub=(w.submissions||[])[0];
-      const past=w.status==='assigned'&&String(w.serve_date||'')<today;
-      const openTil=String(w.open_until||'');
       const st=w.status==='assigned'?(String(w.serve_date||'')<=today?'오늘 풀 차례':'대기'):(sub&&sub.score?sub.score:'제출됨');
-      /* 지난 미모는 원래 금요일에만 열린다 — 여기서 하루씩 더 열어줄 수 있다 */
-      const ext=past?(openTil>=today
-        ? '<span class="t-lbadge" style="background:#B9F18D">'+openTil.slice(5).replace('-','/')+'까지 열림</span>'
-          +'<button class="t-btn t-btn-g t-btn-sm" onclick="miniExtend(\''+w.id+'\')">하루 더</button>'
-        : '<button class="t-btn t-btn-g t-btn-sm" onclick="miniExtend(\''+w.id+'\')">지금 열기</button>'):'';
-      const hasPdf=/\.pdf$/i.test(String(w.html_path||''));
-      const sol=hasPdf?('<button class="t-btn '+(w.solution_path?'t-btn-p':'t-btn-g')+' t-btn-sm" onclick="solOpen(\''+w.id+'\')">'
-        +(w.solution_path?'손풀이 수정':'손풀이')+'</button>'):'';
-      return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1.5px dashed #D8DADF;padding:6px 2px;font-size:.76rem">'
+      return '<div style="display:flex;gap:8px;align-items:center;border-bottom:1.5px dashed #D8DADF;padding:6px 2px;font-size:.76rem">'
         +'<span style="font-variant-numeric:tabular-nums;color:#777777">'+(w.serve_date||'')+'</span>'
-        +'<span style="flex:1;min-width:120px">'+tEscH(w.title)+'</span>'+sol+ext+'<span class="t-lbadge">'+st+'</span></div>';
-    }).join('')
-    +(shown.length?'':'<div style="font-size:.76rem;color:#777777">오늘 이후 예정된 미모가 없습니다 — [지난 회차 보기]로 이전 것을 볼 수 있어요</div>')
-    ):'<div style="font-size:.76rem;color:#777777">아직 만든 미모가 없습니다</div>';
+        +'<span style="flex:1">'+tEscH(w.title)+'</span><span class="t-lbadge">'+st+'</span></div>';
+    }).join('')):'<div style="font-size:.76rem;color:#777777">아직 만든 미모가 없습니다</div>';
 }
 
 /* ══ 수업 로드맵 (AI 조교) — 계산은 코드가, 배분은 AI가 ══ */
@@ -4020,7 +3124,7 @@ function rmCopy(){
 }
 
 /* ══ v3: Gemini 문제 생성 + 오답 연계 ══ */
-var APP_VER='10.7';
+var APP_VER='6.4';
 /* 공통수학2 목차 (curriculum-math2.md — RPM에서 추출) */
 var CURRICULUM={
  'Ⅰ. 도형의 방정식':{
@@ -4222,8 +3326,8 @@ function v3OpenPrint(){
   const t=document.getElementById('v3-title').value||v3title;
   v3ViewHTML(t+' — 정답지',v3BuildSheetHTML(t,v3prob,true));
 }
-function v3AnswerSheet(i){   /* i = worksheet id */
-  const w=(v2rows||[]).find(function(x){return String(x.id)===String(i)});
+function v3AnswerSheet(i){
+  const w=v2rows[i];
   if(!w||!w.problems||!w.problems.length){tShowToast('이 문제지는 문항 데이터가 없어요 — supabase-v3.sql 실행 후 생성한 것만 가능');return;}
   v3ViewHTML(w.title+' — 정답지',v3BuildSheetHTML(w.title,w.problems,true));
 }
@@ -4263,19 +3367,7 @@ function v3SimilarFromWrong(){
 }
 
 // v2 초기화 — 모든 선언이 끝난 스크립트 최하단에서 실행 (TDZ 회피)
-try{v2LoadCfg();v2Render();v2DashAlert();dashAutoStart();updateCloudStatus(syncAvailable()?'idle':'nourl');}catch(e){}
-
-/* v10: 푸시 딥링크 — ?open=q(질문함) / ?open=<worksheet id>(제출 상세). SW postMessage로도 받는다 */
-function deepOpen(v){
-  if(!v)return;
-  if(v==='q'){ try{v2OpenQuestions()}catch(e){} }
-  else { try{v2OpenSub(v)}catch(e){} }
-}
-try{
-  var _dl=new URLSearchParams(location.search).get('open');
-  if(_dl){ setTimeout(function(){deepOpen(_dl)},400); history.replaceState(null,'',location.pathname); }
-  if(navigator.serviceWorker) navigator.serviceWorker.addEventListener('message',function(e){ if(e.data&&e.data.open) deepOpen(e.data.open); });
-}catch(e){}
+try{v2LoadCfg();v2Render();v2DashAlert();updateCloudStatus(syncAvailable()?'idle':'nourl');}catch(e){}
 </script>
 
 

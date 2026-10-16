@@ -59,24 +59,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .home-cell{border:1.5px solid var(--ink);border-radius:10px;background:var(--card);padding:18px 16px;display:flex;flex-direction:column;gap:5px;cursor:pointer;min-height:104px;box-shadow:2.5px 2.5px 0 var(--ink)}
 .home-cell:active{transform:translate(2px,2px);box-shadow:none}
-/* v7.9 홈 간소화 — 미모 우선, 나머지는 [더 보기]에 접는다 */
-#home-more{margin-top:28px}
-#home-more>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 4px;border-top:1.5px dashed var(--faint);color:var(--sub);font-size:.84rem;font-weight:700}
-#home-more>summary::-webkit-details-marker{display:none}
-#home-more>summary::after{content:'▾';margin-left:auto;font-size:.8rem} #home-more[open]>summary::after{content:'▴'}
-#home-more-badge{font-weight:600;color:var(--ink)}
-.mini-open-btn{display:block;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:20px 18px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left}
-.mini-open-btn:active{transform:translate(2px,2px);box-shadow:none}
-.mini-open-btn .t{font-size:1.15rem;font-weight:800;margin-bottom:3px} .mini-open-btn .s{font-size:.82rem;color:#3f5c2a}
-#mini-none{display:none;border:1.5px dashed var(--faint);border-radius:10px;padding:18px 16px;margin-bottom:16px;color:var(--sub);font-size:.9rem;text-align:center}
 .home-todo-line{display:flex;align-items:center;gap:9px;padding:8px 2px;font-size:.9rem;border-bottom:1.5px dashed var(--dash)}
 .home-todo-line .bx{width:17px;height:17px;border:1.8px solid var(--ink);border-radius:4px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900}
 .home-todo-line.done .bx{background:var(--ink);color:var(--hl)}
 .home-todo-line.done span{color:var(--sub);text-decoration:line-through}
-/* 긴 제목·URL이 들어와도 화면을 밀어내지 않게 (좁은 폭 안전장치) */
-.home-todo-line span{min-width:0;overflow-wrap:anywhere}
-.home-cell,.home-cell .t,.home-cell .muted,#mini-btn,#mini-btn-t,#mini-btn-s,#mini-back,#push-btn{min-width:0;overflow-wrap:anywhere}
-.row,.row .grow,.screen .body{min-width:0;overflow-wrap:anywhere}
 
 .home-cell .t{font-size:1rem;font-weight:800}
 .home-mid{display:flex;flex-direction:column;gap:12px}
@@ -94,9 +80,6 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 .cho{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 6px 28px}
 .cho .btn.sm.on{background:var(--ink);color:var(--paper)}
 .photo-chip{display:inline-flex;align-items:center;gap:6px;border:1.2px solid var(--ink);border-radius:6px;padding:5px 9px;font-size:.74rem;background:var(--deep)}
-.photo-thumb{position:relative;display:inline-block;width:60px;height:60px;border:1.2px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--deep)}
-.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.photo-thumb button{position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:16px;padding:0;border:1px solid var(--ink);border-radius:50%;background:var(--paper);color:var(--ink);font-size:.68rem;cursor:pointer}
 .col3{flex:1;border:1.5px solid var(--ink);border-radius:8px;background:var(--card);padding:6px 10px;max-height:340px;overflow-y:auto}
 .col3 .hd{font-family:var(--serif);font-weight:700;font-size:.82rem;padding:6px 2px;border-bottom:1.5px solid var(--ink);margin-bottom:2px}
 .col3 .it{padding:9px 4px;border-bottom:1.5px dashed var(--dash);font-size:.84rem;border-radius:4px}
@@ -113,16 +96,6 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 /* 도장 오버레이 */
 .stamp-ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(26,26,26,.25);z-index:55}
 .stamp-ov.show{display:flex}
-/* 제출이 막혔을 때 — 인라인 안내는 놓치기 쉬워서 화면 한가운데로 */
-.need-ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(26,26,26,.45);z-index:60;padding:20px}
-.need-ov.show{display:flex}
-.need-box{background:var(--paper,#fff);border:2px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:22px 20px;max-width:340px;width:100%;text-align:center;animation:needin .28s cubic-bezier(.2,1.3,.4,1)}
-@keyframes needin{0%{transform:scale(.86);opacity:0}100%{transform:scale(1);opacity:1}}
-.need-box h3{font-size:1.15rem;font-weight:800;margin:0 0 8px}
-.need-box p{font-size:.88rem;color:var(--sub);line-height:1.6;margin:0 0 16px}
-.need-box .btn{width:100%;margin-bottom:8px;padding:12px;font-size:.95rem;font-weight:700}
-.need-hi{animation:needshake .45s;outline:3px solid var(--hl);outline-offset:3px;border-radius:8px}
-@keyframes needshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .stamp{display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:4px double #C43E2F;border-radius:50%;color:#C43E2F;font-family:var(--serif);font-weight:700;font-size:1.35rem;transform:rotate(-12deg);animation:stampin .5s cubic-bezier(.2,1.4,.4,1);background:rgba(253,251,247,.92);line-height:1.35;text-align:center}
 @keyframes stampin{0%{transform:rotate(-35deg) scale(2.4);opacity:0}55%{transform:rotate(-9deg) scale(.94);opacity:1}100%{transform:rotate(-12deg) scale(1)}}
 @media(max-width:760px){.home-grid{grid-template-columns:1fr}.split{flex-direction:column}.split>*{width:100%}}
@@ -162,24 +135,19 @@ input, select, textarea { font-size: max(16px, 1em); }
     <div style="max-width:640px;width:100%;margin:3vh auto 0">
       <div class="muted num" id="home-date" style="font-weight:600"></div>
       <div id="home-headline" style="font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin:2px 0 14px"><span id="home-who"></span><span style="background:linear-gradient(transparent 55%, var(--hl) 55%);padding:0 3px">오늘 계획</span></div>
-      <button id="mini-btn" onclick="openMini()" style="display:none;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:24px 18px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left">
-        <div style="font-size:1.3rem;font-weight:800;margin-bottom:4px" id="mini-btn-t">오늘의 미모</div>
+      <div id="home-todo" style="margin-bottom:14px"></div>
+      <button id="mini-btn" onclick="openMini()" style="display:none;width:100%;border:1.5px solid var(--ink);border-radius:10px;background:var(--hl);box-shadow:2.5px 2.5px 0 var(--ink);padding:14px 16px;margin-bottom:16px;cursor:pointer;font-family:var(--sans);text-align:left">
+        <div style="font-size:1.02rem;font-weight:800" id="mini-btn-t">오늘의 미모</div>
         <div class="muted" id="mini-btn-s" style="color:#3f5c2a"></div>
       </button>
       <button id="mini-back" onclick="openBacklog()" style="display:none;width:100%;border:1.5px dashed var(--faint);border-radius:8px;background:transparent;color:var(--sub);padding:8px 12px;margin:-8px 0 16px;cursor:pointer;font-family:var(--sans);font-size:.76rem;text-align:left"></button>
       <button id="push-btn" onclick="pushBtnClick()" style="display:none;width:100%;border:1.5px dashed var(--ink);border-radius:8px;background:transparent;color:var(--ink);padding:9px 12px;margin:0 0 16px;cursor:pointer;font-family:var(--sans);font-size:.78rem;font-weight:600;text-align:left"></button>
-      <div id="mini-open"></div>
-      <div id="mini-none">오늘 풀 미모는 없어요</div>
-      <div id="mini-next" class="muted" style="display:none;font-size:.8rem;margin:-6px 2px 14px"></div>
-      <details id="home-more"><summary>더 보기 <span id="home-more-badge"></span></summary>
-      <div id="home-todo" style="margin:6px 0 14px"></div>
       <div class="home-grid">
         <div class="home-cell" onclick="openNewList()"><div class="t">새로운 문제</div><div class="muted" id="home-new-cnt"> </div></div>
         <div class="home-cell" onclick="openSent()"><div class="t">보낸 문제</div><div class="muted" id="home-sent-cnt"> </div></div>
         <div class="home-cell" onclick="showScreen('wrongsel','오답모음')"><div class="t">오답모음</div><div class="muted" id="home-wrong-cnt"> </div></div>
         <div class="home-cell" onclick="openAsk()"><div class="t">질문하기</div><div class="muted" id="home-ask-cnt">막힌 문제를 쌤에게</div></div>
       </div>
-      </details>
       <div class="muted" id="home-err" style="text-align:center;margin-top:10px"></div>
     </div>
   </div>
@@ -233,8 +201,8 @@ input, select, textarea { font-size: max(16px, 1em); }
           <span class="muted" style="font-size:.7rem">· "2루트5"라고 적어도 2√5로 알아들어요</span>
         </div>
         <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px">
-          <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="onPhotos(this.files)">
-          <button class="btn" onclick="document.getElementById('photo-input').click()">풀이 사진 첨부(여러 장이면 다시 눌러요)</button>
+          <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onPhotos(this.files)">
+          <button class="btn" onclick="document.getElementById('photo-input').click()">풀이 사진 첨부</button>
           <span id="sv-photos" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:12px">
@@ -310,7 +278,6 @@ input, select, textarea { font-size: max(16px, 1em); }
       <div style="flex:1;width:100%">
         <div class="muted num" id="wv-meta" style="margin-bottom:6px"></div>
         <div class="muted num" id="wv-my" style="margin-bottom:6px"></div>
-        <div id="wv-com" style="display:none;margin-top:8px;border:1.5px solid var(--ink);border-left-width:5px;border-radius:0 8px 8px 0;background:var(--hl);padding:9px 12px;font-size:.85rem;line-height:1.6"></div>
         <div class="sol" id="wv-sol" style="display:none"></div>
         <div class="muted" id="wv-sol-hint">해설 토글을 켜면 정답과 풀이가 보여요</div>
       </div>
@@ -326,9 +293,9 @@ input, select, textarea { font-size: max(16px, 1em); }
         <div class="sec-t">모든 문제지 리스트</div>
         <div class="card" style="padding:4px 10px;margin-top:6px;max-height:300px;overflow-y:auto"><div class="dashlist" id="ask-sheets"></div></div>
         <div class="sec-t" style="margin-top:12px">교재 사진</div>
-        <input type="file" id="ask-photo-input" accept="image/*" capture="environment" style="display:none" onchange="onAskPhotos(this.files)">
+        <input type="file" id="ask-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="onAskPhotos(this.files)">
         <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:8px">
-          <button class="btn" onclick="document.getElementById('ask-photo-input').click()">사진 첨부(여러 장이면 다시 눌러요)</button>
+          <button class="btn" onclick="document.getElementById('ask-photo-input').click()">사진 첨부</button>
           <span id="ask-photos" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
         </div>
       </div>
@@ -348,34 +315,12 @@ input, select, textarea { font-size: max(16px, 1em); }
 </div>
 
 <div class="stamp-ov" id="stamp-ov"><span class="stamp" id="stamp-txt"></span></div>
-<div class="need-ov" id="need-ov" onclick="if(event.target===this)closeNeedPhoto()">
-  <div class="need-box">
-    <h3>사진을 먼저 찍어 주세요</h3>
-    <p>답은 잘 적었어요.<br>풀이 과정을 <b>1장 이상</b> 찍어야 쌤에게 제출돼요.</p>
-    <button class="btn pri" onclick="needTakePhoto()">지금 사진 찍기</button>
-    <button class="btn" onclick="closeNeedPhoto()">나중에</button>
-  </div>
-</div>
-<div class="need-ov" id="solv-ov" style="padding:0;align-items:stretch">
-  <div style="display:flex;flex-direction:column;width:100%;height:100%;background:var(--paper)">
-    <div class="row" style="padding:10px 14px;border-bottom:1.5px solid var(--ink);gap:8px">
-      <b id="solv-title" style="font-size:.9rem"></b><div class="grow"></div>
-      <button class="btn sm" onclick="solvZoom(-1)">－</button>
-      <button class="btn sm" onclick="solvZoom(1)">＋</button>
-      <button class="btn sm" onclick="solvFit()">맞춤</button>
-      <button class="btn" onclick="closeSolution()">닫기</button>
-    </div>
-    <div id="solv-stage" style="flex:1;overflow:hidden;position:relative;touch-action:none;background:#8b877e">
-      <img id="solv-img" style="position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;box-shadow:0 3px 16px rgba(0,0,0,.35)" alt="쌤 풀이">
-    </div>
-  </div>
-</div>
 <div class="toast" id="toast"></div>
 
 <script src="vendor/supabase.js"></script>
 <script>
 /* ═══ 버전 · 자동 업데이트 ═══ */
-var APP_VER='7.10';
+var APP_VER='6.4';
 (function(){
   fetch(location.pathname+'?vchk='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
     var m=t.match(/APP_VER='([\d.]+)'/);
@@ -517,7 +462,7 @@ function wrongProbs(){
   rows.filter(w=>w.status==='seen'&&w.problems&&w.problems.length).forEach(w=>{
     const sub=latestSub(w);if(!sub||!sub.marks)return;
     sub.marks.forEach((m,i)=>{
-      if(m==='X'&&w.problems[i])out.push({...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i,tcom:((sub.comments||[])[i]||'')});
+      if(m==='X'&&w.problems[i])out.push({...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i});
     });
   });
   return out;
@@ -536,8 +481,7 @@ async function renderHome(){
       +(todo?`<div class="home-todo-line"><span class="bx"></span><span>새 문제지 ${todo}개 풀기</span></div>`
              :`<div class="home-todo-line done"><span class="bx">✓</span><span>오늘 몫은 끝! 오답 복습 어때요</span></div>`);
     $('home-new-cnt').textContent='풀 문제지 '+rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').length+'개';
-    { const hb=$('home-more-badge'); if(hb)hb.textContent=todo?('· 새 문제지 '+todo):''; }
-    renderMiniBtn();renderPushBtn();pushEnsure();
+    renderMiniBtn();renderPushBtn();
     $('home-sent-cnt').textContent='제출 '+rows.filter(w=>w.status!=='assigned').length+'건';
     $('home-wrong-cnt').textContent='모인 오답 '+wrongProbs().length+'문제';
   }catch(e){$('home-err').textContent='불러오기 실패 — 인터넷 확인 후 홈에서 새로고침';}
@@ -545,7 +489,6 @@ async function renderHome(){
     const qs=await listQuestions();
     const a=qs.filter(q=>q.status==='answered').length;
     $('home-ask-cnt').textContent=a?('쌤 답변 '+a+'개'):'막힌 문제를 쌤에게';
-    { const hb=$('home-more-badge'); if(hb&&a&&hb.textContent.indexOf('쌤 답변')<0)hb.textContent+=' · 쌤 답변 '+a; }
   }catch(e){}
 }
 
@@ -578,21 +521,7 @@ function sheetFile(w){ // {kind:'pdf'|'html'|null, src|html}
 async function renderSheetInto(el,w,scale){
   const f=sheetFile(w);
   el.innerHTML='';
-  if(!f){
-    /* 파일 없는 문제지 — 오답 모음처럼 문항 데이터만 있으면 그걸로 문제지를 그린다.
-       정답·해설은 절대 넣지 않는다(문항·보기까지만). */
-    if(w.problems&&w.problems.length){
-      const C=['①','②','③','④','⑤'];
-      el.innerHTML='<div style="background:#fff;color:#1a1a1a;border-radius:8px;max-width:720px;margin:0 auto;'
-        +'padding:22px 24px;font-size:.9rem;line-height:1.7;text-align:left">'
-        +w.problems.map((p,i)=>{
-          const opts=p.choices?('<div style="margin-top:4px">'+p.choices.map((c,j)=>'<span style="margin-right:14px;white-space:nowrap">'+C[j]+' '+escH(String(c).replace(/^[①②③④⑤]\s*/,''))+'</span>').join('')+'</div>'):'';
-          return '<div style="margin-bottom:18px;padding-bottom:12px;border-bottom:1.5px dashed #ccc">'
-            +'<b>'+String(i+1).padStart(2,'0')+'.</b> '+escH(p.q)+opts+'</div>';
-        }).join('')+'</div>';
-      return;
-    }
-    el.innerHTML='<div style="color:#fff;font-size:.85rem;text-align:center;padding:30px 10px">문제지 파일이 없어요 — 종이로 받은 문제지예요 ✏️</div>';return}
+  if(!f){el.innerHTML='<div style="color:#fff;font-size:.85rem;text-align:center;padding:30px 10px">문제지 파일이 없어요 — 종이로 받은 문제지예요 ✏️</div>';return}
   if(f.kind==='pdf'){
     try{
       const lib=await loadPdfjs();
@@ -635,35 +564,27 @@ function weekMonday(){   // 이번 주 월요일 (월=주 시작)
   return ymd(d);
 }
 /* 미모 규칙 — 그날 것은 그날만. 밀린 것은 금요일에만 열리고, 그 주가 지나면 만료.
-   v7.8: 미모는 주말 포함 매일 — '주말은 교재 숙제' 규칙 제거(weekend 플래그는 항상 false). */
+   주말(금 수업~월 수업)은 미모 없이 교재 숙제 기간. */
 function miniToday(){
   const t=todayStr(), wk=weekMonday(), dow=new Date().getDay();
   const mini=rows.filter(w=>w.kind==='mini').sort((a,b)=>String(a.serve_date||'').localeCompare(String(b.serve_date||'')));
   const todaySet=mini.find(w=>String(w.serve_date||'')===t);
   const backlog=mini.filter(w=>{const d=String(w.serve_date||'');return w.status==='assigned'&&d<t&&d>=wk;});  // 이번 주 미제출만
-  // 쌤이 기한을 늘려둔 지난 미모 (open_until이 오늘 이후)
-  const extended=mini.filter(w=>{const d=String(w.serve_date||'');return w.status==='assigned'&&d<t&&String(w.open_until||'')>=t;});
   const next=mini.find(w=>w.status==='assigned'&&String(w.serve_date||'')>t);
   return {
     due: (todaySet&&todaySet.status==='assigned')?todaySet:null,   // 오늘 것만
     doneToday: (todaySet&&todaySet.status!=='assigned')?todaySet:null,
     backlog: backlog,
-    extended: extended,
-    openList: dow===5 ? backlog : extended,   // 금요일이면 이번 주 전부, 아니면 연장된 것만
-    byFriday: dow===5,
-    weekend: false,   // v7.8 매일 미모
+    backlogOpen: dow===5,          // 금요일에만 개방
+    weekend: (dow===0||dow===6),
     next: next||null
   };
 }
 function renderMiniBtn(){
-  /* v7.10 — 홈의 큰 자리는 '오늘 풀 수 있는 미모'만: 오늘 것 + 열려 있는 밀린 것.
-     내일 이후 미모는 큰 버튼이 아니라 작은 안내 한 줄로만 알린다. */
   const b=$('mini-btn'); if(!b)return;
-  const mn=$('mini-none'), mo=$('mini-open'), nx=$('mini-next'), bl=$('mini-back');
   const m=miniToday();
-  const md=function(w){return String(w.serve_date||'').slice(5).replace('-','/').replace(/^0/,'')};
+  const n=(m.due&&(m.due.answer_key||[]).length)||10;
   if(m.due){
-    const n=(m.due.answer_key||[]).length||10;
     b.style.display='block'; b.style.background='var(--hl)';
     $('mini-btn-t').textContent='오늘의 미모 · '+n+'문제';
     $('mini-btn-s').textContent='진도 나간 범위 복습이에요';
@@ -671,44 +592,43 @@ function renderMiniBtn(){
     const sub=latestSub(m.doneToday);
     b.style.display='block'; b.style.background='var(--card)';
     $('mini-btn-t').textContent='오늘 미모 완료';
-    $('mini-btn-s').textContent=(sub&&sub.score)?('점수 '+sub.score):'제출했어요';
+    $('mini-btn-s').textContent=(sub&&sub.score)?('점수 '+sub.score+' — 내일 또 만나요'):'제출했어요';
+  }else if(m.weekend){
+    b.style.display='block'; b.style.background='var(--card)';
+    $('mini-btn-t').textContent='주말은 교재 숙제';
+    $('mini-btn-s').textContent='미모는 월요일에 다시 열려요';
+  }else if(m.next){
+    b.style.display='block'; b.style.background='var(--card)';
+    $('mini-btn-t').textContent='미모 준비됨';
+    $('mini-btn-s').textContent=m.next.serve_date.slice(5).replace('-','/')+'부터 열려요';
   }else{ b.style.display='none'; }
-  // 열려 있는 밀린 미모 — 하나씩 큰 버튼으로
-  if(mo){
-    mo.innerHTML=m.openList.map(function(w){
-      const n=(w.answer_key||[]).length||10;
-      return '<button class="mini-open-btn" onclick="openBackId(\''+w.id+'\')"><div class="t">밀린 미모 · '+md(w)+' · '+n+'문제</div>'
-        +'<div class="s">'+(m.byFriday?'금요일이라 열렸어요':'쌤이 더 열어줬어요')+'</div></button>';
-    }).join('');
-  }
-  // 아직 잠긴 밀린 미모 — 작은 안내만
+  // 밀린 미모 — 평소엔 잠금, 금요일에만 열림. 주말엔 표시 안 함.
+  const bl=$('mini-back');
   if(bl){
-    const locked=m.backlog.filter(function(w){return m.openList.indexOf(w)<0});
-    if(locked.length){
-      bl.style.display='block'; bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
-      bl.textContent='밀린 미모 '+locked.length+'개 — 금요일에 열려요';
+    if(m.backlog.length&&!m.weekend){
+      bl.style.display='block';
+      if(m.backlogOpen){
+        bl.style.borderColor='var(--ink)'; bl.style.color='var(--ink)'; bl.style.cursor='pointer';
+        bl.textContent='이번 주 밀린 미모 '+m.backlog.length+'개 — 금요일이라 열렸어요, 눌러서 풀기';
+      }else{
+        bl.style.borderColor='var(--faint)'; bl.style.color='var(--sub)'; bl.style.cursor='default';
+        bl.textContent='밀린 미모 '+m.backlog.length+'개 — 금요일에 열려요';
+      }
     }else bl.style.display='none';
   }
-  const solvable=!!m.due||m.openList.length>0;
-  if(mn) mn.style.display=(solvable||m.doneToday)?'none':'block';
-  if(nx){ if(m.next){ nx.style.display='block'; nx.textContent='다음 미모 '+md(m.next); } else nx.style.display='none'; }
 }
 function openMini(){
   const m=miniToday();
   if(m.due){ startSolve(m.due); return; }
   if(m.doneToday){ toast('오늘 미모는 이미 제출했어요'); return; }
+  if(m.weekend){ toast('주말은 교재 숙제 기간이에요 — 미모는 월요일에'); return; }
   toast('아직 준비된 미모가 없어요');
-}
-function openBackId(id){
-  const w=miniToday().openList.find(function(x){return String(x.id)===String(id)});
-  if(w){ startSolve(w); return; }
-  toast('이 미모는 지금 열 수 없어요');
 }
 function openBacklog(){
   const m=miniToday();
-  if(m.openList.length){ startSolve(m.openList[0]); return; }
   if(!m.backlog.length){ toast('밀린 미모가 없어요'); return; }
-  toast('지난 미모는 금요일에 열려요 — 오늘은 오늘 것만',3000);
+  if(!m.backlogOpen){ toast('지난 미모는 금요일에 열려요 — 오늘은 오늘 것만',3000); return; }
+  startSolve(m.backlog[0]);
 }
 function openNewList(){
   const items=rows.filter(w=>w.status==='assigned'&&w.kind!=='mini').slice().reverse(); // 아래가 최신
@@ -717,7 +637,6 @@ function openNewList(){
     return `<div class="row" onclick="pickNew('${w.id}',this)" style="cursor:pointer">
       <div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b>${latest?' <span class="badge-new">최신</span>':''}
       <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${w.answer_key?' · '+w.answer_key.length+'문제':''}</div></div>
-      ${w.solution_path?`<button class="btn sm pri" onclick="event.stopPropagation();openSolution('${w.id}')">쌤 풀이</button>`:''}
       <span class="chip">미리보기 →</span></div>`;
   }).join(''):'<div class="muted" style="padding:12px 4px">새 문제지가 없어요 — 다 풀었다! 🎉</div>';
   $('preview-wrap').hidden=true;
@@ -804,27 +723,12 @@ function compress(file,maxW,q){
     img.src=URL.createObjectURL(file);
   });
 }
-function showNeedPhoto(){
-  $('submit-note').style.display='block';
-  $('need-ov').classList.add('show');
-  try{ if(navigator.vibrate)navigator.vibrate([40,60,40]); }catch(e){}
-}
-function closeNeedPhoto(){
-  $('need-ov').classList.remove('show');
-  const b=document.querySelector('#sc-solve .btn[onclick*="photo-input"]');
-  if(b){ b.scrollIntoView({block:'center',behavior:'smooth'}); b.classList.add('need-hi'); setTimeout(function(){b.classList.remove('need-hi')},1400); }
-}
-function needTakePhoto(){ $('need-ov').classList.remove('show'); $('photo-input').click(); }
 async function onPhotos(files){
   for(const f of files){const r=await compress(f);sv.photos.push(r.blob);sv.photoUrls.push(r.dataUrl)}
   $('photo-input').value='';
-  renderSvPhotos();
+  $('sv-photos').innerHTML=sv.photos.map((_,i)=>`<span class="photo-chip">사진 ${i+1}</span>`).join('');
   $('submit-note').style.display='none';
 }
-function renderSvPhotos(){
-  $('sv-photos').innerHTML=sv.photoUrls.map((u,i)=>`<span class="photo-thumb"><img src="${u}"><button onclick="svRmPhoto(${i})">✕</button></span>`).join('');
-}
-function svRmPhoto(i){ sv.photos.splice(i,1); sv.photoUrls.splice(i,1); renderSvPhotos(); }
 async function submitSolve(){
   const w=sv.sheet,key=w.answer_key||[];
   if(isViewer()){   // 선생님 미리보기 — 채점만, 학생 기록은 건드리지 않음
@@ -833,7 +737,7 @@ async function submitSolve(){
     toast('미리보기 채점 '+ok+' / '+key.length+' — 제출되지 않았습니다',3200);
     return;
   }
-  if(sv.photos.length===0){ showNeedPhoto(); return }
+  if(sv.photos.length===0){$('submit-note').style.display='block';return}
   const empty=key.map((k,i)=>norm(($('ans-'+i)||{}).value)===''?(i+1):null).filter(x=>x!==null);
   if(empty.length&&!confirm(empty.join(', ')+'번이 비어 있어요.\n그래도 제출할까요?'))return;
   let ok=0;
@@ -867,65 +771,11 @@ function openSent(){
     const sub=latestSub(w);
     return `<div class="row"><div class="grow"><b style="font-size:.9rem">${escH(w.title)}</b>${latest?' <span class="badge-new">최신</span>':''}
       <div class="muted num">${(w.created_at||'').slice(5,10).replace('-','.')}${sub&&sub.score?' · '+sub.score:''}${w.status==='submitted'?' · 선생님 확인 중':''}</div></div>
-      ${w.solution_path?`<button class="btn sm pri" onclick="openSolution('${w.id}')">쌤 풀이</button>`:''}
       <button class="btn sm" onclick="reSolve('${w.id}')">↺ 다시 풀기</button></div>`;
   }).join(''):'<div class="muted" style="padding:12px 4px">아직 보낸 문제가 없어요</div>';
   showScreen('sent');
 }
 function reSolve(id){const w=rows.find(x=>x.id===id);if(w)startSolve(w)}
-
-/* 쌤이 보내준 손풀이 — 문제지+필기가 합쳐진 이미지 한 장 */
-let solV={s:1,tx:0,ty:0,base:1};
-function openSolution(id){
-  const w=rows.find(x=>x.id===id);
-  if(!w||!w.solution_path){toast('아직 쌤 풀이가 없어요');return}
-  let url=w.solution_path;
-  try{ if(sbc()){ const {data}=sb.storage.from('worksheets').getPublicUrl(w.solution_path); url=data.publicUrl; } }catch(e){}
-  $('solv-title').textContent=w.title+' — 쌤 풀이';
-  const img=$('solv-img');
-  img.onload=function(){ solvFit(); };
-  img.src=url;
-  $('solv-ov').classList.add('show');
-}
-function closeSolution(){ $('solv-ov').classList.remove('show'); $('solv-img').src=''; }
-function solvApply(){
-  $('solv-img').style.transform='translate('+solV.tx+'px,'+solV.ty+'px) scale('+solV.s+')';
-}
-function solvFit(){
-  const img=$('solv-img'), box=$('solv-stage');
-  if(!img.naturalWidth)return;
-  solV.base=Math.min(box.clientWidth/img.naturalWidth, box.clientHeight/img.naturalHeight);
-  solV.s=solV.base; solV.tx=(box.clientWidth-img.naturalWidth*solV.s)/2; solV.ty=(box.clientHeight-img.naturalHeight*solV.s)/2;
-  solvApply();
-}
-function solvZoom(d){
-  const box=$('solv-stage'), cx=box.clientWidth/2, cy=box.clientHeight/2;
-  const n=Math.max(solV.base*0.6, Math.min(solV.base*6, solV.s*(d>0?1.3:0.77)));
-  const k=n/solV.s;
-  solV.tx=cx-(cx-solV.tx)*k; solV.ty=cy-(cy-solV.ty)*k; solV.s=n; solvApply();
-}
-(function solvGestures(){
-  const pts=new Map(); let st=null, box=null;
-  function bind(){
-    box=$('solv-stage'); if(!box)return;
-    box.addEventListener('pointerdown',e=>{pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(pts.size===1)st={one:true,x:e.clientX,y:e.clientY,tx:solV.tx,ty:solV.ty};
-      if(pts.size===2){const a=[...pts.values()];
-        st={d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y),s:solV.s,mx:(a[0].x+a[1].x)/2,my:(a[0].y+a[1].y)/2,tx:solV.tx,ty:solV.ty};}});
-    box.addEventListener('pointermove',e=>{ if(!pts.has(e.pointerId)||!st)return;
-      pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      const a=[...pts.values()];
-      if(pts.size===1&&st.one){ solV.tx=st.tx+(e.clientX-st.x); solV.ty=st.ty+(e.clientY-st.y); solvApply(); }
-      else if(pts.size===2&&st.d){ const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
-        const n=Math.max(solV.base*0.6,Math.min(solV.base*6,st.s*(d/st.d))), k=n/st.s;
-        const mx=(a[0].x+a[1].x)/2,my=(a[0].y+a[1].y)/2;
-        solV.s=n; solV.tx=mx-(st.mx-st.tx)*k; solV.ty=my-(st.my-st.ty)*k; solvApply(); }
-      e.preventDefault(); },{passive:false});
-    const up=e=>{pts.delete(e.pointerId); st=pts.size===1?{one:true,x:[...pts.values()][0].x,y:[...pts.values()][0].y,tx:solV.tx,ty:solV.ty}:null;};
-    box.addEventListener('pointerup',up); box.addEventListener('pointercancel',up);
-  }
-  if(document.readyState!=='loading')bind(); else document.addEventListener('DOMContentLoaded',bind);
-})();
 
 /* ═══ ③ 오답모음 ═══ */
 let wv={list:[],idx:0,solOn:false};
@@ -942,7 +792,7 @@ function openWrong1(){
 function wrong1Open(id){
   const w=rows.find(x=>x.id===id);if(!w)return;
   const sub=latestSub(w);
-  const list=(sub.marks||[]).map((m,i)=>m==='X'&&w.problems[i]?{...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i,tcom:((sub.comments||[])[i]||'')}:null).filter(Boolean);
+  const list=(sub.marks||[]).map((m,i)=>m==='X'&&w.problems[i]?{...w.problems[i],sheet:w.title,my:(sub.answers||[])[i],idx:i}:null).filter(Boolean);
   openWrongView(list,w.title);
 }
 function openWrongView(list,title){
@@ -958,14 +808,8 @@ function wvRender(){
   $('wv-pos').textContent=(wv.idx+1)+' / '+wv.list.length;
   const C=['①','②','③','④','⑤'];
   $('wv-q').textContent=(p.idx+1)+'. '+p.q+(p.choices?'\n\n'+p.choices.map((c,j)=>C[j]+' '+c).join('   '):'');
-  const _u=(p.unit||[]).slice(1).filter(Boolean).join(' > ');   // 소단원이 없으면 화살표도 빼고
-  $('wv-meta').textContent=(p.sheet||'')+(_u?'  ·  '+_u:'');
+  $('wv-meta').textContent=(p.sheet||'')+(p.unit?'  ·  '+(p.unit[1]||'')+' > '+(p.unit[2]||''):'');
   $('wv-my').textContent='내 답: '+(p.my||'—');
-  const cm=$('wv-com');
-  if(cm){
-    if(p.tcom){ cm.style.display='block'; cm.innerHTML='<b>쌤 한마디</b><br>'+escH(p.tcom); }
-    else cm.style.display='none';
-  }
   $('wv-sol').textContent='정답: '+p.answer+'\n풀이 — '+(p.solution||p.sol||'해설 없음');
   $('wv-sol').style.display=wv.solOn?'block':'none';
   $('wv-sol-hint').style.display=wv.solOn?'none':'block';
@@ -1021,67 +865,17 @@ async function renderMyQuestions(){
   let qs=[];
   try{qs=await listQuestions()}catch(e){$('myq-list').innerHTML='<div class="muted" style="padding:10px 4px">불러오기 실패</div>';return}
   $('myq-list').innerHTML=qs.length?qs.map(q=>{
-    const _t=qThread(q), _last=_t.length?_t[_t.length-1].who:'s';
-    const st=_last==='t'
-      ?'<span class="chip ok">쌤 답장 옴</span>'
-      :'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">쌤이 볼 차례</span>';
-    const th=qThread(q);
-    const bubbles=th.map(function(m){
-      const mine=m.who==='s';
-      return `<div style="display:flex;justify-content:${mine?'flex-end':'flex-start'};margin-top:6px">
-        <div style="max-width:80%;border:1.5px solid var(--ink);border-radius:10px;padding:7px 10px;font-size:.84rem;line-height:1.6;white-space:pre-line;background:${mine?'var(--hl)':'var(--paper)'}">
-          <div class="muted" style="font-size:.66rem;font-weight:700;margin-bottom:2px">${mine?'나':'쌤'}</div>${escH(m.text||'')}
-          ${(m.photos||[]).map(function(pp){return `<img src="${photoUrl(pp)}" style="max-width:100%;border:1.5px solid var(--ink);border-radius:6px;margin-top:5px" loading="lazy">`}).join('')}
-        </div></div>`;
-    }).join('');
-    return `<div style="border-bottom:1.5px dashed var(--dash);padding-bottom:10px;margin-bottom:10px">
+    const st=q.status==='answered'
+      ?'<span class="chip ok">답변 옴</span>'
+      :(q.status==='seen'?'<span class="chip">쌤이 확인함</span>':'<span class="chip" style="border-color:var(--faint);color:var(--sub);background:transparent">쌤이 볼 차례</span>');
+    return `<div>
       <div class="row"><div class="grow" style="font-size:.84rem"><b>${q.worksheet_title?escH(q.worksheet_title)+(q.problem_index!=null?' · '+(q.problem_index+1)+'번':''):'교재 질문'}</b>
       <span class="muted num" style="margin-left:6px">${(q.created_at||'').slice(5,10).replace('-','.')}</span></div>${st}</div>
-      ${bubbles}
-      <div style="margin-top:8px">
-        <textarea id="qr-${q.id}" placeholder="답을 보고 또 막히면 여기에 이어서 물어봐요" style="min-height:44px;font-size:.84rem;width:100%"></textarea>
-        <div class="row" style="justify-content:flex-end;margin-top:5px">
-          <button class="btn" id="qrb-${q.id}" onclick="qReply('${q.id}')">이어서 물어보기</button>
-        </div>
-      </div>
+      <div class="muted" style="margin-top:3px;white-space:pre-line">나: ${escH(q.note)}</div>
+      ${q.answer?`<div class="sol" style="margin-top:6px;border-left-color:var(--ok);background:rgba(62,124,79,.06)"><b>쌤</b> — ${escH(q.answer)}</div>`:''}
     </div>`;
   }).join(''):'<div class="muted" style="padding:10px 4px">아직 보낸 질문이 없어요</div>';
 }
-/* 질문 스레드 — thread가 비면 기존 note/answer를 첫 두 메시지로 (예전 질문 보존) */
-function photoUrl(p){
-  if(!p)return '';
-  if(/^https?:|^data:/.test(p))return p;
-  try{ if(sbc()){ const {data}=sb.storage.from('handwriting').getPublicUrl(p); return (data&&data.publicUrl)||p; } }catch(e){}
-  return p;
-}
-function qThread(q){
-  if(q&&q.thread&&q.thread.length)return q.thread.slice();
-  const out=[];
-  if(q&&q.note)out.push({who:'s',text:q.note,photos:q.photo_paths||[],ts:q.created_at});
-  if(q&&q.answer)out.push({who:'t',text:q.answer,photos:[],ts:q.answered_at||q.created_at});
-  return out;
-}
-async function qReply(id){
-  if(isViewer()){ toast('미리보기 모드에서는 보낼 수 없어요'); return; }
-  const ta=$('qr-'+id); const txt=((ta&&ta.value)||'').trim();
-  if(!txt){ toast('물어볼 내용을 적어주세요'); return; }
-  const btn=$('qrb-'+id); if(btn){btn.disabled=true;btn.textContent='보내는 중…'}
-  try{
-    const now=new Date().toISOString();
-    if(sbc()){
-      const {data:cur}=await sb.from('questions').select('*').eq('id',id).maybeSingle();
-      const th=qThread(cur||{}); th.push({who:'s',text:txt,photos:[],ts:now});
-      const {error}=await sb.from('questions').update({thread:th,status:'open'}).eq('id',id);
-      if(error)throw error;
-    }
-    if(ta)ta.value='';
-    toast('보냈어요 ✓ 쌤이 답장하면 여기 떠요');
-    pushNotify('question',{who:studentCall()||'학생',q:txt});
-    await renderMyQuestions();
-  }catch(e){ toast('전송 실패 — 인터넷 확인 후 다시'); }
-  if(btn){btn.disabled=false;btn.textContent='이어서 물어보기'}
-}
-
 function askPickSheet(id,el){
   ask.sheet=rows.find(w=>w.id===id);ask.prob=null;
   document.querySelectorAll('#ask-sheets > div').forEach(r=>r.classList.remove('sel'));el.classList.add('sel');
@@ -1097,12 +891,8 @@ function askPickProb(i,el){
 async function onAskPhotos(files){
   for(const f of files){const r=await compress(f,1200,0.7);ask.photos.push(r.blob);ask.photoUrls.push(r.dataUrl)}
   $('ask-photo-input').value='';
-  renderAskPhotos();
+  $('ask-photos').innerHTML=ask.photos.map((_,i)=>`<span class="photo-chip">교재 ${i+1}</span>`).join('');
 }
-function renderAskPhotos(){
-  $('ask-photos').innerHTML=ask.photoUrls.map((u,i)=>`<span class="photo-thumb"><img src="${u}"><button onclick="askRmPhoto(${i})">✕</button></span>`).join('');
-}
-function askRmPhoto(i){ ask.photos.splice(i,1); ask.photoUrls.splice(i,1); renderAskPhotos(); }
 async function sendAsk(){
   if(isViewer()){ toast('미리보기 모드에서는 질문을 보낼 수 없어요'); return; }
   const note=$('ask-note').value.trim();
@@ -1137,9 +927,8 @@ async function pushOn(role,label){
     var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
       body:JSON.stringify({endpoint:j.endpoint,pair_code:pairCode(),role:role,p256dh:j.keys.p256dh,auth:j.keys.auth,label:label||''})});
     if(!r.ok)throw new Error(await r.text());
-    setCfg('push','1');
     toast('알림을 켰어요 ✓ 미모 시간에 알려드릴게요',3000); return true;
-  }catch(e){ setCfg('push',''); toast('알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
+  }catch(e){ toast('알림 켜기 실패 — 잠시 후 다시 시도해 주세요',3500); return false }
 }
 async function pushNotify(kind,extra){
   try{
@@ -1151,36 +940,11 @@ async function pushNotify(kind,extra){
 
 function renderPushBtn(){
   var b=document.getElementById('push-btn'); if(!b)return;
-  /* 권한만 보고 숨기면 안 된다 — 권한은 허용됐는데 서버 등록이 안 된 상태에서
-     버튼이 사라져 다시 켤 방법이 없어지는 함정이 있었다. 기준은 '서버에 등록됐는가'. */
-  /* v7.10: '등록됨' 표시(cfg push)만 믿고 숨기면 안 된다 — 권한이 없는데 표시만 남아 버튼이 사라지는 함정(윤서 폰 2026-09-18).
-     숨기는 조건은 '서버 등록 표시 + 이 기기의 알림 권한이 실제로 허용' 둘 다일 때뿐. */
-  if(isViewer()||!pushSupported()||(cfg('push')==='1'&&pushGranted())){b.style.display='none';return}
+  if(isViewer()||!pushSupported()||pushGranted()){b.style.display='none';return}
   b.style.display='block';
-  b.textContent = pushGranted()
-    ? '알림 등록이 안 됐어요 — 눌러서 다시 연결'
-    : '휴대폰 알림 켜기 — 미모 시간에 알려드려요';
+  b.textContent='휴대폰 알림 켜기 — 미모 시간에 알려드려요';
 }
 async function pushBtnClick(){ if(await pushOn('student','학생 태블릿')) renderPushBtn(); }
-
-/* 앱을 열 때마다 조용히 재등록 — 권한이 이미 있으면 사용자 조작 없이도 구독을 다시 올릴 수 있다.
-   죽은 구독이 서버에서 정리됐거나 저장이 한 번 실패했어도 다음 실행에서 저절로 복구된다. */
-async function pushEnsure(){
-  if(isViewer()||!pushSupported())return;
-  if(Notification.permission!=='granted')return;
-  var U=cfg('url'), K=cfg('key'); if(!U||!K)return;
-  try{
-    var reg=await navigator.serviceWorker.register('./sw.js');
-    await navigator.serviceWorker.ready;
-    var sub=await reg.pushManager.getSubscription();
-    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_b64u8(VAPID_PUB)});
-    var j=sub.toJSON();
-    var r=await fetch(U+'/rest/v1/push_subs',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},
-      body:JSON.stringify({endpoint:j.endpoint,pair_code:pairCode(),role:'student',p256dh:j.keys.p256dh,auth:j.keys.auth,label:'학생 태블릿'})});
-    setCfg('push', r.ok?'1':'');
-  }catch(e){ setCfg('push',''); }
-  renderPushBtn();
-}
 
 boot();
 </script>
